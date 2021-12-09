@@ -1,6 +1,10 @@
+@import "global/others";
 @import "global/spaces";
 
 @import "layouts/layout";
 @import "layouts/login";
 
 @import "pages/login";
+@import "pages/recover-password";
+
+@import "components/logo";

@@ -1,0 +1,19 @@
+html {
+    height: 100%;
+
+    body {
+        margin: 0;
+
+        &,
+        #__nuxt,
+        #__layout {
+            height: 100%;
+        }
+    }
+}
+
+
+.v-btn__content {
+    width: 100%;
+    white-space: normal;
+}

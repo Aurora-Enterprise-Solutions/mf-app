@@ -5,7 +5,7 @@ export default {
     ssr: false,
 
     server: {
-        port : 3000,
+        port : 3030,
         host : '0.0.0.0',
     },
 
@@ -32,6 +32,7 @@ export default {
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         '@/plugins/http-status',
+        '@/plugins/rut',
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
@@ -52,6 +53,7 @@ export default {
         // https://go.nuxtjs.dev/pwa
         '@nuxtjs/pwa',
         '@nuxtjs/auth-next',
+        '@nuxtjs/apollo',
     ],
 
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -143,5 +145,14 @@ export default {
     },
 
     privateRuntimeConfig: {
+    },
+
+    apollo: {
+        clientConfigs: {
+            default: {
+                httpEndpoint: `${process.env.NUXT_ENV_API_HOST}/graphql`,
+                // wsEndpoint   : process.env.NUXT_ENV_API_HOST_WS,
+            },
+        },
     },
 }

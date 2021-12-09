@@ -1,3 +1,20 @@
+html {
+  height: 100%;
+}
+html body {
+  margin: 0;
+}
+html body,
+html body #__nuxt,
+html body #__layout {
+  height: 100%;
+}
+
+.v-btn__content {
+  width: 100%;
+  white-space: normal;
+}
+
 .mf-layout {
   position: absolute !important;
   top: 0;
@@ -13,11 +30,46 @@
   height: 100%;
 }
 
+.mf-page-login .container-alert {
+  padding: 0 12px;
+}
 .mf-page-login .input-password {
   margin-top: 8px;
 }
-.mf-page-login .btn-login {
+.mf-page-login .btn-login,
+.mf-page-login .btn-recover-password {
   margin-top: 16px;
+}
+
+.mf-page-recover-password .container-alert {
+  padding: 0 12px;
+}
+.mf-page-recover-password .instructions {
+  text-align: justify;
+}
+.mf-page-recover-password .btn-get-code,
+.mf-page-recover-password .btn-back {
+  margin-top: 16px;
+}
+
+.mf-page-recover-password-confirm .container-alert {
+  padding: 0 12px;
+}
+.mf-page-recover-password-confirm .help p {
+  margin-bottom: 0;
+  text-align: justify;
+}
+.mf-page-recover-password-confirm .input-confirm-password,
+.mf-page-recover-password-confirm .input-code {
+  margin-top: 8px;
+}
+.mf-page-recover-password-confirm .btn-change-password,
+.mf-page-recover-password-confirm .btn-back {
+  margin-top: 16px;
+}
+
+.mf-component-logo .row > div:first-child {
+  padding: 0;
 }
 
 /*# sourceMappingURL=styles.css.map */
