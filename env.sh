@@ -1,1 +1,2 @@
-export NUXT_ENV_API_HOST=http://localhost:9090
+export NUXT_ENV_API_HOST=http://192.168.0.15:9090
+export NUXT_ENV_API_HOST_WS=ws://192.168.0.15:9090

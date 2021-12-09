@@ -3,4 +3,5 @@ export const Error = {
     INACTIVE_USER         : 'Usuario inactivo',
     UNKNOWN_USER          : 'Usuario desconocido',
     WRONG_PASSWORD        : 'Contraseña incorrecta',
+    WRONG_CODE            : 'Código incorrecto',
 }
