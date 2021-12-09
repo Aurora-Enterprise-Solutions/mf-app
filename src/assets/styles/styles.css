@@ -1,0 +1,23 @@
+.mf-layout {
+  position: absolute !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.mf-layout .v-application--wrap {
+  min-height: 100%;
+}
+
+.mf-layout-login .mf-page {
+  height: 100%;
+}
+
+.mf-page-login .input-password {
+  margin-top: 8px;
+}
+.mf-page-login .btn-login {
+  margin-top: 16px;
+}
+
+/*# sourceMappingURL=styles.css.map */
