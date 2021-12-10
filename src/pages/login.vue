@@ -45,6 +45,7 @@
                                               type="password"
                                               label="Contraseña"
                                               class="input-password"
+                                              @keypress.enter="submit"
                                 />
 
                                 <v-btn class="btn-login"
@@ -111,7 +112,7 @@ export default {
                 try {
 
                     await this.$auth.login( { data: this.formData } )
-                    this.$router.push('/home')
+                    this.$router.push( { name: this.$auth.user.role.initialView } )
 
                 }
                 catch (error) {
@@ -167,8 +168,6 @@ export default {
                     this.loading = false
 
                 }
-
-                this.loading = false
 
             }
 

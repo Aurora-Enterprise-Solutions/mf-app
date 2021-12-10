@@ -61,8 +61,25 @@ export default {
 
     // PWA module configuration: https://go.nuxtjs.dev/pwa
     pwa: {
+        icon: {
+            source   : '@/static/logo.png',
+            fileName : 'logo.png',
+        },
+
         manifest: {
-            lang: 'en',
+            name             : 'MF App',
+            short_name       : 'MF App',
+            lang             : 'es',
+            display          : 'standalone',
+            background_color : '#ECEFF1',
+        },
+
+        meta: {
+            name                : 'MF App',
+            theme_color         : '#003249',
+            background_color    : '#ECEFF1',
+            mobileAppIOS        : true,
+            appleStatusBarStyle : 'black',
         },
     },
 
@@ -104,6 +121,8 @@ export default {
             callback : false,
             home     : '/home',
         },
+
+        watchLoggedIn: false,
 
         strategies: {
             local: {

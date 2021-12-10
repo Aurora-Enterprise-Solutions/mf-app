@@ -25,6 +25,9 @@ html body #__layout {
 .mf-layout .v-application--wrap {
   min-height: 100%;
 }
+.mf-layout .mf-page {
+  height: 100%;
+}
 
 .mf-layout-login .mf-page {
   height: 100%;
@@ -70,6 +73,14 @@ html body #__layout {
 
 .mf-component-logo .row > div:first-child {
   padding: 0;
+}
+
+.mf-component-app-bar .app-bar-title {
+  color: white;
+}
+
+.mf-component-navbar-item .v-list-group__items {
+  background-color: #ebf3ffad;
 }
 
 /*# sourceMappingURL=styles.css.map */
