@@ -61,5 +61,5 @@ jobs:
           service: ${{ secrets.SERVICE_NAME }}-${{ env.BRANCH_NAME }}
           region: ${{ secrets.SERVICE_REGION }}
           env_vars: |
-            NUXT_ENV_API_HOST=${{ secrets.NUXT_ENV_API_HOST }}
+            NUXT_ENV_API_HOST=${{ secrets.NUXT_ENV_API_HOST }},
             NUXT_ENV_API_HOST_WS=${{ secrets.NUXT_ENV_API_HOST_WS }}
