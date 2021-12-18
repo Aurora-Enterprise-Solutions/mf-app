@@ -1,18 +1,35 @@
 <template>
-    <v-container class="mf-page mf-page-login">
-        <v-container class="container-alert">
+    <v-container class="mf-page mf-page-login d-flex flex-column">
+        <v-container>
             <v-row justify="center">
-                <v-col cols="12"
-                       sm="9"
-                       md="7"
-                       lg="5"
+                <v-col
+                    cols="5"
+                    sm="3"
+                    lg="2"
                 >
-                    <v-alert v-model="showAlert"
-                             color="red"
-                             dismissible
-                             outlined
-                             text
-                             type="error"
+                    <img
+                        :src="require('./../assets/images/logo.svg')"
+                        class="logo"
+                    >
+                </v-col>
+            </v-row>
+        </v-container>
+
+        <v-container>
+            <v-row justify="center">
+                <v-col
+                    cols="12"
+                    sm="9"
+                    md="7"
+                    lg="5"
+                >
+                    <v-alert
+                        v-model="showAlert"
+                        color="red"
+                        dismissible
+                        outlined
+                        text
+                        type="error"
                     >
                         {{ alertMessage }}
                     </v-alert>
@@ -22,50 +39,60 @@
 
         <v-container>
             <v-row justify="center">
-                <v-col cols="12"
-                       sm="9"
-                       md="7"
-                       lg="5"
+                <v-col
+                    cols="12"
+                    sm="9"
+                    md="7"
+                    lg="5"
                 >
-                    <v-card elevation="4" :loading="loading">
+                    <v-card elevation="4">
                         <v-card-title>Inicio de Sesión</v-card-title>
 
                         <v-card-text>
                             <v-form v-model="validForm">
-                                <v-text-field v-model="formData.rut"
-                                              :rules="$rut.rules"
-                                              label="RUT"
-                                              autofocus
-                                              @input="formData.rut = $rut.parse($event)"
-                                              @keypress="$rut.keypress"
+                                <v-text-field
+                                    v-model="formData.rut"
+                                    :rules="rutRules"
+                                    label="RUT"
+                                    autofocus
+                                    @input="parseRut"
+                                    @keypress="rutKeypress"
                                 />
 
-                                <v-text-field v-model="formData.password"
-                                              :rules="[v => !!v || 'Contraseña es requerida']"
-                                              type="password"
-                                              label="Contraseña"
-                                              class="input-password"
-                                              @keypress.enter="submit"
+                                <v-text-field
+                                    v-model="formData.password"
+                                    :rules="[v => !!v || 'Contraseña es requerida']"
+                                    type="password"
+                                    label="Contraseña"
+                                    class="input-password"
                                 />
 
-                                <v-btn class="btn-login"
-                                       color="primary"
-                                       block
-                                       :disabled="!validForm || loading"
-                                       @click="submit"
-                                >
-                                    Ingresar
-                                </v-btn>
+                                <v-row>
+                                    <v-col>
+                                        <v-btn
+                                            class="btn-login"
+                                            color="primary"
+                                            block
+                                            :disabled="!validForm"
+                                            @click="submit"
+                                        >
+                                            Ingresar
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
 
-                                <v-btn class="btn-recover-password"
-                                       color="primary"
-                                       plain
-                                       block
-                                       :disabled="loading"
-                                       @click="recoverPassword"
-                                >
-                                    Recuperar contraseña
-                                </v-btn>
+                                <v-row>
+                                    <v-col>
+                                        <v-btn
+                                            class="btn-recover-password"
+                                            color="primary"
+                                            plain
+                                            block
+                                        >
+                                            Recuperar contraseña
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
                             </v-form>
                         </v-card-text>
                     </v-card>
@@ -76,11 +103,12 @@
 </template>
 
 <script>
+import { rutRules } from './../static/rules/rut'
 import { Error } from './../static/errors'
+import { formatRut } from 'rutlib'
 
 export default {
-    layout : 'login',
-    auth   : 'guest',
+    layout: 'login',
 
     data() {
 
@@ -94,6 +122,8 @@ export default {
 
             showAlert    : false,
             alertMessage : '',
+
+            rutRules,
         }
 
     },
@@ -105,12 +135,11 @@ export default {
             if (this.validForm) {
 
                 this.loading = true
-                this.showAlert = false
 
                 try {
 
                     await this.$auth.login( { data: this.formData } )
-                    this.$router.push( { name: this.$auth.user.role.initialView } )
+                    this.$router.push('/home')
 
                 }
                 catch (error) {
@@ -167,13 +196,22 @@ export default {
 
                 }
 
+                this.loading = false
+
             }
 
         },
 
-        recoverPassword() {
+        rutKeypress(evt) {
 
-            this.$router.push('/recover-password')
+            if (!/^[0-9kK]$/.test(evt.key) )
+                evt.preventDefault()
+
+        },
+
+        parseRut(value) {
+
+            this.formData.rut = formatRut(value)
 
         },
     },

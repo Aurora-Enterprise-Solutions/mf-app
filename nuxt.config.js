@@ -5,7 +5,7 @@ export default {
     ssr: false,
 
     server: {
-        port : 3030,
+        port : 3000,
         host : '0.0.0.0',
     },
 
@@ -32,8 +32,6 @@ export default {
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         '@/plugins/http-status',
-        '@/plugins/rut',
-        '@/plugins/alert',
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
@@ -54,7 +52,6 @@ export default {
         // https://go.nuxtjs.dev/pwa
         '@nuxtjs/pwa',
         '@nuxtjs/auth-next',
-        '@nuxtjs/apollo',
     ],
 
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -62,25 +59,8 @@ export default {
 
     // PWA module configuration: https://go.nuxtjs.dev/pwa
     pwa: {
-        icon: {
-            source   : '@/static/logo.png',
-            fileName : 'logo.png',
-        },
-
         manifest: {
-            name             : 'MF App',
-            short_name       : 'MF App',
-            lang             : 'es',
-            display          : 'standalone',
-            background_color : '#ECEFF1',
-        },
-
-        meta: {
-            name                : 'MF App',
-            theme_color         : '#003249',
-            background_color    : '#ECEFF1',
-            mobileAppIOS        : true,
-            appleStatusBarStyle : 'black',
+            lang: 'en',
         },
     },
 
@@ -120,10 +100,8 @@ export default {
             login    : '/login',
             logout   : '/login',
             callback : false,
-            home     : '/after-login',
+            home     : '/home',
         },
-
-        watchLoggedIn: true,
 
         strategies: {
             local: {
@@ -132,7 +110,6 @@ export default {
                     property : 'tokens.access.token',
                     required : true,
                     type     : 'Bearer',
-                    maxAge   : 31556952,
                 },
 
                 refreshToken: {
@@ -166,17 +143,5 @@ export default {
     },
 
     privateRuntimeConfig: {
-    },
-
-    apollo: {
-        clientConfigs: {
-            default: {
-                httpEndpoint: `${process.env.NUXT_ENV_API_HOST}/graphql`,
-                // wsEndpoint   : process.env.NUXT_ENV_API_HOST_WS,
-            },
-        },
-
-        authenticationType : '',
-        tokenName          : 'auth._token.local',
     },
 }
