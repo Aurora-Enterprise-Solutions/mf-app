@@ -1,5 +1,5 @@
 <template>
-    <v-container class="mf-page mf-page-login">
+    <v-container class="mf-page mf-page-recover-password">
         <v-container class="container-alert">
             <v-row justify="center">
                 <v-col cols="12"
@@ -28,43 +28,40 @@
                        lg="5"
                 >
                     <v-card elevation="4" :loading="loading">
-                        <v-card-title>Inicio de Sesión</v-card-title>
+                        <v-card-title>Recuperar Contraseña</v-card-title>
 
                         <v-card-text>
+                            <p class="instructions">
+                                Ingrese su RUT y luego presione el botón para enviarle un correo con el código de autorización para la recuperación de su contraseña.
+                            </p>
+
                             <v-form v-model="validForm">
                                 <v-text-field v-model="formData.rut"
                                               :rules="$rut.rules"
                                               label="RUT"
                                               autofocus
+                                              :disabled="loading"
                                               @input="formData.rut = $rut.parse($event)"
                                               @keypress="$rut.keypress"
                                 />
 
-                                <v-text-field v-model="formData.password"
-                                              :rules="[v => !!v || 'Contraseña es requerida']"
-                                              type="password"
-                                              label="Contraseña"
-                                              class="input-password"
-                                              @keypress.enter="submit"
-                                />
-
-                                <v-btn class="btn-login"
+                                <v-btn class="btn-get-code"
                                        color="primary"
                                        block
                                        :disabled="!validForm || loading"
                                        @click="submit"
                                 >
-                                    Ingresar
+                                    Obtener código de autorización
                                 </v-btn>
 
-                                <v-btn class="btn-recover-password"
+                                <v-btn class="btn-back"
                                        color="primary"
                                        plain
                                        block
                                        :disabled="loading"
-                                       @click="recoverPassword"
+                                       @click="back"
                                 >
-                                    Recuperar contraseña
+                                    Volver
                                 </v-btn>
                             </v-form>
                         </v-card-text>
@@ -76,7 +73,9 @@
 </template>
 
 <script>
-import { Error } from './../static/errors'
+import gql from 'graphql-tag'
+import { Error } from './../../static/errors'
+import { GraphqlTypename } from './../../static/errors/graphql_typename'
 
 export default {
     layout : 'login',
@@ -88,8 +87,7 @@ export default {
             loading   : false,
             validForm : false,
             formData  : {
-                rut      : '',
-                password : '',
+                rut: '',
             },
 
             showAlert    : false,
@@ -99,81 +97,77 @@ export default {
     },
 
     methods: {
-
-        async submit() {
+        submit() {
 
             if (this.validForm) {
 
                 this.loading = true
                 this.showAlert = false
 
-                try {
+                this.$apollo.query( {
+                    query: gql`
+                        query getRecoverCode($form: RecoverCodeInput!) {
+                            getRecoverCode(form: $form) {
+                                __typename
+                            }
+                        }
+                    `,
 
-                    await this.$auth.login( { data: this.formData } )
-                    this.$router.push( { name: this.$auth.user.role.initialView } )
+                    variables: {
+                        form: this.formData,
+                    },
 
-                }
-                catch (error) {
+                    fetchPolicy: 'network-only',
+                } )
+                    .then( ( { data: { getRecoverCode } } ) => {
 
-                    if (error.response) {
+                        if (getRecoverCode.__typename === GraphqlTypename.OK) {
 
-                        switch (error.response.status) {
+                            this.$router.push( { name: 'recover-password-confirm-rut', params: { rut: this.formData.rut } } )
 
-                            case this.$httpStatus.NOT_FOUND: {
+                        }
+                        else {
 
-                                this.alertMessage = Error.UNKNOWN_USER
-                                this.showAlert = true
+                            switch (getRecoverCode.__typename) {
 
-                                break
+                                case GraphqlTypename.USER_NOT_FOUND:
+                                    this.alertMessage = Error.UNKNOWN_USER
+                                    this.showAlert = true
+
+                                    break
+                                case GraphqlTypename.INACTIVE_USER:
+                                    this.alertMessage = Error.INACTIVE_USER
+                                    this.showAlert = true
+
+                                    break
+                                default:
+                                    this.alertMessage = Error.DEFAULT_ERROR_MESSAGE
+                                    this.showAlert = true
+
+                                    break
 
                             }
 
-                            case this.$httpStatus.FORBIDDEN: {
-
-                                this.alertMessage = Error.INACTIVE_USER
-                                this.showAlert = true
-
-                                break
-
-                            }
-
-                            case this.$httpStatus.UNAUTHORIZED: {
-
-                                this.alertMessage = Error.WRONG_PASSWORD
-                                this.showAlert = true
-
-                                break
-
-                            }
-
-                            default: {
-
-                                this.alertMessage = Error.DEFAULT_ERROR_MESSAGE
-                                this.showAlert = true
-
-                            }
+                            this.loading = false
 
                         }
 
-                    }
-                    else {
+                    } )
+                    .catch( () => {
 
                         this.alertMessage = Error.DEFAULT_ERROR_MESSAGE
                         this.showAlert = true
+                        this.loading = false
 
-                    }
-
-                    this.loading = false
-
-                }
+                    } )
 
             }
 
         },
 
-        recoverPassword() {
+        back() {
 
-            this.$router.push('/recover-password')
+            this.$router.push( { name: 'login' } )
 
         },
     },

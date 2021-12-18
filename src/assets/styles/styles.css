@@ -1,3 +1,28 @@
+html {
+  height: 100%;
+  overflow: auto !important;
+}
+html body {
+  margin: 0;
+}
+html body,
+html body #__nuxt,
+html body #__layout {
+  height: 100%;
+}
+
+.v-btn__content {
+  width: 100%;
+  white-space: normal;
+}
+
+.v-form .v-input {
+  margin-top: 8px !important;
+}
+.v-form .v-btn {
+  margin-top: 16px;
+}
+
 .mf-layout {
   position: absolute !important;
   top: 0;
@@ -8,16 +33,142 @@
 .mf-layout .v-application--wrap {
   min-height: 100%;
 }
+.mf-layout .mf-page {
+  height: 100%;
+}
+.mf-layout .mf-global-snackbar {
+  z-index: 1000;
+}
 
 .mf-layout-login .mf-page {
   height: 100%;
 }
 
+.mf-layout-default .v-main__wrap {
+  display: flex;
+  flex-direction: column;
+}
+.mf-layout-default .v-main__wrap .mf-component-app-bar {
+  flex-grow: unset;
+}
+.mf-layout-default .v-main__wrap > .container {
+  flex-grow: 1;
+  position: relative;
+}
+.mf-layout-default .v-main__wrap > .container .mf-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+.mf-page-login .container-alert {
+  padding: 0 12px;
+}
 .mf-page-login .input-password {
   margin-top: 8px;
 }
-.mf-page-login .btn-login {
+.mf-page-login .btn-login,
+.mf-page-login .btn-recover-password {
   margin-top: 16px;
+}
+
+.mf-page-recover-password .container-alert {
+  padding: 0 12px;
+}
+.mf-page-recover-password .instructions {
+  text-align: justify;
+}
+.mf-page-recover-password .btn-get-code,
+.mf-page-recover-password .btn-back {
+  margin-top: 16px;
+}
+
+.mf-page-recover-password-confirm .container-alert {
+  padding: 0 12px;
+}
+.mf-page-recover-password-confirm .help p {
+  margin-bottom: 0;
+  text-align: justify;
+}
+.mf-page-recover-password-confirm .input-confirm-password,
+.mf-page-recover-password-confirm .input-code {
+  margin-top: 8px;
+}
+.mf-page-recover-password-confirm .btn-change-password,
+.mf-page-recover-password-confirm .btn-back {
+  margin-top: 16px;
+}
+
+.mf-component-logo .row > div:first-child {
+  padding: 0;
+}
+
+.mf-component-app-bar .app-bar-title {
+  color: white;
+}
+
+.mf-component-navbar-item .v-list-group__items {
+  background-color: #ebf3ffad;
+}
+
+.mf-component-user-form-dialog-card .v-card__title {
+  padding: 0 !important;
+}
+.mf-component-user-form-dialog-card .v-card__text {
+  padding-top: 20px !important;
+}
+
+.mf-component-signature-pad {
+  position: relative;
+  min-height: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+}
+.mf-component-signature-pad .wrapper {
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  border: solid 1px #003249;
+  border-radius: 4px;
+}
+.mf-component-signature-pad .wrapper label {
+  position: absolute;
+  left: 0;
+  right: auto;
+  line-height: 20px;
+  transform: translateY(-18px) scale(0.75);
+  max-width: 133%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  top: 6px;
+  white-space: nowrap;
+  transform-origin: top left;
+  height: 20px;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+.mf-component-signature-pad .wrapper canvas {
+  width: 100%;
+  height: 100%;
+}
+.mf-component-signature-pad-disabled {
+  color: rgba(0, 0, 0, 0.38);
+}
+.mf-component-signature-pad-disabled .wrapper {
+  border-style: dashed;
+  border-color: currentColor;
+}
+.mf-component-signature-pad-disabled .wrapper label {
+  color: currentColor;
 }
 
 /*# sourceMappingURL=styles.css.map */

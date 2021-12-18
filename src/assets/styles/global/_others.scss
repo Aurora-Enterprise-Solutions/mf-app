@@ -1,0 +1,30 @@
+html {
+    height: 100%;
+    overflow: auto !important;
+
+    body {
+        margin: 0;
+
+        &,
+        #__nuxt,
+        #__layout {
+            height: 100%;
+        }
+    }
+}
+
+
+.v-btn__content {
+    width: 100%;
+    white-space: normal;
+}
+
+.v-form {
+    .v-input {
+        margin-top: $space-sm !important;
+    }
+
+    .v-btn {
+        margin-top: $space-md;
+    }
+}
