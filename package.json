@@ -9,7 +9,7 @@
         "generate": "nuxt generate",
         "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore .",
         "lint:fix": "eslint --fix --ext .js,.ts,.vue --ignore-path .gitignore .",
-        "test": "jest"
+        "test": "jest --passWithNoTests"
     },
     "dependencies": {
         "@nuxtjs/apollo": "^4.0.1-rc.5",
@@ -22,6 +22,7 @@
         "http-status": "^1.5.0",
         "nuxt": "^2.15.7",
         "rutlib": "^1.0.2",
+        "signature_pad": "^4.0.0",
         "validator": "^13.7.0",
         "vuetify": "^2.5.5"
     },
@@ -39,6 +40,7 @@
         "eslint-plugin-nuxt": "^2.0.0",
         "eslint-plugin-vue": "^8.2.0",
         "jest": "^27.0.5",
+        "sass-loader": "10.1.1",
         "vue-jest": "^3.0.4"
     }
 }

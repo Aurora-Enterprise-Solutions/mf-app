@@ -37,7 +37,7 @@
 
                             <v-form v-model="validForm">
                                 <v-text-field v-model="formData.rut"
-                                              :rules="rutRules"
+                                              :rules="$rut.rules"
                                               label="RUT"
                                               autofocus
                                               :disabled="loading"
@@ -74,7 +74,6 @@
 
 <script>
 import gql from 'graphql-tag'
-import { rutRules } from './../../static/rules/rut'
 import { Error } from './../../static/errors'
 import { GraphqlTypename } from './../../static/errors/graphql_typename'
 
@@ -93,8 +92,6 @@ export default {
 
             showAlert    : false,
             alertMessage : '',
-
-            rutRules,
         }
 
     },

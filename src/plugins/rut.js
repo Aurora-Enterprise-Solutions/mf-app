@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { formatRut } from 'rutlib'
+import { formatRut, validateRut } from 'rutlib'
 
 function keypress(evt) {
 
@@ -14,7 +14,15 @@ function parse(value) {
 
 }
 
+const rules = [
+    (v) => !!v || 'RUT es requerido',
+
+    (v) => validateRut(v) || 'Rut inválido',
+]
+
+
 Vue.prototype.$rut = {
     keypress,
     parse,
+    rules,
 }

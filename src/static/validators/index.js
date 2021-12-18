@@ -9,7 +9,7 @@ export function validateCode(code) {
 
 }
 
-export function validateEmail(email) {
+export function validateEmail(email = '') {
 
     if (!validator.isEmail(email) )
         return 'El correo electrónico ingresado no posee el formato correcto.'

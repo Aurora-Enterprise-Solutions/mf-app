@@ -33,6 +33,7 @@ export default {
     plugins: [
         '@/plugins/http-status',
         '@/plugins/rut',
+        '@/plugins/alert',
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
@@ -119,10 +120,10 @@ export default {
             login    : '/login',
             logout   : '/login',
             callback : false,
-            home     : '/home',
+            home     : '/after-login',
         },
 
-        watchLoggedIn: false,
+        watchLoggedIn: true,
 
         strategies: {
             local: {
@@ -131,6 +132,7 @@ export default {
                     property : 'tokens.access.token',
                     required : true,
                     type     : 'Bearer',
+                    maxAge   : 31556952,
                 },
 
                 refreshToken: {
@@ -173,5 +175,8 @@ export default {
                 // wsEndpoint   : process.env.NUXT_ENV_API_HOST_WS,
             },
         },
+
+        authenticationType : '',
+        tokenName          : 'auth._token.local',
     },
 }

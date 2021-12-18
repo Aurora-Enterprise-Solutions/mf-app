@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar elevation="4" absolute color="primary" class="mf-component mf-component-app-bar">
+    <v-app-bar elevation="4" color="primary" class="mf-component mf-component-app-bar">
         <v-app-bar-nav-icon color="white" @click="$emit('update:navbar', !navbar)" />
         <v-toolbar-title class="app-bar-title">
             {{ title }}

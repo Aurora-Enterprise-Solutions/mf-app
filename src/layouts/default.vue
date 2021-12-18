@@ -15,6 +15,20 @@
         </v-footer>
 
         <mf-navbar v-model="navbar" />
+
+        <!--ALERTS-->
+        <v-snackbar :value="alert.show"
+                    :timeout="alert.timeout"
+                    :color="alert.color"
+                    absolute
+                    centered
+                    top
+                    elevation="4"
+                    class="mf-global-snackbar"
+                    @input="$store.commit('alert/setProp', { show: false })"
+        >
+            {{ alert.message }}
+        </v-snackbar>
     </v-app>
 </template>
 
@@ -23,11 +37,22 @@ import MfAppBar from '../components/MfAppBar.vue'
 
 export default {
     components: { MfAppBar },
+
     data() {
 
         return {
             navbar: false,
         }
+
+    },
+
+    computed: {
+
+        alert() {
+
+            return this.$store.state.alert
+
+        },
 
     },
 }

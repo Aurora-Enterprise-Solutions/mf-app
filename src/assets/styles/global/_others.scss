@@ -1,5 +1,6 @@
 html {
     height: 100%;
+    overflow: auto !important;
 
     body {
         margin: 0;
@@ -16,4 +17,14 @@ html {
 .v-btn__content {
     width: 100%;
     white-space: normal;
+}
+
+.v-form {
+    .v-input {
+        margin-top: $space-sm !important;
+    }
+
+    .v-btn {
+        margin-top: $space-md;
+    }
 }

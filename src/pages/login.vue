@@ -33,7 +33,7 @@
                         <v-card-text>
                             <v-form v-model="validForm">
                                 <v-text-field v-model="formData.rut"
-                                              :rules="rutRules"
+                                              :rules="$rut.rules"
                                               label="RUT"
                                               autofocus
                                               @input="formData.rut = $rut.parse($event)"
@@ -76,11 +76,11 @@
 </template>
 
 <script>
-import { rutRules } from './../static/rules/rut'
 import { Error } from './../static/errors'
 
 export default {
-    layout: 'login',
+    layout : 'login',
+    auth   : 'guest',
 
     data() {
 
@@ -94,8 +94,6 @@ export default {
 
             showAlert    : false,
             alertMessage : '',
-
-            rutRules,
         }
 
     },
