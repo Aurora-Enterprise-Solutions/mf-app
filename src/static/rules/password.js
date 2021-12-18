@@ -1,4 +1,4 @@
-import { validatePassword, validateConfirmPassword } from '../validators'
+import { validatePassword } from '../validators'
 
 export const passwordRules = [
     (v) => !!v || 'Contraseña es requerida',

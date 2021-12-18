@@ -142,6 +142,10 @@ module.exports = {
         'vue/script-setup-uses-vars'     : 'off',
         'vue/multi-word-component-names' : 'off',
 
+        'vue/valid-v-slot': [ 'error', {
+            allowModifiers: true,
+        }],
+
         'vue/script-indent': [ 'error', 4, {
             baseIndent : 0,
             switchCase : 1,

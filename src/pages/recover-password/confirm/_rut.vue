@@ -176,7 +176,7 @@ export default {
                                     rut      : this.formData.rut,
                                     password : this.formData.password,
                                 } } )
-                                this.$router.push('/home')
+                                this.$router.push( { name: this.$auth.user.role.initialView } )
 
                             }, 3000)
 

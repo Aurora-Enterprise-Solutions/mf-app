@@ -33,7 +33,7 @@
                         <v-card-text>
                             <v-form v-model="validForm">
                                 <v-text-field v-model="formData.rut"
-                                              :rules="rutRules"
+                                              :rules="$rut.rules"
                                               label="RUT"
                                               autofocus
                                               @input="formData.rut = $rut.parse($event)"
@@ -45,6 +45,7 @@
                                               type="password"
                                               label="Contraseña"
                                               class="input-password"
+                                              @keypress.enter="submit"
                                 />
 
                                 <v-btn class="btn-login"
@@ -75,11 +76,11 @@
 </template>
 
 <script>
-import { rutRules } from './../static/rules/rut'
 import { Error } from './../static/errors'
 
 export default {
-    layout: 'login',
+    layout : 'login',
+    auth   : 'guest',
 
     data() {
 
@@ -93,8 +94,6 @@ export default {
 
             showAlert    : false,
             alertMessage : '',
-
-            rutRules,
         }
 
     },
@@ -111,7 +110,7 @@ export default {
                 try {
 
                     await this.$auth.login( { data: this.formData } )
-                    this.$router.push('/home')
+                    this.$router.push( { name: this.$auth.user.role.initialView } )
 
                 }
                 catch (error) {
@@ -167,8 +166,6 @@ export default {
                     this.loading = false
 
                 }
-
-                this.loading = false
 
             }
 
