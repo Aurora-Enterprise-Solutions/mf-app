@@ -3,7 +3,7 @@ export default {
     ssr: false,
 
     server: {
-        port : process.env.NODE_ENV === 'production' ? 80 : 3030,
+        port : process.env.PORT || 3030,
         host : '0.0.0.0',
     },
 
