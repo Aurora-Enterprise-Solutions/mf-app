@@ -1,11 +1,7 @@
 <template>
     <v-app class="mf-layout mf-layout-login">
         <v-main class="blue-grey lighten-5">
-            <v-container class="d-flex flex-column">
-                <mf-logo />
-
-                <Nuxt />
-            </v-container>
+            <Nuxt />
         </v-main>
 
         <v-footer class="blue-grey lighten-5">

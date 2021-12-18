@@ -1,14 +1,9 @@
 .mf-page-login {
-    .container-alert {
-        padding: 0 12px;
-    }
-
     .input-password {
         margin-top: $space-sm;
     }
 
-    .btn-login,
-    .btn-recover-password {
+    .btn-login {
         margin-top: $space-md;
     }
 }
