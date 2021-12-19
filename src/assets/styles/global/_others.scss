@@ -28,3 +28,20 @@ html {
         margin-top: $space-md;
     }
 }
+
+.v-data-table {
+    border-radius: 0 !important;
+
+    &__expanded__content {
+        box-shadow: none !important;
+        background-color: #ebf3ffad;
+    }
+}
+
+.mf-inner-table {
+    padding: $space-xs !important;
+
+    .v-data-table {
+        width: 100%;
+    }
+}

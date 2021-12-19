@@ -169,8 +169,11 @@ export default {
     apollo: {
         clientConfigs: {
             default: {
-                httpEndpoint: `${process.env.NUXT_ENV_API_HOST}/graphql`,
+                httpEndpoint         : `${process.env.NUXT_ENV_API_HOST}/graphql`,
                 // wsEndpoint   : process.env.NUXT_ENV_API_HOST_WS,
+                inMemoryCacheOptions : {
+                    addTypename: false,
+                },
             },
         },
 

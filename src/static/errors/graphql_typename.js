@@ -6,4 +6,5 @@ export const GraphqlTypename = {
     TOKEN_NOT_FOUND            : 'TokenNotFound',
     USER_ALREADY_EXISTS        : 'UserAlreadyExists',
     IMMUTABLE_USER             : 'ImmutableUser',
+    CLIENT_NOT_FOUND           : 'ClientNotFound',
 }
