@@ -206,11 +206,6 @@ export default {
 
             this.loading = true
 
-            const form = {
-                ...this.formData,
-            }
-            delete form.__typename
-
             this.$apollo.mutate( {
                 mutation: gql`mutation ($form: UpdateUserInput!) {
                     updateUser(form: $form) {
@@ -220,7 +215,7 @@ export default {
 
                 variables: {
                     form: {
-                        ...form,
+                        ...this.formData,
                         signature: this.showSignaturePad ? this.$refs.signaturePad.getValue() : null,
                     },
                 },

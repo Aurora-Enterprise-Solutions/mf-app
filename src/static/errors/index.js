@@ -6,4 +6,5 @@ export const Error = {
     WRONG_CODE            : 'Código incorrecto',
     USER_ALREADY_EXISTS   : 'El usuario ya existe',
     IMMUTABLE_USER        : 'El usuario no puede ser modificado',
+    UNKNOWN_CLIENT        : 'Cliente desconocido',
 }

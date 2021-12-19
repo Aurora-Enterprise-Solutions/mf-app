@@ -23,6 +23,21 @@ html body #__layout {
   margin-top: 16px;
 }
 
+.v-data-table {
+  border-radius: 0 !important;
+}
+.v-data-table__expanded__content {
+  box-shadow: none !important;
+  background-color: #ebf3ffad;
+}
+
+.mf-inner-table {
+  padding: 4px !important;
+}
+.mf-inner-table .v-data-table {
+  width: 100%;
+}
+
 .mf-layout {
   position: absolute !important;
   top: 0;
@@ -114,6 +129,9 @@ html body #__layout {
   background-color: #ebf3ffad;
 }
 
+.mf-component-user-form-dialog-card {
+  border-radius: 0 !important;
+}
 .mf-component-user-form-dialog-card .v-card__title {
   padding: 0 !important;
 }
@@ -169,6 +187,30 @@ html body #__layout {
 }
 .mf-component-signature-pad-disabled .wrapper label {
   color: currentColor;
+}
+
+.mf-component-client-form-dialog-card {
+  border-radius: 0 !important;
+}
+.mf-component-client-form-dialog-card .v-card__title {
+  padding: 0 !important;
+}
+.mf-component-client-form-dialog-card .v-card__text {
+  padding-top: 20px !important;
+}
+.mf-component-client-form-dialog-card .v-expansion-panel-header .v-btn {
+  margin: 0 16px 0 0;
+}
+.mf-component-client-form-dialog-card .sub-title {
+  margin-top: 16px;
+}
+.mf-component-client-form-dialog-card .v-item-group {
+  margin: 16px 0;
+}
+.mf-component-client-form-dialog-card .receiver-row .col,
+.mf-component-client-form-dialog-card .load-row .col {
+  padding-top: 0;
+  padding-bottom: 8px;
 }
 
 /*# sourceMappingURL=styles.css.map */
