@@ -10,6 +10,12 @@ RUN yarn install \
   --non-interactive \
   --production=false
 
+ARG NUXT_ENV_API_HOST
+ARG NUXT_ENV_API_HOST_WS
+
+ENV NUXT_ENV_API_HOST=$NUXT_ENV_API_HOST
+ENV NUXT_ENV_API_HOST_WS=$NUXT_ENV_API_HOST_WS
+
 RUN yarn build
 
 RUN rm -rf node_modules && \
