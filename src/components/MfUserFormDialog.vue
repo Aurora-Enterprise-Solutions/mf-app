@@ -165,7 +165,7 @@ export default {
             this.loading = true
 
             this.$apollo.mutate( {
-                mutation: gql`mutation ($form: NewUserInput!) {
+                mutation: gql`mutation ($form: UserInput!) {
                     createUser(form: $form) {
                         __typename
                     }
