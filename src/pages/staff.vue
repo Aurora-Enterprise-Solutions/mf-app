@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-staff">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.users.loading"
+                      :loading="$apollo.queries.users.loading || deleteLoading"
                       :search="search"
                       :items="users"
         >
@@ -12,7 +12,7 @@
 
                     <v-spacer />
 
-                    <v-btn v-if="!$apollo.queries.users.loading" color="primary" @click.stop="onNew">
+                    <v-btn v-if="!$apollo.queries.users.loading && !deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -173,6 +173,8 @@ export default {
         },
 
         onDelete(item) {
+
+            this.deleteLoading = true
 
             this.$apollo.mutate( {
                 mutation: gql`mutation ($form: DeleteUserInput!) {
