@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-clients">
         <v-data-table :headers="clientHeaders"
-                      :loading="$apollo.queries.clients.loading"
+                      :loading="$apollo.queries.clients.loading || deleteLoading"
                       :search="search"
                       :items="clients"
                       single-expand
@@ -14,7 +14,7 @@
 
                     <v-spacer />
 
-                    <v-btn v-if="!$apollo.queries.clients.loading" color="primary" @click.stop="onNew">
+                    <v-btn :disbaled="$apollo.queries.clients.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -61,7 +61,7 @@
 
 
         <!--DIALOGS-->
-        <mf-client-form-dialog v-model="showUserForm"
+        <mf-client-form-dialog v-model="showClientForm"
                                :is-new="isNew"
                                :data="formData"
                                @save="onSave"
@@ -106,14 +106,9 @@ export default {
     data() {
 
         return {
-            search       : '',
-            showUserForm : false,
-            isNew        : true,
-            alert        : {
-                show    : false,
-                color   : '',
-                message : '',
-            },
+            search         : '',
+            showClientForm : false,
+            isNew          : true,
 
             deleteLoading: false,
 
@@ -186,8 +181,6 @@ export default {
                     groupable  : false,
                 },
             ],
-
-            roles: [],
         }
 
     },
@@ -208,7 +201,7 @@ export default {
                     loads: [],
                 },
             }
-            this.showUserForm = true
+            this.showClientForm = true
 
         },
 
@@ -216,15 +209,17 @@ export default {
 
             this.isNew = false
             this.formData = JSON.parse(JSON.stringify(item) )
-            this.showUserForm = true
+            this.showClientForm = true
 
         },
 
         onDelete(item) {
 
+            this.deleteLoading = true
+
             this.$apollo.mutate( {
-                mutation: gql`mutation ($form: DeleteUserInput!) {
-                    deleteUser(form: $form) {
+                mutation: gql`mutation ($form: DeleteClientInput!) {
+                    deleteClient(form: $form) {
                         __typename
                     }
                 }`,
@@ -235,42 +230,25 @@ export default {
                     },
                 },
             } )
-                .then( ( { data: { deleteUser } } ) => {
+                .then( ( { data: { deleteClient } } ) => {
 
-                    if (deleteUser.__typename === GraphqlTypename.OK) {
+                    if (deleteClient.__typename === GraphqlTypename.OK) {
 
-                        this.alert.color = 'success'
-                        this.alert.message = Message.USER_DELETED
-                        this.alert.show = true
-
+                        this.$alert(Message.CLIENT_DELETED)
                         this.$apollo.queries.clients.refetch()
 
                     }
 
-                    if (deleteUser.__typename === GraphqlTypename.USER_NOT_FOUND) {
+                    if (deleteClient.__typename === GraphqlTypename.CLIENT_NOT_FOUND)
+                        this.$alert(Error.UNKNOWN_CLIENT, 'error')
 
-                        this.alert.color = 'error'
-                        this.alert.message = Error.UNKNOWN_USER
-                        this.alert.show = true
-
-                    }
-
-                    if (deleteUser.__typename === GraphqlTypename.IMMUTABLE_USER) {
-
-                        this.alert.color = 'error'
-                        this.alert.message = Error.IMMUTABLE_USER
-                        this.alert.show = true
-
-                    }
 
                     this.deleteLoading = false
 
                 } )
                 .catch( () => {
 
-                    this.alert.color = 'error'
-                    this.alert.message = Error.DEFAULT_ERROR_MESSAGE
-                    this.alert.show = true
+                    this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
                     this.deleteLoading = false
 
                 } )
@@ -287,9 +265,9 @@ export default {
             else {
 
                 if (this.isNew)
-                    this.$alert(Message.USER_CREATED)
+                    this.$alert(Message.CLIENT_CREATED)
                 else
-                    this.$alert(Message.USER_UPDATED)
+                    this.$alert(Message.CLIENT_UPDATED)
 
                 this.$apollo.queries.clients.refetch()
 

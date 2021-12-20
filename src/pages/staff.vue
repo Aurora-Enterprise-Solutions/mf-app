@@ -12,7 +12,7 @@
 
                     <v-spacer />
 
-                    <v-btn v-if="!$apollo.queries.users.loading && !deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn :disbaled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -193,38 +193,25 @@ export default {
 
                     if (deleteUser.__typename === GraphqlTypename.OK) {
 
-                        this.alert.color = 'success'
-                        this.alert.message = Message.USER_DELETED
-                        this.alert.show = true
-
+                        this.$alert(Message.USER_DELETED)
                         this.$apollo.queries.users.refetch()
 
                     }
 
-                    if (deleteUser.__typename === GraphqlTypename.USER_NOT_FOUND) {
+                    if (deleteUser.__typename === GraphqlTypename.USER_NOT_FOUND)
+                        this.$alert(Error.UNKNOWN_USER, 'error')
 
-                        this.alert.color = 'error'
-                        this.alert.message = Error.UNKNOWN_USER
-                        this.alert.show = true
 
-                    }
+                    if (deleteUser.__typename === GraphqlTypename.IMMUTABLE_USER)
+                        this.$alert(Error.IMMUTABLE_USER, 'error')
 
-                    if (deleteUser.__typename === GraphqlTypename.IMMUTABLE_USER) {
-
-                        this.alert.color = 'error'
-                        this.alert.message = Error.IMMUTABLE_USER
-                        this.alert.show = true
-
-                    }
 
                     this.deleteLoading = false
 
                 } )
                 .catch( () => {
 
-                    this.alert.color = 'error'
-                    this.alert.message = Error.DEFAULT_ERROR_MESSAGE
-                    this.alert.show = true
+                    this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
                     this.deleteLoading = false
 
                 } )
