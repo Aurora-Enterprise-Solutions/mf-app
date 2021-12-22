@@ -279,13 +279,7 @@ export default {
             } )
                 .then( ( { data: { createClient } } ) => {
 
-                    if (createClient.__typename === GraphqlTypename.OK) {
-
-                        this.$emit('save')
-                        this.$emit('input', false)
-
-                    }
-
+                    this.responseParser(createClient.__typename)
                     this.loading = false
 
                 } )
@@ -315,16 +309,7 @@ export default {
             } )
                 .then( ( { data: { updateClient } } ) => {
 
-                    if (updateClient.__typename === GraphqlTypename.OK) {
-
-                        this.$emit('save')
-                        this.$emit('input', false)
-
-                    }
-
-                    if (updateClient.__typename === GraphqlTypename.CLIENT_NOT_FOUND)
-                        this.$emit('save', Error.UNKNOWN_CLIENT)
-
+                    this.responseParser(updateClient.__typename)
                     this.loading = false
 
                 } )
@@ -361,6 +346,30 @@ export default {
         onDeleteLoad(index) {
 
             this.formData.billing.loads.splice(index, 1)
+
+        },
+
+        responseParser(typename) {
+
+            switch (typename) {
+
+                case GraphqlTypename.OK:
+                    this.$emit('save')
+                    this.$emit('input', false)
+
+                    break
+
+                case GraphqlTypename.CLIENT_NOT_FOUND:
+                    this.$emit('save', Error.UNKNOWN_CLIENT)
+
+                    break
+
+                default:
+                    this.$emit('save', Error.DEFAULT_ERROR_MESSAGE)
+
+                    break
+
+            }
 
         },
 

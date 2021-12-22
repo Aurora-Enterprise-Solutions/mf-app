@@ -4,7 +4,7 @@
                       :loading="$apollo.queries.clients.loading || deleteLoading"
                       :search="search"
                       :items="clients"
-                      single-expand
+                      item-key="_id"
                       show-expand
         >
 
@@ -66,6 +66,8 @@
                                :data="formData"
                                @save="onSave"
         />
+
+        <mf-delete-dialog ref="deleteDialog" @confirm="onDeleteConfirm" />
 
     </v-container>
 </template>
@@ -215,6 +217,12 @@ export default {
 
         onDelete(item) {
 
+            this.$refs.deleteDialog.validate(item)
+
+        },
+
+        onDeleteConfirm(item) {
+
             this.deleteLoading = true
 
             this.$apollo.mutate( {
@@ -272,14 +280,6 @@ export default {
                 this.$apollo.queries.clients.refetch()
 
             }
-
-        },
-
-        getRoleLabelById(id) {
-
-            const role = this.roles.find( (role) => role._id === id)
-
-            return role ? role.label : ''
 
         },
     },
