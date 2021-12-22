@@ -7,4 +7,8 @@ export const GraphqlTypename = {
     USER_ALREADY_EXISTS        : 'UserAlreadyExists',
     IMMUTABLE_USER             : 'ImmutableUser',
     CLIENT_NOT_FOUND           : 'ClientNotFound',
+    EQUIPMENT_NOT_FOUND        : 'EquipmentNotFound',
+    EQUIPMENT_ALREADY_EXISTS   : 'EquipmentAlreadyExists',
+    CODE_ALREADY_EXISTS        : 'CodeAlreadyExists',
+    PATENT_ALREADY_EXISTS      : 'PatentAlreadyExists',
 }

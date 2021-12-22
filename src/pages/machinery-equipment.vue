@@ -1,9 +1,9 @@
 <template>
-    <v-container class="mf-page mf-page-staff">
+    <v-container class="mf-page mf-page-machinery-equipment">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.users.loading || deleteLoading"
+                      :loading="$apollo.queries.equipments.loading || deleteLoading"
                       :search="search"
-                      :items="users"
+                      :items="equipments"
                       item-key="_id"
         >
 
@@ -13,7 +13,7 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn :disabled="$apollo.queries.equipments.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -28,8 +28,12 @@
                 </v-toolbar>
             </template>
 
-            <template #[`item.role`]="{ item }">
-                {{ getRoleLabelById(item.role) }}
+            <template #[`item.type`]="{ item }">
+                {{ equipmentTypes[item.type] }}
+            </template>
+
+            <template #[`item.maintenanceClass`]="{ item }">
+                {{ maintenanceClasses[item.maintenanceClass] }}
             </template>
 
             <template #[`item.actions`]="{ item }">
@@ -46,11 +50,10 @@
 
 
         <!--DIALOGS-->
-        <mf-user-form-dialog v-model="showUserForm"
-                             :roles="roles"
-                             :is-new="isNew"
-                             :data="formData"
-                             @save="onSave"
+        <mf-equipment-form-dialog v-model="showForm"
+                                  :is-new="isNew"
+                                  :data="formData"
+                                  @save="onSave"
         />
 
         <mf-delete-dialog ref="deleteDialog" @confirm="onDeleteConfirm" />
@@ -67,52 +70,57 @@ import { GraphqlTypename } from './../static/errors/graphql_typename'
 
 export default {
     apollo: {
-        users: {
+        equipments: {
             query: gql`query {
-                getAllUsers {
+                getAllEquipments {
                     _id,
-                    rut,
-                    email,
+                    type,
                     name,
-                    role,
-                    signature,
+                    code,
+                    brand,
+                    model,
+                    patent,
+                    year,
+                    volume,
+                    maintenanceClass,
                 }
             }`,
-            update: (data) => data.getAllUsers,
-        },
-
-        roles: {
-            query: gql`query {
-                getAllRoles {
-                    _id,
-                    name,
-                    label,
-                }
-            }`,
-            update: (data) => data.getAllRoles,
+            update: (data) => data.getAllEquipments,
         },
     },
 
     data() {
 
         return {
-            search       : '',
-            showUserForm : false,
-            isNew        : true,
-            alert        : {
-                show    : false,
-                color   : '',
-                message : '',
-            },
+            search   : '',
+            showForm : false,
+            isNew    : true,
 
             deleteLoading: false,
 
             formData: {},
 
+            equipmentTypes: {
+                TRUCK : 'Camión',
+                OTHER : 'Otro',
+            },
+
+            maintenanceClasses: {
+                CLASS_A : 'Clase A | 4x250',
+                CLASS_B : 'Clase B | 3x500',
+            },
+
             headers: [
                 {
-                    text       : 'RUT',
-                    value      : 'rut',
+                    text       : 'Tipo',
+                    value      : 'type',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Código',
+                    value      : 'code',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
@@ -125,29 +133,56 @@ export default {
                     groupable  : false,
                 },
                 {
-                    text       : 'Correo Electrónico',
-                    value      : 'email',
+                    text       : 'Marca',
+                    value      : 'brand',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
                 },
                 {
-                    text       : 'Rol',
-                    value      : 'role',
+                    text       : 'Modelo',
+                    value      : 'model',
                     sortable   : true,
                     filterable : true,
-                    groupable  : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Patente',
+                    value      : 'patent',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Año',
+                    value      : 'year',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Volumen',
+                    value      : 'volume',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Clase de Mantenimiento',
+                    value      : 'maintenanceClass',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
                 },
                 {
                     text       : 'Acciones',
                     value      : 'actions',
+                    width      : '110px',
                     sortable   : false,
                     filterable : false,
                     groupable  : false,
                 },
             ],
-
-            roles: [],
         }
 
     },
@@ -163,7 +198,7 @@ export default {
 
             this.isNew = true
             this.formData = {}
-            this.showUserForm = true
+            this.showForm = true
 
         },
 
@@ -171,7 +206,7 @@ export default {
 
             this.isNew = false
             this.formData = JSON.parse(JSON.stringify(item) )
-            this.showUserForm = true
+            this.showForm = true
 
         },
 
@@ -186,8 +221,8 @@ export default {
             this.deleteLoading = true
 
             this.$apollo.mutate( {
-                mutation: gql`mutation ($form: DeleteUserInput!) {
-                    deleteUser(form: $form) {
+                mutation: gql`mutation ($form: DeleteEquipmentInput!) {
+                    deleteEquipment(form: $form) {
                         __typename
                     }
                 }`,
@@ -198,21 +233,17 @@ export default {
                     },
                 },
             } )
-                .then( ( { data: { deleteUser } } ) => {
+                .then( ( { data: { deleteEquipment } } ) => {
 
-                    if (deleteUser.__typename === GraphqlTypename.OK) {
+                    if (deleteEquipment.__typename === GraphqlTypename.OK) {
 
-                        this.$alert(Message.USER_DELETED)
-                        this.$apollo.queries.users.refetch()
+                        this.$alert(Message.EQUIPMENT_DELETED)
+                        this.$apollo.queries.equipments.refetch()
 
                     }
 
-                    if (deleteUser.__typename === GraphqlTypename.USER_NOT_FOUND)
-                        this.$alert(Error.UNKNOWN_USER, 'error')
-
-
-                    if (deleteUser.__typename === GraphqlTypename.IMMUTABLE_USER)
-                        this.$alert(Error.IMMUTABLE_USER, 'error')
+                    if (deleteEquipment.__typename === GraphqlTypename.EQUIPMENT_NOT_FOUND)
+                        this.$alert(Error.UNKNOWN_EQUIPMENT, 'error')
 
 
                     this.deleteLoading = false
@@ -237,21 +268,13 @@ export default {
             else {
 
                 if (this.isNew)
-                    this.$alert(Message.USER_CREATED)
+                    this.$alert(Message.EQUIPMENT_CREATED)
                 else
-                    this.$alert(Message.USER_UPDATED)
+                    this.$alert(Message.EQUIPMENT_UPDATED)
 
-                this.$apollo.queries.users.refetch()
+                this.$apollo.queries.equipments.refetch()
 
             }
-
-        },
-
-        getRoleLabelById(id) {
-
-            const role = this.roles.find( (role) => role._id === id)
-
-            return role ? role.label : ''
 
         },
     },

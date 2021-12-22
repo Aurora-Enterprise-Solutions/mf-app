@@ -38,6 +38,10 @@ html body #__layout {
   width: 100%;
 }
 
+.mf-to-uppercase input {
+  text-transform: uppercase;
+}
+
 .mf-layout {
   position: absolute !important;
   top: 0;
@@ -211,6 +215,16 @@ html body #__layout {
 .mf-component-client-form-dialog-card .load-row .col {
   padding-top: 0;
   padding-bottom: 8px;
+}
+
+.mf-component-equipment-form-dialog-card {
+  border-radius: 0 !important;
+}
+.mf-component-equipment-form-dialog-card .v-card__title {
+  padding: 0 !important;
+}
+.mf-component-equipment-form-dialog-card .v-card__text {
+  padding-top: 20px !important;
 }
 
 /*# sourceMappingURL=styles.css.map */
