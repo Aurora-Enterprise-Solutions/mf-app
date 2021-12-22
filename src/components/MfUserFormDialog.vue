@@ -180,16 +180,7 @@ export default {
             } )
                 .then( ( { data: { createUser } } ) => {
 
-                    if (createUser.__typename === GraphqlTypename.OK) {
-
-                        this.$emit('save')
-                        this.$emit('input', false)
-
-                    }
-
-                    if (createUser.__typename === GraphqlTypename.USER_ALREADY_EXISTS)
-                        this.$emit('save', Error.USER_ALREADY_EXISTS)
-
+                    this.responseParser(createUser.__typename)
                     this.loading = false
 
                 } )
@@ -222,19 +213,7 @@ export default {
             } )
                 .then( ( { data: { updateUser } } ) => {
 
-                    if (updateUser.__typename === GraphqlTypename.OK) {
-
-                        this.$emit('save')
-                        this.$emit('input', false)
-
-                    }
-
-                    if (updateUser.__typename === GraphqlTypename.USER_NOT_FOUND)
-                        this.$emit('save', Error.UNKNOWN_USER)
-
-                    if (updateUser.__typename === GraphqlTypename.IMMUTABLE_USER)
-                        this.$emit('save', Error.IMMUTABLE_USER)
-
+                    this.responseParser(updateUser.__typename)
                     this.loading = false
 
                 } )
@@ -244,6 +223,35 @@ export default {
                     this.loading = false
 
                 } )
+
+        },
+
+        responseParser(typename) {
+
+            switch (typename) {
+
+                case GraphqlTypename.OK:
+                    this.$emit('save')
+                    this.$emit('input', false)
+
+                    break
+
+                case GraphqlTypename.USER_NOT_FOUND:
+                    this.$emit('save', Error.UNKNOWN_USER)
+
+                    break
+
+                case GraphqlTypename.IMMUTABLE_USER:
+                    this.$emit('save', Error.IMMUTABLE_USER)
+
+                    break
+
+                default:
+                    this.$emit('save', Error.DEFAULT_ERROR_MESSAGE)
+
+                    break
+
+            }
 
         },
     },
