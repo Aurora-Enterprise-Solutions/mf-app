@@ -41,11 +41,11 @@
             </template>
 
             <template #[`item.equipment`]="{ item }">
-                {{ getLabelOfItemById(equipments, item.equipment, 'code') }} | {{ getLabelOfItemById(equipments, item.equipment, 'name') }}
+                {{ getEquipmentLabel(item.equipment) }}
             </template>
 
             <template #[`item.operator`]="{ item }">
-                {{ getLabelOfItemById(operators, item.operator, 'rut') }} | {{ getLabelOfItemById(operators, item.operator, 'name') }}
+                {{ getOperatorLabel(item.operator) }}
             </template>
 
             <template #[`item.startDate`]="{ item }">
@@ -102,6 +102,7 @@ export default {
                 getAllBookings {
                     _id,
                     type,
+                    constructionManager,
                     machineryType,
                     client,
                     equipment,
@@ -395,6 +396,30 @@ export default {
         getDateLabelFormat(date) {
 
             return date ? moment.utc(date).format('DD/MM/YYYY') : ''
+
+        },
+
+        getEquipmentLabel(equipment) {
+
+            const code = this.getLabelOfItemById(this.equipments, equipment, 'code')
+            const name = this.getLabelOfItemById(this.equipments, equipment, 'name')
+
+            if (code && name)
+                return `${code} | ${name}`
+            else
+                return equipment
+
+        },
+
+        getOperatorLabel(operator) {
+
+            const rut = this.getLabelOfItemById(this.operators, operator, 'rut')
+            const name = this.getLabelOfItemById(this.operators, operator, 'name')
+
+            if (rut && name)
+                return `${rut} | ${name}`
+            else
+                return operator
 
         },
     },
