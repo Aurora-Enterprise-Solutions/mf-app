@@ -36,7 +36,7 @@
             <!-- Body -->
             <v-card-text>
 
-                <v-form v-model="validForm">
+                <v-form ref="form" v-model="validForm">
 
                     <div class="text-overline sub-title">
                         Datos del arriendo
@@ -415,7 +415,7 @@ export default {
     methods: {
         onSave() {
 
-            if (this.validForm) {
+            if (this.$refs.form.validate() ) {
 
                 if (this.isNew)
                     this.create()
@@ -574,6 +574,7 @@ export default {
         onTypeChange() {
 
             this.formData.machineryType = undefined
+            this.formData.equipment = undefined
             this.formData.operator = undefined
             this.formData.constructionManager = undefined
             this.removeNonEditableReceivers()

@@ -36,7 +36,7 @@
             <!-- Body -->
             <v-card-text>
 
-                <v-form v-model="validForm">
+                <v-form ref="form" v-model="validForm">
 
                     <v-text-field v-model="formData.rut"
                                   label="RUT"
@@ -149,7 +149,7 @@ export default {
     methods: {
         onSave() {
 
-            if (this.validForm) {
+            if (this.$refs.form.validate() ) {
 
                 if (this.isNew)
                     this.create()
