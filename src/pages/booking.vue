@@ -92,7 +92,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
-import { BookingTypes } from './../components/MfBookingFormDialog'
+import { BookingTypes, BookingTypesAndLabels } from './../components/MfBookingFormDialog'
 import { MachineryTypes } from './../components/MfEquipmentFormDialog'
 
 export default {
@@ -283,7 +283,8 @@ export default {
 
             this.isNew = true
             this.formData = {
-                receivers: [],
+                type      : BookingTypes.INTERNAL,
+                receivers : [],
             }
             this.showForm = true
 
@@ -371,7 +372,7 @@ export default {
 
         getTypeLabel(value) {
 
-            const type = BookingTypes.find( (type) => type.value === value)
+            const type = BookingTypesAndLabels.find( (type) => type.value === value)
 
             return type ? type.label : ''
 

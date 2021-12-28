@@ -280,7 +280,12 @@ import { GraphqlTypename } from '../static/errors/graphql_typename'
 import { emailRules } from '../static/rules/email'
 import { MachineryTypes } from './MfEquipmentFormDialog'
 
-export const BookingTypes = [
+export const BookingTypes = {
+    INTERNAL : 'INTERNAL',
+    EXTERNAL : 'EXTERNAL',
+}
+
+export const BookingTypesAndLabels = [
     { label: 'Interna', value: 'INTERNAL' },
     { label: 'Externa', value: 'EXTERNAL' },
 ]
@@ -339,7 +344,7 @@ export default {
 
             emailRules,
 
-            types: BookingTypes,
+            types: BookingTypesAndLabels,
 
             MachineryTypes,
 
@@ -407,6 +412,7 @@ export default {
     watch: {
         data(newValue) {
 
+            this.formData = {}
             this.formData = JSON.parse(JSON.stringify(newValue) )
 
         },
@@ -528,12 +534,16 @@ export default {
         onChangeEquipment(id) {
 
             const equipment = this.equipments.find( (e) => e._id === id)
-            this.formData.machineryType = equipment.type
+            this.formData = {
+                ...this.formData,
+                machineryType: equipment.type,
+            }
 
         },
 
         onChangeEquipmentType(type) {
 
+            this.formData.machineryType = undefined
             this.formData = {
                 ...this.formData,
                 machineryType: type,
