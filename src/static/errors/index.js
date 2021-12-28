@@ -11,4 +11,5 @@ export const Error = {
     EQUIPMENT_ALREADY_EXISTS : 'El equipo ya existe',
     CODE_ALREADY_EXISTS      : 'El código ya existe',
     PATENT_ALREADY_EXISTS    : 'La patente ya existe',
+    UNKNOWN_BOOKING          : 'Arriendo desconocido',
 }

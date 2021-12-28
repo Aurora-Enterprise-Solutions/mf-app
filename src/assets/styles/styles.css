@@ -227,4 +227,28 @@ html body #__layout {
   padding-top: 20px !important;
 }
 
+.mf-component-booking-form-dialog-card {
+  border-radius: 0 !important;
+}
+.mf-component-booking-form-dialog-card .v-card__title {
+  padding: 0 !important;
+}
+.mf-component-booking-form-dialog-card .v-card__text {
+  padding-top: 20px !important;
+}
+.mf-component-booking-form-dialog-card .v-expansion-panel-header .v-btn {
+  margin: 0 16px 0 0;
+}
+.mf-component-booking-form-dialog-card .sub-title {
+  margin-top: 16px;
+}
+.mf-component-booking-form-dialog-card .v-item-group {
+  margin: 16px 0;
+}
+.mf-component-booking-form-dialog-card .receiver-row .col,
+.mf-component-booking-form-dialog-card .load-row .col {
+  padding-top: 0;
+  padding-bottom: 8px;
+}
+
 /*# sourceMappingURL=styles.css.map */

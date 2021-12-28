@@ -10,7 +10,9 @@
 
         <v-footer class="blue-grey lighten-5">
             <v-spacer />
-            <span>Todos los derechos reservados &copy; {{ new Date().getFullYear() }}</span>
+            <div class="caption">
+                Todos los derechos reservados &copy; {{ new Date().getFullYear() }}
+            </div>
             <v-spacer />
         </v-footer>
     </v-app>

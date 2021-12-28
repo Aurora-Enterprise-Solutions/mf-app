@@ -8,4 +8,7 @@ export const Message = {
     EQUIPMENT_DELETED : 'Equipo eliminado',
     EQUIPMENT_CREATED : 'Equipo creado',
     EQUIPMENT_UPDATED : 'Equipo actualizado',
+    BOOKING_CREATED   : 'Registro de arriendo creado',
+    BOOKING_UPDATED   : 'Registro de arriendo actualizado',
+    BOOKING_DELETED   : 'Registro de arriendo eliminado',
 }

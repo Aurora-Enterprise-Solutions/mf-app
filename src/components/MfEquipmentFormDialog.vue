@@ -45,7 +45,6 @@
                               item-value="value"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El tipo es requerido' ]"
-                              @change="isTruck = formData.type === 'TRUCK'"
                     />
 
                     <v-text-field v-model="formData.code"
@@ -97,7 +96,8 @@
                                   @input="formData.volume = parseFloat($event)"
                     />
 
-                    <v-select v-model="formData.maintenanceClass"
+                    <v-select v-if="!isTruckOrPickup"
+                              v-model="formData.maintenanceClass"
                               :items="maintenanceClasses"
                               label="Clase de Mantenimiento"
                               item-text="label"
@@ -105,7 +105,7 @@
                               :disabled="loading"
                               :rules="[ v => !!v || 'La clase es requerida' ]"
                     />
-                    <p>
+                    <p v-if="!isTruckOrPickup">
                         Clases de Mantenimiento:
                         <br>Clase A: 4 tramos cada 250hrs.
                         <br>Clase B: 3 tramos cada 500hrs.
@@ -123,6 +123,12 @@
 import gql from 'graphql-tag'
 import { Error } from './../static/errors'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+
+export const MachineryTypes = [
+    { label: 'Camión', value: 'TRUCK' },
+    { label: 'Camioneta', value: 'PICKUP' },
+    { label: 'Otros', value: 'OTHER' },
+]
 
 export default {
     name: 'MfUserFormDialog',
@@ -151,18 +157,30 @@ export default {
             validForm : false,
             formData  : {},
             loading   : false,
-            isTruck   : false,
 
-            types: [
-                { label: 'Camión', value: 'TRUCK' },
-                { label: 'Otros', value: 'OTHER' },
-            ],
+            types: MachineryTypes,
 
             maintenanceClasses: [
                 { label: 'Clase A | 4x250', value: 'CLASS_A' },
                 { label: 'Clase B | 3x500', value: 'CLASS_B' },
             ],
         }
+
+    },
+
+    computed: {
+
+        isTruck() {
+
+            return this.formData.type === 'TRUCK'
+
+        },
+
+        isTruckOrPickup() {
+
+            return this.formData.type === 'TRUCK' || this.formData.type === 'PICKUP'
+
+        },
 
     },
 
