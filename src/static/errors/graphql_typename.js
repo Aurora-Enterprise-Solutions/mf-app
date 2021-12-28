@@ -11,4 +11,5 @@ export const GraphqlTypename = {
     EQUIPMENT_ALREADY_EXISTS   : 'EquipmentAlreadyExists',
     CODE_ALREADY_EXISTS        : 'CodeAlreadyExists',
     PATENT_ALREADY_EXISTS      : 'PatentAlreadyExists',
+    BOOKING_NOT_FOUND          : 'BookingNotFound',
 }
