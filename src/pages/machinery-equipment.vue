@@ -21,7 +21,7 @@
                 <v-toolbar flat>
                     <v-text-field v-model="search"
                                   append-icon="mdi-magnify"
-                                  label="Search"
+                                  label="Buscar"
                                   single-line
                                   hide-details
                     />
@@ -67,6 +67,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { MaintenanceClasses, MachineryTypes } from './../components/MfEquipmentFormDialog'
 
 export default {
     apollo: {
@@ -101,13 +102,13 @@ export default {
             formData: {},
 
             equipmentTypes: {
-                TRUCK : 'Camión',
-                OTHER : 'Otro',
+                TRUCK : MachineryTypes[0].label,
+                OTHER : MachineryTypes[2].label,
             },
 
             maintenanceClasses: {
-                CLASS_A : 'Clase A | 4x250',
-                CLASS_B : 'Clase B | 3x500',
+                CLASS_A : MaintenanceClasses[0].label,
+                CLASS_B : MaintenanceClasses[1].label,
             },
 
             headers: [

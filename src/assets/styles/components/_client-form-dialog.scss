@@ -2,6 +2,10 @@
     &-card {
         border-radius: 0 !important;
 
+        .v-card__progress {
+            height: 4px;
+        }
+
         .v-card__title {
             padding: 0 !important;
         }

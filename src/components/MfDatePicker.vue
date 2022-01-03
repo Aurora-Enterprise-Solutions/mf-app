@@ -3,19 +3,20 @@
               persistent
               width="290px"
     >
-        <template #activator="{ on, attrs }">
+        <template #activator="{ on, attrs: actAttrs }">
             <v-text-field :value="value"
                           :label="label"
-                          prepend-icon="mdi-calendar"
                           readonly
-                          v-bind="attrs"
+                          v-bind="actAttrs"
                           :rules="rules"
+                          :disabled="disabled"
                           v-on="on"
             />
         </template>
 
         <v-date-picker :value="value"
                        scrollable
+                       v-bind="attrs"
                        @change="$emit('input', $event)"
         >
             <v-spacer />
@@ -47,6 +48,16 @@ export default {
         rules: {
             type    : Array,
             default : () => [],
+        },
+
+        attrs: {
+            type    : Object,
+            default : () => ( {} ),
+        },
+
+        disabled: {
+            type    : Boolean,
+            default : false,
         },
     },
 

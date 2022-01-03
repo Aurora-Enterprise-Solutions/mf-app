@@ -1,3 +1,5 @@
+import es from 'vuetify/lib/locale/es'
+
 export default {
     // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
     ssr: false,
@@ -92,6 +94,12 @@ export default {
                 },
             },
         },
+
+        lang: {
+            locales  : { es },
+            current  : 'es',
+            fallback : 'es',
+        },
     },
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -101,7 +109,7 @@ export default {
     srcDir: 'src/',
 
     router: {
-        middleware: 'auth',
+        middleware: [ 'auth', 'pages' ],
         extendRoutes(routes, resolve) {
 
             routes.push( {
@@ -168,13 +176,7 @@ export default {
 
     apollo: {
         clientConfigs: {
-            default: {
-                httpEndpoint         : `${process.env.NUXT_ENV_API_HOST}/graphql`,
-                // wsEndpoint   : process.env.NUXT_ENV_API_HOST_WS,
-                inMemoryCacheOptions : {
-                    addTypename: false,
-                },
-            },
+            default: '~/apollo/config.js',
         },
 
         authenticationType : '',

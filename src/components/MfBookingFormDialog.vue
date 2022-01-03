@@ -66,10 +66,13 @@
                               item-value="_id"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El jefe de obra es requerido' ]"
-                              @change="addConstructionManagerEmailAddress"
                     >
 
                         <template #item="{ item }">
+                            {{ item.rut }} | {{ item.name }}
+                        </template>
+
+                        <template #selection="{ item }">
                             {{ item.rut }} | {{ item.name }}
                         </template>
 
@@ -88,101 +91,162 @@
                             {{ item.billing.rut }} | {{ item.name }}
                         </template>
 
-                    </v-select>
-
-                    <v-select v-if="isExternal"
-                              v-model="formData.machineryType"
-                              :items="MachineryTypes"
-                              label="Tipo de Maquinaria"
-                              item-text="label"
-                              item-value="value"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'El tipo de maquinaria es requerido' ]"
-                              @change="onChangeEquipmentType"
-                    />
-
-
-                    <!-- MACHINERY -->
-
-                    <v-select v-if="isInternal"
-                              v-model="formData.equipment"
-                              :items="equipments"
-                              label="Maquinaria"
-                              item-text="name"
-                              item-value="_id"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                              @change="onChangeEquipment"
-                    >
-
-                        <template #item="{ item }">
-                            {{ item.code }} | {{ item.name }}
+                        <template #selection="{ item }">
+                            {{ item.billing.rut }} | {{ item.name }}
                         </template>
 
                     </v-select>
 
-                    <v-text-field v-if="isExternal"
-                                  v-model="formData.equipment"
-                                  label="Maquinaria"
-                                  :disabled="loading"
-                                  :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                    />
+
+                    <v-expansion-panels :disabled="loading">
+                        <v-expansion-panel>
+                            <v-expansion-panel-header>
+                                <v-row align="center">
+                                    <v-col cols="auto">
+                                        Máquinas
+                                    </v-col>
+
+                                    <v-spacer />
+
+                                    <v-col cols="auto">
+                                        <v-btn color="primary" small :disabled="loading" @click.stop="onAddMachinery">
+                                            Agregar
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-expansion-panel-header>
+
+                            <v-expansion-panel-content>
+
+                                <v-row v-for="(receiver, index) of formData.machines" :key="index" class="machinery-row">
+                                    <v-col v-if="isExternal">
+                                        <v-select :value="formData.machines[index].machineryType"
+                                                  :items="MachineryTypes"
+                                                  label="Tipo de Maquinaria"
+                                                  item-text="label"
+                                                  item-value="value"
+                                                  :disabled="loading"
+                                                  :rules="[ v => !!v || 'El tipo de maquinaria es requerido' ]"
+                                                  @input="$set(formData.machines, index, { ...formData.machines[index], machineryType: $event})"
+                                        />
+                                    </v-col>
 
 
-                    <!-- OPERATOR -->
+                                    <!-- MACHINERY -->
+                                    <v-col>
+                                        <v-select v-if="isInternal"
+                                                  :value="formData.machines[index].equipment"
+                                                  :items="equipments"
+                                                  label="Maquinaria"
+                                                  item-text="name"
+                                                  item-value="_id"
+                                                  :disabled="loading"
+                                                  :rules="[ v => !!v || 'La maquinaria es requerida' ]"
+                                                  @change="onChangeEquipment($event, index)"
+                                                  @input="$set(formData.machines, index, { ...formData.machines[index], equipment: $event})"
+                                        >
 
-                    <v-select v-if="isInternal"
-                              v-model="formData.operator"
-                              :items="operators"
-                              label="Operador"
-                              item-text="name"
-                              item-value="_id"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'El operador es requerido' ]"
-                              @change="addOperatorEmailAddress"
-                    >
+                                            <template #item="{ item }">
+                                                {{ item.code }} | {{ item.patent }} | {{ item.name }}
+                                            </template>
 
-                        <template #item="{ item }">
-                            {{ item.rut }} | {{ item.name }}
-                        </template>
+                                            <template #selection="{ item }">
+                                                {{ item.code }} | {{ item.patent }} | {{ item.name }}
+                                            </template>
 
-                    </v-select>
+                                        </v-select>
 
-                    <v-text-field v-if="isExternal"
-                                  v-model="formData.operator"
-                                  label="Operador"
-                                  :disabled="loading"
-                                  :rules="[ v => !!v || 'El operador es requerido' ]"
-                    />
+                                        <v-text-field v-if="isExternal"
+                                                      :value="formData.machines[index].equipment"
+                                                      label="Maquinaria"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'La maquinaria es requerida' ]"
+                                                      class="mf-to-uppercase"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], equipment: $event})"
+                                        />
+                                    </v-col>
 
 
-                    <v-text-field v-if="isOther"
-                                  :value="formData.minHours"
-                                  label="Horas Mínimas"
-                                  type="number"
-                                  :disabled="loading"
-                                  :rules="[ v => !!v || 'Las horas mínimas son requeridas' ]"
-                                  @input="formData.minHours = parseFloat($event)"
-                    />
+                                    <!-- OPERATOR -->
+                                    <v-col>
+                                        <v-select v-if="isInternal"
+                                                  :value="formData.machines[index].operator"
+                                                  :items="operators"
+                                                  label="Operador"
+                                                  item-text="name"
+                                                  item-value="_id"
+                                                  :disabled="loading"
+                                                  :rules="[ v => !!v || 'El operador es requerido' ]"
+                                                  @input="$set(formData.machines, index, { ...formData.machines[index], operator: $event})"
+                                        >
 
-                    <v-text-field v-if="isOther"
-                                  :value="formData.amountPerHour"
-                                  label="Monto por Hora"
-                                  type="number"
-                                  :disabled="loading"
-                                  :rules="[ v => !!v || 'El monto por hora es requerido' ]"
-                                  @input="formData.amountPerHour = parseFloat($event)"
-                    />
+                                            <template #item="{ item }">
+                                                {{ item.rut }} | {{ item.name }}
+                                            </template>
 
-                    <v-select v-if="isTruck || isPickup"
-                              v-model="formData.workCondition"
-                              :items="workContidions"
-                              label="Condición de Trabajo"
-                              item-text="label"
-                              item-value="value"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'La condición de trabajo es requerida' ]"
-                    />
+                                            <template #selection="{ item }">
+                                                {{ item.rut }} | {{ item.name }}
+                                            </template>
+
+                                        </v-select>
+
+                                        <v-text-field v-if="isExternal"
+                                                      :value="formData.machines[index].operator"
+                                                      label="Operador"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El operador es requerido' ]"
+                                                      class="mf-to-uppercase"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], operator: $event})"
+                                        />
+                                    </v-col>
+
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'OTHER'">
+                                        <v-text-field :value="formData.machines[index].minHours"
+                                                      label="Horas Mínimas"
+                                                      type="number"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'Las horas mínimas son requeridas' ]"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], minHours: parseFloat($event)})"
+                                        />
+                                    </v-col>
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'OTHER'">
+                                        <v-text-field :value="formData.machines[index].amountPerHour"
+                                                      label="Monto por Hora"
+                                                      type="number"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El monto por hora es requerido' ]"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], amountPerHour: parseFloat($event)})"
+                                        />
+                                    </v-col>
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'TRUCK'">
+                                        <v-select :value="formData.machines[index].workCondition"
+                                                  :items="workContidions"
+                                                  label="Condición de Trabajo"
+                                                  item-text="label"
+                                                  item-value="value"
+                                                  :disabled="loading"
+                                                  :rules="[ v => !!v || 'La condición de trabajo es requerida' ]"
+                                                  @input="$set(formData.machines, index, { ...formData.machines[index], workCondition: $event})"
+                                        />
+                                    </v-col>
+
+                                    <v-col cols="auto">
+                                        <v-btn icon
+                                               color="error"
+                                               :disabled="loading"
+                                               @click="onDeleteMachine(index)"
+                                        >
+                                            <v-icon>mdi-delete</v-icon>
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+
+                            </v-expansion-panel-content>
+                        </v-expansion-panel>
+                    </v-expansion-panels>
 
 
                     <div class="text-overline sub-title">
@@ -195,12 +259,14 @@
                                   label="Compañía Externa"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La compañía es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.building"
                                   label="Obra"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La obra es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <mf-date-picker v-model="formData.startDate"
@@ -217,6 +283,7 @@
                                   label="Dirección"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La dirección es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-expansion-panels :disabled="loading">
@@ -286,8 +353,20 @@ export const BookingTypes = {
 }
 
 export const BookingTypesAndLabels = [
-    { label: 'Interna', value: 'INTERNAL' },
-    { label: 'Externa', value: 'EXTERNAL' },
+    { label: 'INTERNA', value: 'INTERNAL' },
+    { label: 'EXTERNA', value: 'EXTERNAL' },
+]
+
+export const TruckWorkConditionsTypes = {
+    TRAVEL : 'TRAVEL',
+    DAY    : 'DAY',
+    BOTH   : 'BOTH',
+}
+
+export const TruckWorkConditions = [
+    { label: 'POR VIAJE', value: 'TRAVEL' },
+    { label: 'POR JORNADA', value: 'DAY' },
+    { label: 'AMBOS', value: 'BOTH' },
 ]
 
 export default {
@@ -346,13 +425,9 @@ export default {
 
             types: BookingTypesAndLabels,
 
-            MachineryTypes,
+            MachineryTypes: MachineryTypes.filter( (item) => item.value !== 'PICKUP'),
 
-            workContidions: [
-                { label: 'Por Viaje', value: 'TRAVEL' },
-                { label: 'Por Jornada', value: 'DAY' },
-                { label: 'Ambos', value: 'BOTH' },
-            ],
+            workContidions: TruckWorkConditions,
         }
 
     },
@@ -371,49 +446,15 @@ export default {
 
         },
 
-        isTravel() {
-
-            return this.formData.workCondition === 'TRAVEL'
-
-        },
-
-        isDay() {
-
-            return this.formData.workCondition === 'DAY'
-
-        },
-
-        isBoth() {
-
-            return this.formData.workCondition === 'BOTH'
-
-        },
-
-        isTruck() {
-
-            return this.formData.machineryType === 'TRUCK'
-
-        },
-
-        isPickup() {
-
-            return this.formData.machineryType === 'PICKUP'
-
-        },
-
-        isOther() {
-
-            return this.formData.machineryType === 'OTHER'
-
-        },
-
     },
 
     watch: {
         data(newValue) {
 
-            this.formData = {}
-            this.formData = JSON.parse(JSON.stringify(newValue) )
+            this.formData = {
+                machines: [],
+                ...JSON.parse(JSON.stringify(newValue) ),
+            }
 
         },
     },
@@ -525,53 +566,35 @@ export default {
 
         },
 
+        onAddMachinery() {
+
+            this.formData.machines.push( {
+                machineryType : null,
+                equipment     : null,
+                operator      : null,
+                minHours      : 0,
+                amountPerHour : 0,
+                workCondition : null,
+            } )
+
+        },
+
         onDeleteReceiver(index) {
 
             this.formData.receivers.splice(index, 1)
 
         },
 
-        onChangeEquipment(id) {
+        onDeleteMachine(index) {
+
+            this.formData.machines.splice(index, 1)
+
+        },
+
+        onChangeEquipment(id, index) {
 
             const equipment = this.equipments.find( (e) => e._id === id)
-            this.formData = {
-                ...this.formData,
-                machineryType: equipment.type,
-            }
-
-        },
-
-        onChangeEquipmentType(type) {
-
-            this.formData.machineryType = undefined
-            this.formData = {
-                ...this.formData,
-                machineryType: type,
-            }
-
-        },
-
-        addOperatorEmailAddress(id) {
-
-            this.removeNonEditableReceivers()
-
-            const operator = this.operators.find( (e) => e._id === id)
-            this.formData.receivers.unshift( {
-                editable : false,
-                email    : operator.email,
-            } )
-
-        },
-
-        addConstructionManagerEmailAddress(id) {
-
-            this.removeNonEditableReceivers()
-
-            const constructionManager = this.constructionManagers.find( (e) => e._id === id)
-            this.formData.receivers.unshift( {
-                editable : false,
-                email    : constructionManager.email,
-            } )
+            this.$set(this.formData.machines, index, { ...this.formData.machines[index], equipment: id, machineryType: equipment.type } )
 
         },
 
@@ -583,10 +606,11 @@ export default {
 
         onTypeChange() {
 
-            this.formData.machineryType = undefined
-            this.formData.equipment = undefined
-            this.formData.operator = undefined
-            this.formData.constructionManager = undefined
+            this.formData = {
+                ...this.formData,
+                constructionManager : null,
+                machines            : [],
+            }
             this.removeNonEditableReceivers()
 
         },
