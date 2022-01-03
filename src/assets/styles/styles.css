@@ -58,6 +58,10 @@ html body #__layout {
 .mf-layout .mf-global-snackbar {
   z-index: 1000;
 }
+.mf-layout .mf-global-snackbar .v-snack__wrapper {
+  position: sticky;
+  top: 8px;
+}
 
 .mf-layout-login .mf-page {
   height: 100%;
@@ -70,17 +74,12 @@ html body #__layout {
 .mf-layout-default .v-main__wrap .mf-component-app-bar {
   flex-grow: unset;
 }
-.mf-layout-default .v-main__wrap > .container {
+.mf-layout-default .v-main__wrap > .mf-page-wrapper {
   flex-grow: 1;
   position: relative;
 }
-.mf-layout-default .v-main__wrap > .container .mf-page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: auto;
+.mf-layout-default .v-main__wrap > .mf-page-wrapper > .container {
+  padding: 0;
 }
 
 .mf-page-login .container-alert {
@@ -125,6 +124,11 @@ html body #__layout {
   padding: 0;
 }
 
+.mf-component-app-bar {
+  position: sticky !important;
+  top: 0;
+  z-index: 1;
+}
 .mf-component-app-bar .app-bar-title {
   color: white;
 }
@@ -136,6 +140,9 @@ html body #__layout {
 .mf-component-user-form-dialog-card {
   border-radius: 0 !important;
 }
+.mf-component-user-form-dialog-card .v-card__progress {
+  height: 4px;
+}
 .mf-component-user-form-dialog-card .v-card__title {
   padding: 0 !important;
 }
@@ -146,7 +153,6 @@ html body #__layout {
 .mf-component-signature-pad {
   position: relative;
   min-height: 200px;
-  height: 200px;
   display: flex;
   flex-direction: column;
   padding-top: 8px;
@@ -158,7 +164,7 @@ html body #__layout {
 .mf-component-signature-pad .wrapper {
   padding: 8px;
   width: 100%;
-  height: 100%;
+  height: 200px;
   border: solid 1px #003249;
   border-radius: 4px;
 }
@@ -196,6 +202,9 @@ html body #__layout {
 .mf-component-client-form-dialog-card {
   border-radius: 0 !important;
 }
+.mf-component-client-form-dialog-card .v-card__progress {
+  height: 4px;
+}
 .mf-component-client-form-dialog-card .v-card__title {
   padding: 0 !important;
 }
@@ -220,6 +229,9 @@ html body #__layout {
 .mf-component-equipment-form-dialog-card {
   border-radius: 0 !important;
 }
+.mf-component-equipment-form-dialog-card .v-card__progress {
+  height: 4px;
+}
 .mf-component-equipment-form-dialog-card .v-card__title {
   padding: 0 !important;
 }
@@ -229,6 +241,9 @@ html body #__layout {
 
 .mf-component-booking-form-dialog-card {
   border-radius: 0 !important;
+}
+.mf-component-booking-form-dialog-card .v-card__progress {
+  height: 4px;
 }
 .mf-component-booking-form-dialog-card .v-card__title {
   padding: 0 !important;
@@ -246,6 +261,7 @@ html body #__layout {
   margin: 16px 0;
 }
 .mf-component-booking-form-dialog-card .receiver-row .col,
+.mf-component-booking-form-dialog-card .machinery-row .col,
 .mf-component-booking-form-dialog-card .load-row .col {
   padding-top: 0;
   padding-bottom: 8px;

@@ -3,9 +3,11 @@
         <v-main class="blue-grey lighten-5">
             <mf-app-bar :navbar.sync="navbar" />
 
-            <v-container class="d-flex flex-column">
-                <Nuxt />
-            </v-container>
+            <div class="mf-page-wrapper">
+                <div class="container">
+                    <Nuxt />
+                </div>
+            </div>
         </v-main>
 
         <v-footer class="blue-grey lighten-5">
