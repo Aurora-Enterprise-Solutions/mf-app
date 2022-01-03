@@ -47,12 +47,14 @@
                                   label="Nombre"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'El nombre es requerido' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.paymentCondition"
                                   label="Condición de pago"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La condición de pago es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-expansion-panels :disabled="loading">
@@ -113,18 +115,21 @@
                                   label="Nombre"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'El nombre es requerido' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.billing.category"
                                   label="Giro"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'El giro es requerido' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.billing.address"
                                   label="Dirección"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La dirección es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.billing.phone"
@@ -159,6 +164,7 @@
                                                       label="Tipo de Carga"
                                                       :disabled="loading"
                                                       :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
+                                                      class="mf-to-uppercase"
                                                       @input="$set(formData.billing.loads, index, {
                                                           type: $event,
                                                           amount: formData.billing.loads[index].amount,

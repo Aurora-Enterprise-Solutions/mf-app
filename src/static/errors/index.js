@@ -1,5 +1,6 @@
 export const Error = {
     DEFAULT_ERROR_MESSAGE    : 'Ha ocurrido un error. Intentelo de nuevo.',
+    COMPLETE_FIELDS          : 'Complete todos los campos.',
     INACTIVE_USER            : 'Usuario inactivo',
     UNKNOWN_USER             : 'Usuario desconocido',
     WRONG_PASSWORD           : 'Contraseña incorrecta',

@@ -21,7 +21,7 @@
                 <v-toolbar flat>
                     <v-text-field v-model="search"
                                   append-icon="mdi-magnify"
-                                  label="Search"
+                                  label="Buscar"
                                   single-line
                                   hide-details
                     />
@@ -99,11 +99,6 @@ export default {
             search       : '',
             showUserForm : false,
             isNew        : true,
-            alert        : {
-                show    : false,
-                color   : '',
-                message : '',
-            },
 
             deleteLoading: false,
 

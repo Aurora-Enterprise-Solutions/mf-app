@@ -58,18 +58,21 @@
                                   label="Nombre"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'El nombre es requerido' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.brand"
                                   label="Marca"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La marca es requerida' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.model"
                                   label="Modelo"
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'El modelo es requerido' ]"
+                                  class="mf-to-uppercase"
                     />
 
                     <v-text-field v-model="formData.patent"
@@ -125,9 +128,14 @@ import { Error } from './../static/errors'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 
 export const MachineryTypes = [
-    { label: 'Camión', value: 'TRUCK' },
-    { label: 'Camioneta', value: 'PICKUP' },
-    { label: 'Otros', value: 'OTHER' },
+    { label: 'CAMIÓN', value: 'TRUCK' },
+    { label: 'CAMIONETA', value: 'PICKUP' },
+    { label: 'MAQUINARIA', value: 'OTHER' },
+]
+
+export const MaintenanceClasses = [
+    { label: 'CLASE A | 4x250', value: 'CLASS_A' },
+    { label: 'CLASE B | 3x500', value: 'CLASS_B' },
 ]
 
 export default {
@@ -160,10 +168,7 @@ export default {
 
             types: MachineryTypes,
 
-            maintenanceClasses: [
-                { label: 'Clase A | 4x250', value: 'CLASS_A' },
-                { label: 'Clase B | 3x500', value: 'CLASS_B' },
-            ],
+            maintenanceClasses: MaintenanceClasses,
         }
 
     },

@@ -5,6 +5,7 @@
                       :search="search"
                       :items="bookings"
                       item-key="_id"
+                      show-expand
         >
 
             <template #top>
@@ -21,7 +22,7 @@
                 <v-toolbar flat>
                     <v-text-field v-model="search"
                                   append-icon="mdi-magnify"
-                                  label="Search"
+                                  label="Buscar"
                                   single-line
                                   hide-details
                     />
@@ -32,20 +33,8 @@
                 {{ getTypeLabel(item.type) }}
             </template>
 
-            <template #[`item.machineryType`]="{ item }">
-                {{ getMachineryTypeLabel(item.machineryType) }}
-            </template>
-
             <template #[`item.client`]="{ item }">
                 {{ getLabelOfItemById(clients, item.client, 'name') }}
-            </template>
-
-            <template #[`item.equipment`]="{ item }">
-                {{ getEquipmentLabel(item.equipment) }}
-            </template>
-
-            <template #[`item.operator`]="{ item }">
-                {{ getOperatorLabel(item.operator) }}
             </template>
 
             <template #[`item.startDate`]="{ item }">
@@ -64,6 +53,38 @@
                 <v-btn icon color="error" @click="onDelete(item)">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
+            </template>
+
+            <template #expanded-item="{ isMobile, item }">
+                <td :colspan="headers.length"
+                    :class="{
+                        'mf-inner-table': true,
+                        'v-data-table__mobile-row': isMobile,
+                    }"
+                >
+
+                    <!-- INNER TABLE -->
+                    <v-data-table :headers="headersMachines"
+                                  :items="item.machines"
+                                  dense
+                                  hide-default-footer
+                                  :items-per-page="-1"
+                    >
+
+                        <template #[`item.machineryType`]="{ item }">
+                            {{ getMachineryTypeLabel(item.machineryType) }}
+                        </template>
+
+                        <template #[`item.equipment`]="{ item }">
+                            {{ getEquipmentLabel(item.equipment) }}
+                        </template>
+
+                        <template #[`item.operator`]="{ item }">
+                            {{ getOperatorLabel(item.operator) }}
+                        </template>
+
+                    </v-data-table>
+                </td>
             </template>
 
         </v-data-table>
@@ -103,18 +124,20 @@ export default {
                     _id,
                     type,
                     constructionManager,
-                    machineryType,
                     client,
-                    equipment,
-                    operator,
-                    minHours,
-                    amountPerHour,
-                    workCondition,
                     company,
                     building,
                     startDate,
                     endDate,
                     address,
+                    machines {
+                        machineryType,
+                        equipment,
+                        operator,
+                        minHours,
+                        amountPerHour,
+                        workCondition,
+                    },
                     receivers {
                         editable,
                         email,
@@ -197,35 +220,11 @@ export default {
                     groupable  : false,
                 },
                 {
-                    text       : 'Tipo de Maquinaria',
-                    value      : 'machineryType',
-                    sortable   : true,
-                    filterable : true,
-                    groupable  : false,
-                },
-                {
                     text       : 'Cliente',
                     value      : 'client',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
-                    width      : '200px',
-                },
-                {
-                    text       : 'Maquinaria',
-                    value      : 'equipment',
-                    sortable   : true,
-                    filterable : true,
-                    groupable  : false,
-                    width      : '200px',
-                },
-                {
-                    text       : 'Operador',
-                    value      : 'operator',
-                    sortable   : true,
-                    filterable : true,
-                    groupable  : false,
-                    width      : '200px',
                 },
                 {
                     text       : 'Compañia Externa',
@@ -233,7 +232,6 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
-                    width      : '200px',
                 },
                 {
                     text       : 'Obra',
@@ -241,7 +239,6 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
-                    width      : '200px',
                 },
                 {
                     text       : 'Inicio',
@@ -249,7 +246,6 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
-                    width      : '150px',
                 },
                 {
                     text       : 'Término',
@@ -257,7 +253,6 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
-                    width      : '150px',
                 },
                 {
                     text       : 'Acciones',
@@ -265,6 +260,31 @@ export default {
                     width      : '110px',
                     sortable   : false,
                     filterable : false,
+                    groupable  : false,
+                },
+                { text: '', value: 'data-table-expand' },
+            ],
+
+            headersMachines: [
+                {
+                    text       : 'Tipo de Maquinaria',
+                    value      : 'machineryType',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Maquinaria',
+                    value      : 'equipment',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Operador',
+                    value      : 'operator',
+                    sortable   : true,
+                    filterable : true,
                     groupable  : false,
                 },
             ],

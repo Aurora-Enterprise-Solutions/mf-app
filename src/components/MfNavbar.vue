@@ -13,7 +13,7 @@
                     </v-list-item-title>
 
                     <v-list-item-subtitle class="text-overline">
-                        {{ user.role.label }}
+                        {{ user.role ? user.role.label : '' }}
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
