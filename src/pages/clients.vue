@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-clients">
         <v-data-table :headers="clientHeaders"
-                      :loading="$apollo.queries.clients.loading || deleteLoading"
+                      :loading="$apollo.queries.clients.loading || deleteLoading || downloading"
                       :search="search"
                       :items="clients"
                       item-key="_id"
@@ -14,7 +14,19 @@
 
                     <v-spacer />
 
-                    <v-btn :disabled="$apollo.queries.clients.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn icon
+                           dark
+                           color="primary"
+                           :disabled="$apollo.queries.clients.loading || deleteLoading || downloading"
+                           style="margin-right: 10px"
+                           @click="downloadTable"
+                    >
+                        <v-icon>
+                            mdi-file-download-outline
+                        </v-icon>
+                    </v-btn>
+
+                    <v-btn :disabled="$apollo.queries.clients.loading || deleteLoading || downloading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -78,6 +90,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -108,6 +121,7 @@ export default {
     data() {
 
         return {
+            downloading    : false,
             search         : '',
             showClientForm : false,
             isNew          : true,
@@ -127,6 +141,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Condición de pago',
@@ -134,6 +149,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Acciones',
@@ -153,6 +169,7 @@ export default {
                     sortable   : false,
                     filterable : false,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Nombre',
@@ -167,6 +184,7 @@ export default {
                     sortable   : false,
                     filterable : false,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Dirección',
@@ -174,6 +192,7 @@ export default {
                     sortable   : false,
                     filterable : false,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Teléfono',
@@ -181,6 +200,7 @@ export default {
                     sortable   : false,
                     filterable : false,
                     groupable  : false,
+                    exportable : true,
                 },
             ],
         }
@@ -280,6 +300,58 @@ export default {
                 this.$apollo.queries.clients.refetch()
 
             }
+
+        },
+
+        downloadTable() {
+
+            this.downloading = true
+
+            const { workbook, worksheet } = newWorkbook( { name: 'Clientes' } )
+
+            // Mapping data
+
+            let headers = this.clientHeaders.filter( (h) => h.exportable).map( (h) => h.text)
+            headers = [ ...headers, ...this.clientBillingHeaders.filter( (h) => h.exportable).map( (h) => h.text) ]
+
+            let maxReceivers = 0
+            let source = this.clients.map( (item) => {
+
+                maxReceivers = Math.max(maxReceivers, item.receivers.length)
+
+                return [
+                    item.name,
+                    item.paymentCondition,
+                    item.billing.rut,
+                    item.billing.category,
+                    item.billing.address,
+                    item.billing.phone,
+                    ...item.receivers,
+                ]
+
+            } )
+
+            headers = [ ...headers, ...Array(maxReceivers).fill('Correo receptor estado de pago') ]
+
+            source = source.map( (item) => {
+
+                if (item.length < headers.length)
+                    item = [ ...item, ...Array(headers.length - item.length).fill('') ]
+
+                return item
+
+            } )
+
+            // Adding headers & data
+
+            setExcelHeader(workbook, worksheet)
+
+            addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+            source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
+
+            saveExcelFile(workbook, 'users')
+
+            this.downloading = false
 
         },
     },

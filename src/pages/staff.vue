@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-staff">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.users.loading || deleteLoading"
+                      :loading="$apollo.queries.users.loading || deleteLoading || downloading"
                       :search="search"
                       :items="users"
                       item-key="_id"
@@ -16,7 +16,7 @@
                     <v-btn icon
                            dark
                            color="primary"
-                           :disabled="$apollo.queries.users.loading || deleteLoading"
+                           :disabled="$apollo.queries.users.loading || deleteLoading || downloading"
                            style="margin-right: 10px"
                            @click="downloadTable"
                     >
@@ -25,7 +25,7 @@
                         </v-icon>
                     </v-btn>
 
-                    <v-btn :disabled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn :disabled="$apollo.queries.users.loading || deleteLoading || downloading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -283,49 +283,11 @@ export default {
 
         },
 
-        setMFExcelColumns(workbook, worksheet, columns) {
-
-            worksheet.columns = [
-                { width: 4 },
-                ...columns.map( (column) => ( { ...column, header: '' } ) ),
-                { width: 4 },
-            ]
-
-            const row = worksheet.insertRow(8, columns.reduce( (acc, column) => {
-
-                acc[column.key] = column.header
-
-                return acc
-
-            }, {} ) )
-
-            row.font = {
-                bold  : true,
-                color : { argb: '003249' },
-            }
-
-            row.eachCell( (cell, colNumber) => {
-
-                if (cell.value) {
-
-                    row.getCell(colNumber).border = {
-                        top    : { style: 'medium', color: { argb: '003249' } },
-                        left   : colNumber === 2 ? { style: 'medium', color: { argb: '003249' } } : undefined,
-                        bottom : { style: 'medium', color: { argb: '003249' } },
-                        right  : colNumber === columns.length + 1 ? { style: 'medium', color: { argb: '003249' } } : undefined,
-                    }
-
-                }
-
-            } )
-
-        },
-
         downloadTable() {
 
             this.downloading = true
 
-            const { workbook, worksheet } = newWorkbook( { name: 'Usuarios' } )
+            const { workbook, worksheet } = newWorkbook( { name: 'Personal' } )
 
             const headers = this.headers.filter( (h) => h.exportable).map( (h) => h.text)
             const source = this.users.map( (item) => {
@@ -346,40 +308,7 @@ export default {
 
             saveExcelFile(workbook, 'users')
 
-        },
-
-        getWoorsheetData(columns, source) {
-
-            const worksheetData = []
-
-            const headersMap = {}
-            for (const header of headers) {
-
-                const column = columnsConfig[header.value]
-
-                if (column)
-                    headersMap[column] = header.text
-
-                if (Object.keys(columnsConfig).length === Object.keys(headersMap).length)
-                    break
-
-            }
-
-            worksheetData.push(headersMap)
-
-
-            for (const data of source) {
-
-                const sourceMap = {}
-
-                for (const [ field, column ] of Object.entries(columnsConfig) )
-                    sourceMap[column] = data[field]
-
-                worksheetData.push(sourceMap)
-
-            }
-
-            return worksheetData
+            this.downloading = false
 
         },
     },
