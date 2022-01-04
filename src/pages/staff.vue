@@ -13,7 +13,19 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn icon
+                           dark
+                           color="primary"
+                           :disabled="$apollo.queries.users.loading || deleteLoading"
+                           style="margin-right: 10px"
+                           @click="downloadTable"
+                    >
+                        <v-icon>
+                            mdi-file-download-outline
+                        </v-icon>
+                    </v-btn>
+
+                    <v-btn :disabled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -64,6 +76,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -96,6 +109,7 @@ export default {
     data() {
 
         return {
+            downloading  : false,
             search       : '',
             showUserForm : false,
             isNew        : true,
@@ -111,6 +125,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Nombre',
@@ -118,6 +133,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Correo Electrónico',
@@ -125,6 +141,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Rol',
@@ -132,6 +149,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : true,
+                    exportable : true,
                 },
                 {
                     text       : 'Acciones',
@@ -247,6 +265,121 @@ export default {
             const role = this.roles.find( (role) => role._id === id)
 
             return role ? role.label : ''
+
+        },
+
+        prepareSourceForExport() {
+
+            return this.users.map( (item) => {
+
+                return {
+                    rut   : item.rut,
+                    name  : item.name,
+                    email : item.email,
+                    role  : this.getRoleLabelById(item.role),
+                }
+
+            } )
+
+        },
+
+        setMFExcelColumns(workbook, worksheet, columns) {
+
+            worksheet.columns = [
+                { width: 4 },
+                ...columns.map( (column) => ( { ...column, header: '' } ) ),
+                { width: 4 },
+            ]
+
+            const row = worksheet.insertRow(8, columns.reduce( (acc, column) => {
+
+                acc[column.key] = column.header
+
+                return acc
+
+            }, {} ) )
+
+            row.font = {
+                bold  : true,
+                color : { argb: '003249' },
+            }
+
+            row.eachCell( (cell, colNumber) => {
+
+                if (cell.value) {
+
+                    row.getCell(colNumber).border = {
+                        top    : { style: 'medium', color: { argb: '003249' } },
+                        left   : colNumber === 2 ? { style: 'medium', color: { argb: '003249' } } : undefined,
+                        bottom : { style: 'medium', color: { argb: '003249' } },
+                        right  : colNumber === columns.length + 1 ? { style: 'medium', color: { argb: '003249' } } : undefined,
+                    }
+
+                }
+
+            } )
+
+        },
+
+        downloadTable() {
+
+            this.downloading = true
+
+            const { workbook, worksheet } = newWorkbook( { name: 'Usuarios' } )
+
+            const headers = this.headers.filter( (h) => h.exportable).map( (h) => h.text)
+            const source = this.users.map( (item) => {
+
+                return [
+                    item.rut,
+                    item.name,
+                    item.email,
+                    this.getRoleLabelById(item.role),
+                ]
+
+            } )
+
+            setExcelHeader(workbook, worksheet)
+
+            addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+            source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
+
+            saveExcelFile(workbook, 'users')
+
+        },
+
+        getWoorsheetData(columns, source) {
+
+            const worksheetData = []
+
+            const headersMap = {}
+            for (const header of headers) {
+
+                const column = columnsConfig[header.value]
+
+                if (column)
+                    headersMap[column] = header.text
+
+                if (Object.keys(columnsConfig).length === Object.keys(headersMap).length)
+                    break
+
+            }
+
+            worksheetData.push(headersMap)
+
+
+            for (const data of source) {
+
+                const sourceMap = {}
+
+                for (const [ field, column ] of Object.entries(columnsConfig) )
+                    sourceMap[column] = data[field]
+
+                worksheetData.push(sourceMap)
+
+            }
+
+            return worksheetData
 
         },
     },

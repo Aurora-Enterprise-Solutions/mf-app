@@ -14,7 +14,7 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.bookings.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn :disabled="$apollo.queries.bookings.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -304,7 +304,12 @@ export default {
             this.isNew = true
             this.formData = {
                 type      : BookingTypes.INTERNAL,
-                receivers : [],
+                receivers : [
+                    {
+                        editable : true,
+                        email    : process.env.NUXT_ENV_OFFICE_EMAIL,
+                    },
+                ],
             }
             this.showForm = true
 

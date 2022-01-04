@@ -14,7 +14,7 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.clients.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn :disabled="$apollo.queries.clients.loading || deleteLoading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>

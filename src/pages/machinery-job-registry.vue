@@ -462,6 +462,8 @@ export default {
             this.formData.machineryType = this.equipments.find( (equipment) => equipment._id === equipmentId).type
             this.currentWorkCondition = this.equipments.find( (equipment) => equipment._id === equipmentId).workCondition
 
+            this.$apollo.queries.buildings.refetch()
+
         },
 
         submit() {
