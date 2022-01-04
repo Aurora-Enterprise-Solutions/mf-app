@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-machinery-equipment">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.equipments.loading || deleteLoading"
+                      :loading="$apollo.queries.equipments.loading || deleteLoading || downloading"
                       :search="search"
                       :items="equipments"
                       item-key="_id"
@@ -13,7 +13,19 @@
 
                     <v-spacer />
 
-                    <v-btn :disabled="$apollo.queries.equipments.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn icon
+                           dark
+                           color="primary"
+                           :disabled="$apollo.queries.equipments.loading || deleteLoading || downloading"
+                           style="margin-right: 10px"
+                           @click="downloadTable"
+                    >
+                        <v-icon>
+                            mdi-file-download-outline
+                        </v-icon>
+                    </v-btn>
+
+                    <v-btn :disabled="$apollo.queries.equipments.loading || deleteLoading || downloading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -68,6 +80,7 @@ import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 import { MaintenanceClasses, MachineryTypes } from './../components/MfEquipmentFormDialog'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -93,9 +106,10 @@ export default {
     data() {
 
         return {
-            search   : '',
-            showForm : false,
-            isNew    : true,
+            downloading : false,
+            search      : '',
+            showForm    : false,
+            isNew       : true,
 
             deleteLoading: false,
 
@@ -125,6 +139,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Nombre',
@@ -132,6 +147,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Marca',
@@ -139,6 +155,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Modelo',
@@ -146,6 +163,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Patente',
@@ -153,6 +171,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Año',
@@ -160,13 +179,15 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
-                    text       : 'Volumen',
+                    text       : 'Volumen m3',
                     value      : 'volume',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Clase de Mantenimiento',
@@ -276,6 +297,38 @@ export default {
                 this.$apollo.queries.equipments.refetch()
 
             }
+
+        },
+
+        downloadTable() {
+
+            this.downloading = true
+
+            const { workbook, worksheet } = newWorkbook( { name: 'Equipos' } )
+
+            const headers = this.headers.filter( (h) => h.exportable).map( (h) => h.text)
+            const source = this.equipments.map( (item) => {
+
+                return [
+                    item.code,
+                    item.name,
+                    item.brand,
+                    item.model,
+                    item.patent,
+                    item.year,
+                    item.volume ? item.volume : '',
+                ]
+
+            } )
+
+            setExcelHeader(workbook, worksheet)
+
+            addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+            source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
+
+            saveExcelFile(workbook, 'equipos')
+
+            this.downloading = false
 
         },
     },

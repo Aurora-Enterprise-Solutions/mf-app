@@ -349,7 +349,7 @@ export default {
             addExcelRow(workbook, worksheet, headers, { isHeader: true } )
             source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
 
-            saveExcelFile(workbook, 'users')
+            saveExcelFile(workbook, 'clientes')
 
             this.downloading = false
 
