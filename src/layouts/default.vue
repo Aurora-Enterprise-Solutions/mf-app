@@ -4,7 +4,7 @@
             <mf-app-bar :navbar.sync="navbar" />
 
             <div class="mf-page-wrapper">
-                <div class="container">
+                <div class="container container--fluid">
                     <Nuxt />
                 </div>
             </div>

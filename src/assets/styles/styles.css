@@ -120,6 +120,19 @@ html body #__layout {
   margin-top: 16px;
 }
 
+.mf-page-machinery-maintenance .maintenance-card .v-timeline:before {
+  left: calc(27px - 1px) !important;
+}
+.mf-page-machinery-maintenance .maintenance-card .v-timeline-item__divider {
+  min-width: 55px;
+}
+.mf-page-machinery-maintenance .maintenance-card .v-timeline-item__divider .v-timeline-item__dot {
+  z-index: 0;
+}
+.mf-page-machinery-maintenance .maintenance-card .v-timeline-item__body {
+  max-width: calc(100% - 55px);
+}
+
 .mf-component-logo .row > div:first-child {
   padding: 0;
 }

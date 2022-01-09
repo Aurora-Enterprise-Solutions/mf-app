@@ -83,16 +83,16 @@
                                   :items-per-page="-1"
                     >
 
-                        <template #[`item.machineryType`]="{ item }">
-                            {{ getMachineryTypeLabel(item.machineryType) }}
+                        <template #[`item.machineryType`]="{ item: innerItem }">
+                            {{ getMachineryTypeLabel(innerItem.machineryType) }}
                         </template>
 
-                        <template #[`item.equipment`]="{ item }">
-                            {{ getEquipmentLabel(item.equipment) }}
+                        <template #[`item.equipment`]="{ item: innerItem }">
+                            {{ getEquipmentLabel(innerItem.equipment) }}
                         </template>
 
-                        <template #[`item.operator`]="{ item }">
-                            {{ getOperatorLabel(item.operator) }}
+                        <template #[`item.operator`]="{ item: innerItem }">
+                            {{ getOperatorLabel(innerItem.operator) }}
                         </template>
 
                     </v-data-table>

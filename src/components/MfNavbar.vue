@@ -89,11 +89,7 @@ export default {
 
     mounted() {
 
-        const item = this.findListItem(this.$auth.user.role.initialView)
-        this.selectedItem = item.name
-        this.$store.commit('navbar/setProp', {
-            title: item.label,
-        } )
+        this.selectedItem = this.$store.state.navbar.name
 
     },
 
@@ -109,30 +105,6 @@ export default {
             this.logoutConfirmation = false
             await this.$auth.logout()
             this.$router.push('/login')
-
-        },
-
-        findListItem(name, items = this.items) {
-
-            for (const item of items) {
-
-                if (item.name === name) {
-
-                    return item
-
-                }
-                else if (item.children) {
-
-                    const found = this.findListItem(name, item.children)
-
-                    if (found)
-                        return found
-
-                }
-
-            }
-
-            return null
 
         },
     },

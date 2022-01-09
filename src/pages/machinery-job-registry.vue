@@ -474,10 +474,10 @@ export default {
 
                 this.$apollo.mutate( {
                     mutation: gql`mutation ($form: MachineryJobRegistryInput!) {
-                    createMachineryJobRegistry(form: $form) {
-                        __typename
-                    }
-                }`,
+                        createMachineryJobRegistry(form: $form) {
+                            __typename
+                        }
+                    }`,
 
                     variables: {
                         form: {
