@@ -1,71 +1,43 @@
 <template>
-    <v-container class="mf-page mf-page-machinery-job-registry">
+    <v-dialog :value="value"
+              fullscreen
+              hide-overlay
+              scrollable
+              transition="dialog-bottom-transition"
+              class="mf-component mf-component-machinery-job-registry-dialog"
+              @input="$emit('input', $event)"
+    >
 
-        <v-form ref="form">
+        <v-card class="mf-component-machinery-job-registry-dialog-card" :loading="loading">
 
-            <v-stepper v-model="step"
-                       vertical
-            >
+            <!-- Header -->
+            <v-card-title>
 
-                <!--STEP 1-->
+                <v-toolbar dark color="primary">
 
-                <v-stepper-step step="1">
-                    Datos Generales
-                </v-stepper-step>
-
-                <v-stepper-content step="1">
-                    <mf-date-picker v-model="formData.date"
-                                    label="Fecha"
-                                    :attrs="{
-                                        max: now,
-                                    }"
-                                    :rules="[ v => !!v || 'La fecha es requerida' ]"
-                    />
-
-                    <v-select v-if="$auth.user.role.name === 'operator'"
-                              v-model="formData.equipment"
-                              :items="equipments"
-                              label="Maquinaria"
-                              item-value="_id"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                              @change="setMachineryType"
-                    >
-
-                        <template #item="{ item }">
-                            {{ item.code }} | {{ item.patent }} | {{ item.name }}
-                        </template>
-
-                        <template #selection="{ item }">
-                            {{ item.code }} | {{ item.patent }} | {{ item.name }}
-                        </template>
-
-                    </v-select>
-
-                    <v-select v-if="$auth.user.role.name === 'construction_manager'"
-                              v-model="formData.equipment"
-                              :items="equipments"
-                              label="Maquinaria"
-                              item-value="_id"
-                              item-text="_id"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                              @change="setMachineryType"
-                    />
-
-                    <v-btn color="primary" @click="step++">
-                        Continuar
+                    <v-btn icon dark :disabled="loading" @click="$emit('input', false)">
+                        <v-icon>mdi-close</v-icon>
                     </v-btn>
 
-                </v-stepper-content>
+                    <v-toolbar-title>Editar Registro de Uso</v-toolbar-title>
+                    <v-spacer />
+
+                    <v-toolbar-items>
+                        <v-btn dark text :disabled="loading" @click="onSave">
+                            Guardar
+                        </v-btn>
+                    </v-toolbar-items>
+
+                </v-toolbar>
+
+            </v-card-title>
 
 
-                <!--STEP 2-->
-                <v-stepper-step step="2">
-                    Ingreso de Uso
-                </v-stepper-step>
+            <!-- Body -->
+            <v-card-text>
 
-                <v-stepper-content step="2">
+                <v-form ref="form">
+
                     <!-- MACHINERY -->
 
                     <v-text-field v-if="isMachinery"
@@ -190,25 +162,6 @@
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
-
-                    <v-btn color="primary" @click="step++">
-                        Continuar
-                    </v-btn>
-
-                    <v-btn text @click="step--">
-                        Volver
-                    </v-btn>
-
-                </v-stepper-content>
-
-
-                <!--STEP 3-->
-                <v-stepper-step step="3">
-                    Observaciones y Firma
-                </v-stepper-step>
-
-                <v-stepper-content step="3">
-
                     <v-textarea v-model="formData.observations"
                                 label="Observaciones"
                                 outlined
@@ -220,45 +173,29 @@
                     />
 
                     <mf-signature-pad ref="signaturePad"
-                                      :label="$auth.user.role.name === 'operator' ? 'Firma Jefe de Obra' : 'Firma Operador'"
+                                      label="Firma Operador / Jefe de Obra"
                                       :image.sync="formData.signature"
                                       :disabled="!switchSignature"
                     />
 
-                    <v-btn color="primary" @click="submit">
-                        Registrar
-                    </v-btn>
+                </v-form>
 
-                    <v-btn text @click="step--">
-                        Volver
-                    </v-btn>
+            </v-card-text>
+        </v-card>
 
-                </v-stepper-content>
-
-            </v-stepper>
-
-        </v-form>
-
-    </v-container>
+    </v-dialog>
 </template>
 
 <script>
 import gql from 'graphql-tag'
-import moment from 'moment'
 import { Error } from './../static/errors'
-import { Message } from './../static/messages'
-import { MachineryTypes } from './../components/MfEquipmentFormDialog'
-import { TruckWorkConditions, TruckWorkConditionsTypes } from './../components/MfBookingFormDialog'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
-
-export const WorkingDayTypes = [
-    { label: 'COMPLETA', value: 'FULL' },
-    { label: 'MEDIA', value: 'HALF' },
-]
+import { TruckWorkConditions, TruckWorkConditionsTypes } from './MfBookingFormDialog'
+import { WorkingDayTypes } from './../pages/machinery-job-registry'
 
 const defaultFormData = {
-    machineryType  : MachineryTypes[0].value,
-    date           : moment().format('YYYY-MM-DD'),
+    machineryType  : null,
+    date           : null,
     startHourmeter : 0,
     endHourmeter   : 0,
     totalHours     : 0,
@@ -268,6 +205,8 @@ const defaultFormData = {
 }
 
 export default {
+    name: 'MfMachineryJobRegistryDialog',
+
     apollo: {
         clients: {
             query: gql`query {
@@ -292,64 +231,9 @@ export default {
             variables() {
 
                 return {
-                    client    : this.formData.client,
+                    client    : this.formData.client ? this.formData.client._id : null,
                     date      : this.formData.date,
-                    equipment : this.formData.equipment,
-                }
-
-            },
-
-            fetchPolicy: 'network-only',
-        },
-
-        equipments: {
-            query: gql`query getAllEquipmentsByBuilding($user: String!, $date: String!) {
-                getAllEquipmentsByBuilding(user: $user, date: $date) {
-                    __typename,
-                    ...on EquipmentsByBooking {
-                        equipments {
-                            _id,
-                            type,
-                            name,
-                            code,
-                            patent,
-                            workCondition,
-                        }
-                    }
-                    ...on ExternalEquipmentsByBooking {
-                        externalEquipments: equipments {
-                            _id,
-                            type,
-                            minHours,
-                            workCondition,
-                        }
-                    }
-                }
-            }`,
-
-            update( { getAllEquipmentsByBuilding } ) {
-
-                const isOperator = getAllEquipmentsByBuilding.__typename === 'EquipmentsByBooking'
-                const equipments = isOperator
-                    ? getAllEquipmentsByBuilding.equipments
-                    : getAllEquipmentsByBuilding.externalEquipments
-
-                this.formData.equipment = equipments.length > 0
-                    ? equipments[0]._id
-                    : null
-
-                this.formData.machineryType = equipments.length > 0 ? equipments[0].type : null
-                this.currentWorkCondition = equipments.length > 0 ? equipments[0].workCondition : null
-
-                return equipments
-
-            },
-
-            variables() {
-
-                return {
-                    user : this.$auth.user._id,
-                    date : this.formData.date,
+                    equipment : this.formData.equipment ? this.formData.equipment._id : null,
                 }
 
             },
@@ -371,7 +255,7 @@ export default {
             variables() {
 
                 return {
-                    client: this.formData.client,
+                    client: this.formData.client ? this.formData.client._id : null,
                 }
 
             },
@@ -381,31 +265,34 @@ export default {
 
     },
 
+    props: {
+        value: {
+            require : true,
+            type    : Boolean,
+        },
+
+        data: {
+            require : true,
+            type    : Object,
+            default : () => ( {} ),
+        },
+    },
+
     data() {
 
         return {
-            loading         : false,
-            step            : 1,
-            switchSignature : false,
-            formData        : {
-                ...defaultFormData,
-            },
+            formData: {},
 
-            MachineryTypes       : MachineryTypes.filter( (type) => type.value !== 'PICKUP'),
-            TruckWorkConditions  : TruckWorkConditions.filter( (condition) => condition.value !== TruckWorkConditionsTypes.BOTH),
-            workingDayTypes      : WorkingDayTypes,
-            currentWorkCondition : null,
+            loading         : false,
+            switchSignature : this.data.signature ? true : false,
+
+            TruckWorkConditions : TruckWorkConditions.filter( (condition) => condition.value !== TruckWorkConditionsTypes.BOTH),
+            workingDayTypes     : WorkingDayTypes,
         }
 
     },
 
     computed: {
-
-        now() {
-
-            return moment().toISOString()
-
-        },
 
         isTruck() {
 
@@ -421,12 +308,12 @@ export default {
 
         isByTravel() {
 
-            if (!this.currentWorkCondition)
+            if (!this.formData.bookingWorkCondition)
                 return false
 
-            if (this.currentWorkCondition === TruckWorkConditionsTypes.TRAVEL)
+            if (this.formData.bookingWorkCondition === TruckWorkConditionsTypes.TRAVEL)
                 return true
-            else if (this.currentWorkCondition === TruckWorkConditionsTypes.BOTH && this.formData.workCondition === TruckWorkConditionsTypes.TRAVEL)
+            else if (this.formData.bookingWorkCondition === TruckWorkConditionsTypes.BOTH && this.formData.workCondition === TruckWorkConditionsTypes.TRAVEL)
                 return true
 
             return false
@@ -435,24 +322,36 @@ export default {
 
         isByBoth() {
 
-            return this.currentWorkCondition && this.currentWorkCondition === TruckWorkConditionsTypes.BOTH
+            return this.formData.bookingWorkCondition && this.formData.bookingWorkCondition === TruckWorkConditionsTypes.BOTH
 
         },
 
         isByDay() {
 
-            if (!this.currentWorkCondition)
+            if (!this.formData.bookingWorkCondition)
                 return false
 
-            if (this.currentWorkCondition === TruckWorkConditionsTypes.DAY)
+            if (this.formData.bookingWorkCondition === TruckWorkConditionsTypes.DAY)
                 return true
-            else if (this.currentWorkCondition === TruckWorkConditionsTypes.BOTH && this.formData.workCondition === TruckWorkConditionsTypes.DAY)
+            else if (this.formData.bookingWorkCondition === TruckWorkConditionsTypes.BOTH && this.formData.workCondition === TruckWorkConditionsTypes.DAY)
                 return true
 
             return false
 
         },
 
+    },
+
+    watch: {
+        data() {
+
+            this.formData = {
+                ...defaultFormData,
+                ...this.data,
+            }
+
+
+        },
     },
 
     methods: {
@@ -462,63 +361,47 @@ export default {
 
         },
 
-        setMachineryType(equipmentId) {
+        onSave() {
 
-            this.formData.machineryType = this.equipments.find( (equipment) => equipment._id === equipmentId).type
-            this.currentWorkCondition = this.equipments.find( (equipment) => equipment._id === equipmentId).workCondition
+            if (this.$refs.form.validate() )
+                this.update()
 
-            this.$apollo.queries.buildings.refetch()
 
         },
 
-        submit() {
+        update() {
 
-            if (this.$refs.form.validate() ) {
+            this.loading = true
 
-                this.loading = true
+            this.$apollo.mutate( {
+                mutation: gql`mutation updateMachineryJobRegistry($form: UpdateMachineryJobRegistryInput!) {
+                    updateMachineryJobRegistry(form: $form) {
+                        __typename
+                    }
+                }`,
 
-                this.$apollo.mutate( {
-                    mutation: gql`mutation ($form: MachineryJobRegistryInput!) {
-                        createMachineryJobRegistry(form: $form) {
-                            __typename
-                        }
-                    }`,
-
-                    variables: {
-                        form: {
-                            ...this.formData,
-                            signature            : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
-                            bookingWorkCondition : this.currentWorkCondition,
-                        },
+                variables: {
+                    form: {
+                        ...this.formData,
+                        client    : this.formData.client ? this.formData.client._id : null,
+                        executor  : this.formData.executor ? this.formData.executor._id : null,
+                        equipment : this.formData.equipment ? this.formData.equipment._id : null,
+                        signature : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
                     },
+                },
+            } )
+                .then( ( { data: { updateMachineryJobRegistry } } ) => {
+
+                    this.responseParser(updateMachineryJobRegistry.__typename)
+                    this.loading = false
+
                 } )
-                    .then( ( { data: { createMachineryJobRegistry } } ) => {
+                .catch( () => {
 
-                        this.responseParser(createMachineryJobRegistry.__typename)
+                    this.$emit('save', Error.DEFAULT_ERROR_MESSAGE)
+                    this.loading = false
 
-                        this.formData = {
-                            ...defaultFormData,
-                        }
-                        this.currentWorkCondition = null
-                        this.$refs.signaturePad.reset()
-                        this.step = 1
-
-                        this.loading = false
-
-                    } )
-                    .catch( () => {
-
-                        this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
-                        this.loading = false
-
-                    } )
-
-            }
-            else {
-
-                this.$alert(Error.COMPLETE_FIELDS, 'error')
-
-            }
+                } )
 
         },
 
@@ -527,12 +410,18 @@ export default {
             switch (typename) {
 
                 case GraphqlTypename.OK:
-                    this.$alert(Message.MACHINERY_JOB_REGISTRY_CREATED)
+                    this.$emit('save')
+                    this.$emit('input', false)
+
+                    break
+
+                case GraphqlTypename.MACHINERY_JOB_REGISTRY_NOT_FOUND:
+                    this.$emit('save', Error.UNKNOWN_MACHINERY_JOB_REGISTRY)
 
                     break
 
                 default:
-                    this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
+                    this.$emit('save', Error.DEFAULT_ERROR_MESSAGE)
 
                     break
 

@@ -16,4 +16,13 @@
             max-width: calc(100% - 55px);
         }
     }
+
+    .v-data-iterator {
+        & > div {
+            &:not(.cards) {
+                margin-top: $space-lg;
+                text-align: center;
+            }
+        }
+    }
 }

@@ -132,9 +132,16 @@ html body #__layout {
 .mf-page-machinery-maintenance .maintenance-card .v-timeline-item__body {
   max-width: calc(100% - 55px);
 }
+.mf-page-machinery-maintenance .v-data-iterator > div:not(.cards) {
+  margin-top: 32px;
+  text-align: center;
+}
 
 .mf-component-logo .row > div:first-child {
   padding: 0;
+}
+.mf-component-logo .row > div:first-child img {
+  width: 100%;
 }
 
 .mf-component-app-bar {
@@ -278,6 +285,19 @@ html body #__layout {
 .mf-component-booking-form-dialog-card .load-row .col {
   padding-top: 0;
   padding-bottom: 8px;
+}
+
+.mf-component-machinery-job-registry-dialog-card {
+  border-radius: 0 !important;
+}
+.mf-component-machinery-job-registry-dialog-card .v-card__progress {
+  height: 4px;
+}
+.mf-component-machinery-job-registry-dialog-card .v-card__title {
+  padding: 0 !important;
+}
+.mf-component-machinery-job-registry-dialog-card .v-card__text {
+  padding-top: 20px !important;
 }
 
 /*# sourceMappingURL=styles.css.map */

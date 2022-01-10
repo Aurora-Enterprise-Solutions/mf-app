@@ -58,6 +58,15 @@ export default {
             this.setValue(this.image)
 
         },
+
+        disabled() {
+
+            if (this.disabled)
+                this.signaturePad.off()
+            else
+                this.signaturePad.on()
+
+        },
     },
 
     mounted() {
@@ -80,6 +89,11 @@ export default {
         this.resizeObserver.observe(this.$refs.MfSignaturePad)
 
         this.setValue(this.image)
+
+        if (this.disabled)
+            this.signaturePad.off()
+        else
+            this.signaturePad.on()
 
     },
 

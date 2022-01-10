@@ -13,4 +13,5 @@ export const Message = {
     BOOKING_DELETED                 : 'Registro de arriendo eliminado',
     MACHINERY_JOB_REGISTRY_CREATED  : 'Registro de uso creado',
     MACHINERY_FUEL_REGISTRY_CREATED : 'Registro de combustible creado',
+    MACHINERY_JOB_REGISTRY_DELETED  : 'Registro de uso eliminado',
 }

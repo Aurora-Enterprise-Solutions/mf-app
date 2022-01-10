@@ -1,13 +1,15 @@
 <template>
     <v-container fluid class="mf-page mf-page-machinery-maintenance">
         <v-data-iterator :items="_maintenances"
+                         :search="search"
                          disable-pagination
                          disable-sort
                          hide-default-footer
         >
             <template #header>
                 <v-toolbar rounded>
-                    <v-text-field append-icon="mdi-magnify"
+                    <v-text-field v-model="search"
+                                  append-icon="mdi-magnify"
                                   label="Buscar"
                                   single-line
                                   hide-details
@@ -17,7 +19,7 @@
 
 
             <template #default="props">
-                <v-row style="padding: 16px 0;">
+                <v-row style="padding: 16px 0;" class="cards">
                     <v-col v-for="item in props.items"
                            :key="item._id"
                            cols="12"
@@ -186,6 +188,7 @@ export default {
     data() {
 
         return {
+            search       : '',
             loading      : {},
             maintenances : [],
         }

@@ -5,7 +5,7 @@
                    sm="3"
                    lg="2"
             >
-                <img :src="require('./../assets/images/logo.svg')"
+                <img :src="_url"
                      class="logo"
                 >
             </v-col>
@@ -16,5 +16,13 @@
 <script>
 export default {
     name: 'MfLogo',
+
+    computed: {
+        _url() {
+
+            return process.env.NUXT_ENV_LOGO_BASE64
+
+        },
+    },
 }
 </script>
