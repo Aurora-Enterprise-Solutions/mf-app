@@ -27,16 +27,16 @@ jobs:
         run: |-
           docker build \
           -t us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} \
-          --build-arg NUXT_ENV_API_HOST="${{ secrets.NUXT_ENV_API_HOST }}"" \
-          --build-arg NUXT_ENV_API_HOST_WS="${{ secrets.NUXT_ENV_API_HOST_WS }}"" \
-          --build-arg NUXT_ENV_OFFICE_EMAIL="${{ secrets.NUXT_ENV_OFFICE_EMAIL }}"" \
-          --build-arg NUXT_ENV_LOGO_BASE64="${{ secrets.NUXT_ENV_LOGO_BASE64 }}"" \
-          --build-arg NUXT_ENV_RAZON_SOCIAL="${{ secrets.NUXT_ENV_RAZON_SOCIAL }}"" \
-          --build-arg NUXT_ENV_GIRO="${{ secrets.NUXT_ENV_GIRO }}"" \
-          --build-arg NUXT_ENV_DIRECCION="${{ secrets.NUXT_ENV_DIRECCION }}"" \
-          --build-arg NUXT_ENV_RUT="${{ secrets.NUXT_ENV_RUT }}"" \
-          --build-arg NUXT_ENV_FONO="${{ secrets.NUXT_ENV_FONO }}"" \
-          --build-arg NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}"" .
+          --build-arg NUXT_ENV_API_HOST="${{ secrets.NUXT_ENV_API_HOST }}" \
+          --build-arg NUXT_ENV_API_HOST_WS="${{ secrets.NUXT_ENV_API_HOST_WS }}" \
+          --build-arg NUXT_ENV_OFFICE_EMAIL="${{ secrets.NUXT_ENV_OFFICE_EMAIL }}" \
+          --build-arg NUXT_ENV_LOGO_BASE64="${{ secrets.NUXT_ENV_LOGO_BASE64 }}" \
+          --build-arg NUXT_ENV_RAZON_SOCIAL="${{ secrets.NUXT_ENV_RAZON_SOCIAL }}" \
+          --build-arg NUXT_ENV_GIRO="${{ secrets.NUXT_ENV_GIRO }}" \
+          --build-arg NUXT_ENV_DIRECCION="${{ secrets.NUXT_ENV_DIRECCION }}" \
+          --build-arg NUXT_ENV_RUT="${{ secrets.NUXT_ENV_RUT }}" \
+          --build-arg NUXT_ENV_FONO="${{ secrets.NUXT_ENV_FONO }}" \
+          --build-arg NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}" .
       # Configure docker to use the gcloud command-line tool as a credential helper
       - run: |
           gcloud auth configure-docker -q
