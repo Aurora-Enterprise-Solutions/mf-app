@@ -215,10 +215,14 @@
                                 :disabled="loading"
                     />
 
+                    <v-switch v-model="switchSignature"
+                              label="Desea firmar ahora?"
+                    />
+
                     <mf-signature-pad ref="signaturePad"
                                       :label="$auth.user.role.name === 'operator' ? 'Firma Jefe de Obra' : 'Firma Operador'"
                                       :image.sync="formData.signature"
-                                      :disabled="loading"
+                                      :disabled="!switchSignature"
                     />
 
                     <v-btn color="primary" @click="submit">
@@ -380,9 +384,10 @@ export default {
     data() {
 
         return {
-            loading  : false,
-            step     : 1,
-            formData : {
+            loading         : false,
+            step            : 1,
+            switchSignature : false,
+            formData        : {
                 ...defaultFormData,
             },
 
@@ -462,6 +467,8 @@ export default {
             this.formData.machineryType = this.equipments.find( (equipment) => equipment._id === equipmentId).type
             this.currentWorkCondition = this.equipments.find( (equipment) => equipment._id === equipmentId).workCondition
 
+            this.$apollo.queries.buildings.refetch()
+
         },
 
         submit() {
@@ -472,15 +479,16 @@ export default {
 
                 this.$apollo.mutate( {
                     mutation: gql`mutation ($form: MachineryJobRegistryInput!) {
-                    createMachineryJobRegistry(form: $form) {
-                        __typename
-                    }
-                }`,
+                        createMachineryJobRegistry(form: $form) {
+                            __typename
+                        }
+                    }`,
 
                     variables: {
                         form: {
                             ...this.formData,
-                            signature: this.$refs.signaturePad.getValue(),
+                            signature            : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
+                            bookingWorkCondition : this.currentWorkCondition,
                         },
                     },
                 } )

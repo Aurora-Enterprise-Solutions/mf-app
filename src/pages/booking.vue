@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-booking">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.bookings.loading || deleteLoading"
+                      :loading="$apollo.queries.bookings.loading || deleteLoading || downloading"
                       :search="search"
                       :items="bookings"
                       item-key="_id"
@@ -14,7 +14,19 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.bookings.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn icon
+                           dark
+                           color="primary"
+                           :disabled="$apollo.queries.bookings.loading || deleteLoading || downloading"
+                           style="margin-right: 10px"
+                           @click="downloadTable"
+                    >
+                        <v-icon>
+                            mdi-file-download-outline
+                        </v-icon>
+                    </v-btn>
+
+                    <v-btn :disabled="$apollo.queries.bookings.loading || deleteLoading || downloading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -71,16 +83,16 @@
                                   :items-per-page="-1"
                     >
 
-                        <template #[`item.machineryType`]="{ item }">
-                            {{ getMachineryTypeLabel(item.machineryType) }}
+                        <template #[`item.machineryType`]="{ item: innerItem }">
+                            {{ getMachineryTypeLabel(innerItem.machineryType) }}
                         </template>
 
-                        <template #[`item.equipment`]="{ item }">
-                            {{ getEquipmentLabel(item.equipment) }}
+                        <template #[`item.equipment`]="{ item: innerItem }">
+                            {{ getEquipmentLabel(innerItem.equipment) }}
                         </template>
 
-                        <template #[`item.operator`]="{ item }">
-                            {{ getOperatorLabel(item.operator) }}
+                        <template #[`item.operator`]="{ item: innerItem }">
+                            {{ getOperatorLabel(innerItem.operator) }}
                         </template>
 
                     </v-data-table>
@@ -115,6 +127,7 @@ import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 import { BookingTypes, BookingTypesAndLabels } from './../components/MfBookingFormDialog'
 import { MachineryTypes } from './../components/MfEquipmentFormDialog'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -203,9 +216,10 @@ export default {
     data() {
 
         return {
-            search   : '',
-            showForm : false,
-            isNew    : true,
+            downloading : false,
+            search      : '',
+            showForm    : false,
+            isNew       : true,
 
             deleteLoading: false,
 
@@ -304,7 +318,12 @@ export default {
             this.isNew = true
             this.formData = {
                 type      : BookingTypes.INTERNAL,
-                receivers : [],
+                receivers : [
+                    {
+                        editable : true,
+                        email    : process.env.NUXT_ENV_OFFICE_EMAIL,
+                    },
+                ],
             }
             this.showForm = true
 
@@ -441,6 +460,80 @@ export default {
                 return `${rut} | ${name}`
             else
                 return operator
+
+        },
+
+        downloadTable() {
+
+            this.downloading = true
+
+            const { workbook, worksheet } = newWorkbook( { name: 'Arriendos' } )
+
+            let headers = [
+                'Cliente',
+                'Obra',
+                'Fecha Inicio',
+                'Fecha Término',
+                'Ubicación',
+                'Equipo',
+                'Operador',
+                'Hrs mínimas',
+                '$ por hora',
+            ]
+
+            let maxReceiversCount = 0
+            let source = this.bookings.reduce( (acc, item) => {
+
+                const commonData = [
+                    this.getLabelOfItemById(this.clients, item.client, 'name'),
+                    item.building,
+                    this.getDateLabelFormat(item.startDate),
+                    this.getDateLabelFormat(item.endDate),
+                    item.address ? item.address : '',
+                ]
+
+                for (const machine of item.machines) {
+
+                    const equipment = [
+                        this.getEquipmentLabel(machine.equipment),
+                        this.getOperatorLabel(machine.operator),
+                        machine.minHours ? machine.minHours : '',
+                        machine.amountPerHour ? machine.amountPerHour : '',
+                    ]
+
+                    acc.push( [
+                        ...commonData,
+                        ...equipment,
+                        ...item.receivers.map( (receiver) => receiver.email),
+                    ] )
+
+                }
+
+                maxReceiversCount = Math.max(maxReceiversCount, item.receivers.length)
+
+                return acc
+
+            }, [] )
+
+            headers = [ ...headers, ...Array(maxReceiversCount).fill('Correo receptor') ]
+
+            source = source.map( (item) => {
+
+                if (item.length < headers.length)
+                    item = [ ...item, ...Array(headers.length - item.length).fill('') ]
+
+                return item
+
+            } )
+
+            setExcelHeader(workbook, worksheet)
+
+            addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+            source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
+
+            saveExcelFile(workbook, 'arriendos')
+
+            this.downloading = false
 
         },
     },

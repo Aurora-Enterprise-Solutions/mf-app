@@ -1,7 +1,7 @@
 <template>
     <v-container class="mf-page mf-page-staff">
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.users.loading || deleteLoading"
+                      :loading="$apollo.queries.users.loading || deleteLoading || downloading"
                       :search="search"
                       :items="users"
                       item-key="_id"
@@ -13,7 +13,19 @@
 
                     <v-spacer />
 
-                    <v-btn :disbaled="$apollo.queries.users.loading || deleteLoading" color="primary" @click.stop="onNew">
+                    <v-btn icon
+                           dark
+                           color="primary"
+                           :disabled="$apollo.queries.users.loading || deleteLoading || downloading"
+                           style="margin-right: 10px"
+                           @click="downloadTable"
+                    >
+                        <v-icon>
+                            mdi-file-download-outline
+                        </v-icon>
+                    </v-btn>
+
+                    <v-btn :disabled="$apollo.queries.users.loading || deleteLoading || downloading" color="primary" @click.stop="onNew">
                         Nuevo
                     </v-btn>
                 </v-toolbar>
@@ -64,6 +76,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -96,6 +109,7 @@ export default {
     data() {
 
         return {
+            downloading  : false,
             search       : '',
             showUserForm : false,
             isNew        : true,
@@ -111,6 +125,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Nombre',
@@ -118,6 +133,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Correo Electrónico',
@@ -125,6 +141,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
+                    exportable : true,
                 },
                 {
                     text       : 'Rol',
@@ -132,6 +149,7 @@ export default {
                     sortable   : true,
                     filterable : true,
                     groupable  : true,
+                    exportable : true,
                 },
                 {
                     text       : 'Acciones',
@@ -247,6 +265,50 @@ export default {
             const role = this.roles.find( (role) => role._id === id)
 
             return role ? role.label : ''
+
+        },
+
+        prepareSourceForExport() {
+
+            return this.users.map( (item) => {
+
+                return {
+                    rut   : item.rut,
+                    name  : item.name,
+                    email : item.email,
+                    role  : this.getRoleLabelById(item.role),
+                }
+
+            } )
+
+        },
+
+        downloadTable() {
+
+            this.downloading = true
+
+            const { workbook, worksheet } = newWorkbook( { name: 'Personal' } )
+
+            const headers = this.headers.filter( (h) => h.exportable).map( (h) => h.text)
+            const source = this.users.map( (item) => {
+
+                return [
+                    item.rut,
+                    item.name,
+                    item.email,
+                    this.getRoleLabelById(item.role),
+                ]
+
+            } )
+
+            setExcelHeader(workbook, worksheet)
+
+            addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+            source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
+
+            saveExcelFile(workbook, 'personal')
+
+            this.downloading = false
 
         },
     },

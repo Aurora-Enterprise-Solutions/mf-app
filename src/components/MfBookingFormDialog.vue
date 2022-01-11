@@ -452,7 +452,8 @@ export default {
         data(newValue) {
 
             this.formData = {
-                machines: [],
+                machines  : [],
+                receivers : [],
                 ...JSON.parse(JSON.stringify(newValue) ),
             }
 

@@ -4,7 +4,7 @@
               width="290px"
     >
         <template #activator="{ on, attrs: actAttrs }">
-            <v-text-field :value="_date"
+            <v-text-field :value="value"
                           :label="label"
                           readonly
                           v-bind="actAttrs"
@@ -13,17 +13,19 @@
                           v-on="on"
             />
         </template>
-
-        <v-date-picker :value="value"
-                       scrollable
+        <v-time-picker :value="value"
+                       full-width
                        v-bind="attrs"
-                       @input="onChangeDate"
+                       @input="onChange"
         >
             <v-spacer />
-            <v-btn text color="primary" @click="onConfirm">
-                Confirmar
+            <v-btn text color="primary" @click="modal = false">
+                Cancelar
             </v-btn>
-        </v-date-picker>
+            <v-btn text color="primary" @click="onConfirm">
+                OK
+            </v-btn>
+        </v-time-picker>
     </v-dialog>
 </template>
 
@@ -31,7 +33,7 @@
 import moment from 'moment'
 
 export default {
-    name: 'MfDatePicker',
+    name: 'MfTimePicker',
 
     props: {
         value: {
@@ -69,14 +71,6 @@ export default {
 
     },
 
-    computed: {
-        _date() {
-
-            return moment(this.value).format('DD-MM-YYYY')
-
-        },
-    },
-
     watch: {
         value(newValue) {
 
@@ -86,7 +80,7 @@ export default {
     },
 
     methods: {
-        onChangeDate(date) {
+        onChange(date) {
 
             this.privateValue = date
 
