@@ -40,7 +40,7 @@
 
                     <!-- MACHINERY -->
 
-                    <v-text-field v-if="isMachinery"
+                    <v-text-field v-if="isMachinery && !isOperator"
                                   :value="formData.startHourmeter"
                                   label="Horómetro Inicial"
                                   type="number"
@@ -50,7 +50,7 @@
                                   @change="calculateTotalHours"
                     />
 
-                    <v-text-field v-if="isMachinery"
+                    <v-text-field v-if="isMachinery && !isOperator"
                                   :value="formData.endHourmeter"
                                   label="Horómetro Final"
                                   type="number"
@@ -63,7 +63,7 @@
                                   @change="calculateTotalHours"
                     />
 
-                    <v-text-field v-if="isMachinery"
+                    <v-text-field v-if="isMachinery && !isOperator"
                                   :value="formData.totalHours"
                                   label="Total de Horas"
                                   type="number"
@@ -74,7 +74,7 @@
 
                     <!-- TRUCKS -->
 
-                    <v-select v-if="isTruck"
+                    <v-select v-if="isTruck && !isOperator"
                               v-model="formData.client"
                               :items="clients"
                               label="Cliente"
@@ -94,7 +94,7 @@
 
                     </v-select>
 
-                    <v-select v-if="isTruck"
+                    <v-select v-if="isTruck && !isOperator"
                               v-model="formData.building"
                               :items="buildings"
                               label="Obra"
@@ -107,7 +107,7 @@
 
 
                     <!--BOTH CASE-->
-                    <v-select v-if="isTruck && isByBoth"
+                    <v-select v-if="isTruck && isByBoth && !isOperator"
                               v-model="formData.workCondition"
                               :items="TruckWorkConditions"
                               label="Condición de Trabajo"
@@ -120,7 +120,7 @@
 
                     <!--BY TRAVEL-->
 
-                    <v-select v-if="isTruck && isByTravel"
+                    <v-select v-if="isTruck && isByTravel && !isOperator"
                               v-model="formData.load"
                               :items="loads"
                               label="Tipo de Carga"
@@ -131,7 +131,7 @@
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
-                    <v-text-field v-if="isTruck && isByTravel"
+                    <v-text-field v-if="isTruck && isByTravel && !isOperator"
                                   :value="formData.totalTravels"
                                   label="Total de Viajes"
                                   type="number"
@@ -141,7 +141,7 @@
 
 
                     <!--BY DAY-->
-                    <v-select v-if="isTruck && isByDay"
+                    <v-select v-if="isTruck && isByDay && !isOperator"
                               v-model="formData.workingDayType"
                               :items="workingDayTypes"
                               label="Tipo de Jornada"
@@ -151,7 +151,7 @@
                               :rules="[ v => !!v || 'El tipo de jornada es requerido' ]"
                     />
 
-                    <v-select v-if="isTruck && isByDay"
+                    <v-select v-if="isTruck && isByDay && !isOperator"
                               v-model="formData.load"
                               :items="loads"
                               label="Tipo de Carga"
@@ -293,6 +293,12 @@ export default {
     },
 
     computed: {
+
+        isOperator() {
+
+            return this.$auth.user.role.name === 'operator' || this.$auth.user.role.name === 'construction_manager'
+
+        },
 
         isTruck() {
 

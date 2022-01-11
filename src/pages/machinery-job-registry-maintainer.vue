@@ -36,7 +36,7 @@
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
 
-                <v-btn icon color="error" @click="onDelete(item)">
+                <v-btn v-if="!isOperator" icon color="error" @click="onDelete(item)">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
             </template>
@@ -91,6 +91,7 @@ export default {
                         _id,
                         rut,
                         name,
+                        role,
                     },
                     building,
                     bookingWorkCondition,
@@ -98,7 +99,15 @@ export default {
                     observations,
                 }
             }`,
-            update: (data) => data.getAllMachineryJobRegistry,
+            update(data) {
+
+                if (this.isOperator)
+                    return data.getAllMachineryJobRegistry.filter( (item) => item.executor.role === this.$auth.user.role._id)
+                else
+                    return data.getAllMachineryJobRegistry
+
+
+            },
         },
     },
 
@@ -172,6 +181,12 @@ export default {
         ...mapGetters( {
             title: 'navbar/getTitle',
         } ),
+
+        isOperator() {
+
+            return this.$auth.user.role.name === 'operator' || this.$auth.user.role.name === 'construction_manager'
+
+        },
     },
 
     methods: {

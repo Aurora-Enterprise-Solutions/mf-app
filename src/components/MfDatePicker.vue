@@ -20,11 +20,8 @@
                        @input="onChangeDate"
         >
             <v-spacer />
-            <v-btn text color="primary" @click="modal = false">
-                Cancelar
-            </v-btn>
             <v-btn text color="primary" @click="onConfirm">
-                OK
+                Confirmar
             </v-btn>
         </v-date-picker>
     </v-dialog>

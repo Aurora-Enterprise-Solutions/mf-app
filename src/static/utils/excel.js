@@ -5,15 +5,30 @@ export const mainColor = '003249'
 
 export const firstRow = 7
 
+export function addWorksheet(workbook, sheetName) {
+
+    const worksheet = workbook.addWorksheet(sheetName, { views: [{ showGridLines: false }] } )
+
+    return worksheet
+
+}
+
+
 export function newWorkbook( { name } ) {
 
     const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet(name, { views: [{ showGridLines: false }] } )
+    const worksheet = addWorksheet(workbook, name)
 
     return {
         workbook,
         worksheet,
     }
+
+}
+
+export function newEmptyWorkbook() {
+
+    return new ExcelJS.Workbook()
 
 }
 
@@ -61,17 +76,25 @@ export function setExcelHeader(workbook, worksheet) {
 
 }
 
-export function addExcelRow(workbook, worksheet, rowData, { isHeader = false } = {} ) {
+export function addExcelRow(workbook, worksheet, rowData, { isHeader = false, bordered = true } = {} ) {
 
     const lastRow = worksheet.lastRow
-    const lastRowNumber = lastRow.number > firstRow ? lastRow.number : firstRow
+    let lastRowNumber = lastRow.number > firstRow ? lastRow.number : firstRow
 
     let row
 
-    if (isHeader)
-        row = worksheet.insertRow(lastRowNumber + 2, getParsedRow(rowData) )
-    else
+    if (isHeader) {
+
+        lastRowNumber = lastRowNumber + 2
+        row = worksheet.insertRow(lastRowNumber, getParsedRow(rowData) )
+
+    }
+    else {
+
+        lastRowNumber = lastRowNumber + 1
         row = worksheet.addRow(getParsedRow(rowData) )
+
+    }
 
     // Styling
 
@@ -80,10 +103,10 @@ export function addExcelRow(workbook, worksheet, rowData, { isHeader = false } =
         const borderStyle = isHeader ? 'medium' : 'thin'
 
         cell.border = {
-            top    : { style: borderStyle, color: { argb: mainColor } },
-            left   : colNumber === 2 ? { style: borderStyle, color: { argb: mainColor } } : undefined,
-            bottom : { style: borderStyle, color: { argb: mainColor } },
-            right  : colNumber === row.cellCount ? { style: borderStyle, color: { argb: mainColor } } : undefined,
+            top    : bordered ? { style: borderStyle, color: { argb: mainColor } } : undefined,
+            left   : bordered && colNumber === 2 ? { style: borderStyle, color: { argb: mainColor } } : undefined,
+            bottom : bordered ? { style: borderStyle, color: { argb: mainColor } } : undefined,
+            right  : bordered && colNumber === row.cellCount ? { style: borderStyle, color: { argb: mainColor } } : undefined,
         }
 
         cell.font = {
@@ -91,10 +114,19 @@ export function addExcelRow(workbook, worksheet, rowData, { isHeader = false } =
             color : { argb: mainColor },
         }
 
+        cell.alignment = { vertical: 'top' }
+
     } )
 
+    worksheet.mergeCells(lastRowNumber, 2, lastRowNumber, 4)
+
     if (isHeader)
-        worksheet.getRow(lastRowNumber + 1).height = 6
+        worksheet.getRow(lastRowNumber - 1).height = 6
+
+    return {
+        row,
+        lastRowNumber,
+    }
 
 }
 
@@ -120,6 +152,9 @@ function getParsedRow(rowData) {
         rowIndex++
 
     }
+
+    rowValues.splice(3, 0, '')
+    rowValues.splice(3, 0, '')
 
     return rowValues
 
