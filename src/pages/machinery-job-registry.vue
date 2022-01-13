@@ -110,6 +110,7 @@
                               item-value="_id"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El cliente es requerido' ]"
+                              @change="onClientChange"
                     >
 
                         <template #item="{ item }">
@@ -155,7 +156,6 @@
                               item-text="type"
                               item-value="type"
                               :disabled="loading"
-                              :loading="$apollo.queries.loads.loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
@@ -186,7 +186,6 @@
                               item-text="type"
                               item-value="type"
                               :disabled="loading"
-                              :loading="$apollo.queries.loads.loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
@@ -275,7 +274,10 @@ export default {
                     _id,
                     name,
                     billing {
-                        rut
+                        rut,
+                        loads {
+                            type,
+                        }
                     }
                 }
             }`,
@@ -314,6 +316,22 @@ export default {
                             code,
                             patent,
                             workCondition,
+                            client {
+                                _id,
+                                name,
+                                billing {
+                                    rut,
+                                    loads {
+                                        type,
+                                    }
+                                }
+                            },
+                            building,
+                            operator {
+                                _id,
+                                rut,
+                                name,
+                            },
                         }
                     }
                     ...on ExternalEquipmentsByBooking {
@@ -322,6 +340,18 @@ export default {
                             type,
                             minHours,
                             workCondition,
+                            client {
+                                _id,
+                                name,
+                                billing {
+                                    rut,
+                                    loads {
+                                        type,
+                                    }
+                                }
+                            },
+                            building,
+                            operator,
                         }
                     }
                 }
@@ -340,6 +370,15 @@ export default {
 
                 this.formData.machineryType = equipments.length > 0 ? equipments[0].type : null
                 this.currentWorkCondition = equipments.length > 0 ? equipments[0].workCondition : null
+                this.formData.client = equipments.length > 0 ? equipments[0].client._id : null
+                this.formData.building = equipments.length > 0 ? equipments[0].building : null
+                this.formData.operator = equipments.length > 0
+                    ? (isOperator ? equipments[0].operator._id : equipments[0].operator)
+                    : null
+
+                this.loads = equipments.length > 0
+                    ? equipments[0].client.billing.loads
+                    : []
 
                 return equipments
 
@@ -350,28 +389,6 @@ export default {
                 return {
                     user : this.$auth.user._id,
                     date : this.formData.date,
-                }
-
-            },
-
-            fetchPolicy: 'network-only',
-        },
-
-        loads: {
-            query: gql`query getClient($client: String!) {
-                getClient(client: $client) {
-                    billing {
-                        loads {
-                            type,
-                        }
-                    }
-                }
-            }`,
-            update: (data) => data.getClient.billing.loads,
-            variables() {
-
-                return {
-                    client: this.formData.client,
                 }
 
             },
@@ -390,6 +407,9 @@ export default {
             formData        : {
                 ...defaultFormData,
             },
+
+            clients : [],
+            loads   : [],
 
             MachineryTypes       : MachineryTypes.filter( (type) => type.value !== 'PICKUP'),
             TruckWorkConditions  : TruckWorkConditions.filter( (condition) => condition.value !== TruckWorkConditionsTypes.BOTH),
@@ -456,6 +476,13 @@ export default {
     },
 
     methods: {
+        onClientChange(id) {
+
+            const client = this.clients.find( (client) => client._id === id)
+            this.loads = client.billing.loads
+
+        },
+
         calculateTotalHours() {
 
             this.formData.totalHours = this.formData.endHourmeter - this.formData.startHourmeter
@@ -464,9 +491,16 @@ export default {
 
         setMachineryType(equipmentId) {
 
-            this.formData.machineryType = this.equipments.find( (equipment) => equipment._id === equipmentId).type
-            this.currentWorkCondition = this.equipments.find( (equipment) => equipment._id === equipmentId).workCondition
+            const equipment = this.equipments.find( (equipment) => equipment._id === equipmentId)
 
+            this.formData.machineryType = equipment.type
+            this.currentWorkCondition = equipment.workCondition
+
+            this.formData.client = equipment.client._id
+            this.formData.building = equipment.building
+            this.formData.operator = typeof equipment.operator === 'string' ? equipment.operator : equipment.operator._id
+
+            this.onClientChange(equipment.client._id)
             this.$apollo.queries.buildings.refetch()
 
         },
