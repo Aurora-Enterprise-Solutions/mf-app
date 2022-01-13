@@ -332,6 +332,7 @@ export default {
                                 rut,
                                 name,
                             },
+                            address,
                         }
                     }
                     ...on ExternalEquipmentsByBooking {
@@ -352,6 +353,7 @@ export default {
                             },
                             building,
                             operator,
+                            address,
                         }
                     }
                 }
@@ -372,6 +374,7 @@ export default {
                 this.currentWorkCondition = equipments.length > 0 ? equipments[0].workCondition : null
                 this.formData.client = equipments.length > 0 ? equipments[0].client._id : null
                 this.formData.building = equipments.length > 0 ? equipments[0].building : null
+                this.formData.address = equipments.length > 0 ? equipments[0].address : null
                 this.formData.operator = equipments.length > 0
                     ? (isOperator ? equipments[0].operator._id : equipments[0].operator)
                     : null
@@ -498,6 +501,7 @@ export default {
 
             this.formData.client = equipment.client._id
             this.formData.building = equipment.building
+            this.formData.address = equipment.address
             this.formData.operator = typeof equipment.operator === 'string' ? equipment.operator : equipment.operator._id
 
             this.onClientChange(equipment.client._id)

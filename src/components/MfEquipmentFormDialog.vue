@@ -127,6 +127,12 @@ import gql from 'graphql-tag'
 import { Error } from './../static/errors'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 
+export const MachineryType = {
+    TRUCK  : 'TRUCK',
+    PICKUP : 'PICKUP',
+    OTHER  : 'OTHER',
+}
+
 export const MachineryTypes = [
     { label: 'CAMIÓN', value: 'TRUCK' },
     { label: 'CAMIONETA', value: 'PICKUP' },

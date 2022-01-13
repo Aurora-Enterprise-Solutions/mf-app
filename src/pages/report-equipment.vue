@@ -15,11 +15,10 @@
 
                 <v-toolbar flat>
                     <mf-date-picker v-model="formData.date"
+                                    label="Fecha"
                                     :rules="[ v => !!v || 'La fecha es requerida' ]"
+                                    @change="onSearch"
                     />
-                    <v-btn small color="primary" style="margin-left: 10px" @click="onSearch">
-                        filtrar fecha
-                    </v-btn>
                 </v-toolbar>
 
                 <v-toolbar flat>
@@ -30,6 +29,10 @@
                                   hide-details
                     />
                 </v-toolbar>
+            </template>
+
+            <template #[`item.equipment`]="{ item }">
+                {{ item.equipment.__typename === 'InternalEquipment' ? `${item.equipment.code} | ${item.equipment.name}` : item.equipment.name }}
             </template>
 
             <template #[`item.operator`]="{ item }">
@@ -54,6 +57,7 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { generateMachineryJobRegistryPdf } from './../static/utils/pdf'
 
 export default {
     apollo: {
@@ -61,7 +65,17 @@ export default {
             query: gql`query getAllMachineryJobRegistryByDate($date: String!) {
                 getAllMachineryJobRegistryByDate(date: $date) {
                     _id,
-                    equipment,
+                    equipment {
+                        __typename,
+                        ...on InternalEquipment {
+                            _id,
+                            code,
+                            name,
+                        },
+                        ...on ExternalEquipment {
+                            name,
+                        }
+                    },
                     date,
                     startHourmeter,
                     endHourmeter,
@@ -72,17 +86,37 @@ export default {
                     workCondition,
                     load,
                     machineryType,
-                    client,
+                    client {
+                        _id,
+                        name,
+                        billing {
+                            rut,
+                        }
+                    },
                     executor {
                         _id,
                         rut,
                         name,
                         role,
+                        signature,
                     },
                     building,
                     bookingWorkCondition,
                     workingDayType,
                     observations,
+                    folio,
+                    operator {
+                        __typename,
+                        ...on InternalOperator {
+                            _id,
+                            rut,
+                            name,
+                        },
+                        ...on ExternalOperator {
+                            name,
+                        }
+                    },
+                    address,
                 }
             }`,
 
@@ -150,6 +184,15 @@ export default {
         onSearch() {
 
             this.date = this.formData.date
+
+        },
+
+        onDownload(item) {
+
+            generateMachineryJobRegistryPdf( {
+                title : `reporte_equipo_folio_${item.folio}`,
+                data  : item,
+            } )
 
         },
     },
