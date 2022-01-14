@@ -120,7 +120,9 @@ export default {
                             rut,
                             name,
                         },
-                    }
+                    },
+                    address,
+                    folio,
                 }
             }`,
             update(data) {
