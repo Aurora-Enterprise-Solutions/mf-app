@@ -290,8 +290,6 @@ export default {
     methods: {
         onEquipmentChange(id) {
 
-            // eslint-disable-next-line no-console
-            console.log(id)
             const operator = this.operators.find( (operator) => operator.equipmentId === id)
 
             this.formData.operator = operator ? operator._id : null
@@ -313,9 +311,7 @@ export default {
 
                 const form = {
                     ...this.formData,
-                    date: moment(`${this.formData.date  } ${  this.formData.time}`).toISOString(),
                 }
-                delete form.time
 
                 this.$apollo.mutate( {
                     mutation: gql`mutation ($form: MachineryFuelRegistryInput!) {
