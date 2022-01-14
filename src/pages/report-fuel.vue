@@ -143,6 +143,9 @@ export default {
 
         async generateExcelFile(data) {
 
+            if (data.length === 0)
+                this.$alert('No hay datos para generar el archivo', 'info')
+
             const workbook = newEmptyWorkbook()
             const worksheet = addWorksheet(workbook, 'Registro de Combustible')
             setExcelHeader(workbook, worksheet)
@@ -242,99 +245,6 @@ export default {
             } )
 
             saveExcelFile(workbook, 'combustible')
-
-
-            // // 1: sort by date
-            // const sortedData = data.sort( (a, b) => new Date(a.date) - new Date(b.date) )
-
-            // // 2: filter by OTHER
-            // const machineryData = sortedData.filter( (item) => item.machineryType === 'OTHER')
-
-            // // 3: add worksheet
-
-            // if (machineryData.length > 0) {
-
-            //     const worksheet = addWorksheet(workbook, 'Operador')
-            //     setExcelHeader(workbook, worksheet)
-
-            //     addExcelRow(workbook, worksheet, [ `Operador: ${machineryData[0].executor.rut} | ${machineryData[0].executor.name}` ], { isHeader: true, bordered: false } )
-
-            //     const headers = [ 'Fecha', 'Horómetro Inicial', 'Horómetro Final', 'Horas Máquina', 'Total Horas', 'Semanas Corridas' ]
-            //     addExcelRow(workbook, worksheet, headers, { isHeader: true } )
-
-            //     let currentWeek = 0
-            //     let sumHours = 0
-            //     let sumDays = 0
-
-            //     let totalHours = 0
-            //     let totalDays = 0
-
-            //     for (const [ index, item ] of machineryData.entries() ) {
-
-            //         currentWeek = moment.utc(item.date).week()
-
-            //         const isSaturday = moment.utc(item.date).day() === 6
-            //         const isLastDayOfWeek = machineryData[index + 1] && moment.utc(machineryData[index + 1].date).week() !== currentWeek ? true : false
-
-            //         sumDays++
-            //         totalDays++
-            //         sumHours += isSaturday ? item.totalHours * 2 : item.totalHours
-            //         totalHours += isSaturday ? item.totalHours * 2 : item.totalHours
-
-            //         const newRow = [
-            //             moment.utc(item.date).format('dddd DD [de] MMMM [de] YYYY'),
-            //             item.startHourmeter,
-            //             item.endHourmeter,
-            //             item.totalHours,
-            //             isSaturday ? item.totalHours * 2 : item.totalHours,
-            //             isLastDayOfWeek || index === (machineryData.length - 1) ? (Math.round( (sumHours / sumDays) * 10) / 10) : 0,
-            //         ]
-
-            //         const { row } = addExcelRow(workbook, worksheet, newRow)
-
-            //         row.eachCell( (cell, colNumber) => {
-
-            //             cell.alignment = { horizontal: 'center' }
-
-            //         } )
-
-            //         sumHours = isLastDayOfWeek ? 0 : sumHours
-            //         sumDays = isLastDayOfWeek ? 0 : sumDays
-
-            //     }
-
-            //     // add total
-            //     let firstCol = 0
-            //     const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, (Math.round( (totalHours / totalDays) * 10) / 10) ], { bordered: false } )
-            //     row.eachCell( (cell, colNumber) => {
-
-            //         if (firstCol === 0 && cell.value)
-            //             firstCol = colNumber
-
-            //         cell.border = {
-            //             top    : firstCol > 0 && colNumber >= firstCol ? { style: 'thin', color: { argb: mainColor } } : undefined,
-            //             left   : colNumber === firstCol ? { style: 'thin', color: { argb: mainColor } } : undefined,
-            //             bottom : firstCol > 0 && colNumber >= firstCol ? { style: 'thin', color: { argb: mainColor } } : undefined,
-            //             right  : colNumber === row.cellCount ? { style: 'thin', color: { argb: mainColor } } : undefined,
-            //         }
-
-            //         cell.font = {
-            //             bold  : false,
-            //             color : { argb: mainColor },
-            //         }
-
-            //         cell.alignment = { horizontal: 'center' }
-
-            //     } )
-
-            //     saveExcelFile(workbook, 'horas_trabajadas')
-
-            // }
-            // else {
-
-            //     this.$alert('No hay datos para generar el archivo', 'info')
-
-            // }
 
         },
     },
