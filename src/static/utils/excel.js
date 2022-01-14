@@ -159,3 +159,26 @@ function getParsedRow(rowData) {
     return rowValues
 
 }
+
+export function autoWidth(worksheet, minWidth = 10) {
+
+    worksheet.columns.forEach(function(column, index) {
+
+        if (index > 3) {
+
+            let dataMax = 0
+            column.eachCell( { includeEmpty: true }, function(cell) {
+
+                const columnLength = cell.value ? cell.value.length : 0
+                if (columnLength > dataMax)
+                    dataMax = columnLength + 8
+
+
+            } )
+            column.width = dataMax < minWidth ? minWidth : dataMax
+
+        }
+
+    } )
+
+}

@@ -1,14 +1,14 @@
 <template>
     <v-container class="mf-page mf-page-report-maintenance">
 
-        <v-card :loading="loading">
+        <v-card :loading="$apollo.queries.initialMaintenances.loading || loading">
             <v-card-title>{{ title }}</v-card-title>
 
             <v-card-text>
 
                 <v-form ref="form">
 
-                    <v-btn block color="primary" :disabled="loading" @click="submit">
+                    <v-btn block color="primary" :disabled="$apollo.queries.initialMaintenances.loading || loading" @click="submit">
                         Descargar
                     </v-btn>
 
@@ -74,6 +74,9 @@ export default {
     methods: {
         submit() {
 
+            if (this.maintenances.length === 0)
+                this.$alert('No hay datos para generar el archivo', 'info')
+
             const workbook = newEmptyWorkbook()
 
             const worksheet = addWorksheet(workbook, 'Resumen')
@@ -81,6 +84,7 @@ export default {
 
             const headers = [ 'Nombre', 'Código', 'Horómetro', 'Mantención', 'Estado' ]
             addExcelRow(workbook, worksheet, headers, { isHeader: true } )
+
 
             // 1: group data by equipment._id
             const grouped = this.maintenances.reduce( (acc, cur) => {
