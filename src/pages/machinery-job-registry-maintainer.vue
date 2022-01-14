@@ -24,7 +24,7 @@
             </template>
 
             <template #[`item.equipment`]="{ item }">
-                {{ `${item.equipment.code} | ${item.equipment.name}` }}
+                {{ item.equipment._id ? `${item.equipment.code} | ${item.equipment.name}` : item.equipment.name }}
             </template>
 
             <template #[`item.signature`]="{ item }">
@@ -69,11 +69,6 @@ export default {
             query: gql`query {
                 getAllMachineryJobRegistry {
                     _id,
-                    equipment {
-                        _id,
-                        name,
-                        code,
-                    },
                     date,
                     startHourmeter,
                     endHourmeter,
@@ -86,6 +81,13 @@ export default {
                     machineryType,
                     client {
                         _id,
+                        name,
+                        billing {
+                            rut,
+                            loads {
+                                type,
+                            }
+                        }
                     },
                     executor {
                         _id,
@@ -97,12 +99,34 @@ export default {
                     bookingWorkCondition,
                     workingDayType,
                     observations,
+                    equipment {
+                        __typename,
+                        ...on ExternalEquipment {
+                            name,
+                        },
+                        ...on InternalEquipment {
+                            _id,
+                            code,
+                            name,
+                        },
+                    },
+                    operator {
+                        __typename,
+                        ...on ExternalOperator {
+                            name,
+                        },
+                        ...on InternalOperator {
+                            _id,
+                            rut,
+                            name,
+                        },
+                    }
                 }
             }`,
             update(data) {
 
                 if (this.isOperator)
-                    return data.getAllMachineryJobRegistry.filter( (item) => item.executor.role === this.$auth.user.role._id)
+                    return data.getAllMachineryJobRegistry.filter( (item) => item.executor.role === this.$auth.user.role.name)
                 else
                     return data.getAllMachineryJobRegistry
 
@@ -146,13 +170,6 @@ export default {
                 {
                     text       : 'Total Horas',
                     value      : 'totalHours',
-                    sortable   : true,
-                    filterable : true,
-                    groupable  : false,
-                },
-                {
-                    text       : 'Total Viajes',
-                    value      : 'totalTravels',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,

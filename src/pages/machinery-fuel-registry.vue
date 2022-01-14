@@ -12,6 +12,7 @@
                               item-text="text"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El tipo de operación es requerido' ]"
+                              @change="formData.equipment = null"
                     />
 
                     <mf-date-picker v-model="formData.date"
@@ -35,6 +36,15 @@
 
 
                     <!--RECHARGE-->
+                    <v-text-field v-if="formData.type === 'RECHARGE_OTHERS'"
+                                  :value="formData.equipment"
+                                  label="Equipo"
+                                  :disabled="loading"
+                                  class="mf-to-uppercase"
+                                  :rules="[ v => !!v || 'El equipo es requerido' ]"
+                                  @input="formData.equipment = $event.toUpperCase()"
+                    />
+
                     <v-select v-if="formData.type === 'RECHARGE'"
                               v-model="formData.equipment"
                               :items="equipments"
@@ -61,7 +71,6 @@
                               label="Operador"
                               item-value="_id"
                               :disabled="true"
-                              :rules="[ v => !!v || 'El operador es requerido' ]"
                     >
 
                         <template #item="{ item }">
@@ -93,6 +102,15 @@
                                   @input="formData.count = parseFloat($event)"
                     />
 
+                    <v-text-field v-if="formData.type === 'BUY'"
+                                  :value="formData.guia"
+                                  label="Nro Guía"
+                                  type="number"
+                                  :disabled="loading"
+                                  :rules="[ v => !!v || 'El número de guía es requerido' ]"
+                                  @input="formData.guia = parseFloat($event)"
+                    />
+
                     <v-btn block color="primary" @click="submit">
                         Registrar
                     </v-btn>
@@ -120,6 +138,10 @@ export const FuelTypes = [
         value : 'BUY',
         text  : 'COMPRA',
     },
+    {
+        value : 'RECHARGE_OTHERS',
+        text  : 'RECARGA (OTROS)',
+    },
 ]
 
 const defaultFormData = {
@@ -133,27 +155,50 @@ const defaultFormData = {
 
 export default {
     apollo: {
+        equipments: {
+            query: gql`query {
+                getAllEquipments{
+                    _id,
+                    code,
+                    patent,
+                    name,
+                }
+            }`,
+
+            update( { getAllEquipments } ) {
+
+                this.internalEquipments = getAllEquipments.map( (e) => {
+
+                    return {
+                        ...e,
+                        isInternal: true,
+                    }
+
+                } )
+
+            },
+        },
+
         bookings: {
-            query: gql`query getBookingsByDate($date: String!) {
+            query: gql`query getAllEquipments($date: String!) {
                 getBookingsByDate (date: $date) {
                     __typename,
                     machines {
                         __typename,
-
                         ...on InternalMachine {
                             equipment {
                                 _id,
                                 code,
                                 patent,
-                                name
+                                name,
                             },
+
                             operator {
                                 _id,
                                 rut,
                                 name,
-                            }
-                        },
-
+                            },
+                        }
                         ...on ExternalMachine {
                             externalEquipment: equipment,
                             externalOperator:operator,
@@ -172,10 +217,6 @@ export default {
 
                         if (machine.__typename === 'InternalMachine') {
 
-                            equipments.push( {
-                                ...machine.equipment,
-                                isInternal: true,
-                            } )
                             operators.push( {
                                 ...machine.operator,
                                 isInternal  : true,
@@ -201,7 +242,7 @@ export default {
 
                 } )
 
-                this.equipments = equipments
+                this.externalEquipments = equipments
                 this.operators = operators
 
             },
@@ -230,8 +271,20 @@ export default {
             },
 
             FuelTypes,
+
+            internalEquipments : [],
+            externalEquipments : [],
+            operators          : [],
         }
 
+    },
+
+    computed: {
+        equipments() {
+
+            return this.internalEquipments.concat(this.externalEquipments)
+
+        },
     },
 
     methods: {
@@ -258,9 +311,7 @@ export default {
 
                 const form = {
                     ...this.formData,
-                    date: moment(`${this.formData.date  } ${  this.formData.time}`).toISOString(),
                 }
-                delete form.time
 
                 this.$apollo.mutate( {
                     mutation: gql`mutation ($form: MachineryFuelRegistryInput!) {

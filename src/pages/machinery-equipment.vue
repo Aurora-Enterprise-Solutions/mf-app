@@ -116,8 +116,9 @@ export default {
             formData: {},
 
             equipmentTypes: {
-                TRUCK : MachineryTypes[0].label,
-                OTHER : MachineryTypes[2].label,
+                TRUCK  : MachineryTypes[0].label,
+                OTHER  : MachineryTypes[2].label,
+                PICKUP : MachineryTypes[1].label,
             },
 
             maintenanceClasses: {

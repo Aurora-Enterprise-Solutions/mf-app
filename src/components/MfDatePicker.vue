@@ -10,6 +10,7 @@
                           v-bind="actAttrs"
                           :rules="rules"
                           :disabled="disabled"
+                          class="mf-component mf-component-date-picker"
                           v-on="on"
             />
         </template>

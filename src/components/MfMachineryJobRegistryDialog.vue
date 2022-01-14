@@ -38,6 +38,16 @@
 
                 <v-form ref="form">
 
+                    <v-text-field :value="formData.client.name"
+                                  label="Cliente"
+                                  :disabled="true"
+                    />
+
+                    <v-text-field :value="formData.building"
+                                  label="Obra"
+                                  :disabled="true"
+                    />
+
                     <!-- MACHINERY -->
 
                     <v-text-field v-if="isMachinery && !isOperator"
@@ -72,40 +82,6 @@
                     />
 
 
-                    <!-- TRUCKS -->
-
-                    <v-select v-if="isTruck && !isOperator"
-                              v-model="formData.client"
-                              :items="clients"
-                              label="Cliente"
-                              item-text="name"
-                              item-value="_id"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'El cliente es requerido' ]"
-                    >
-
-                        <template #item="{ item }">
-                            {{ item.billing.rut }} | {{ item.name }}
-                        </template>
-
-                        <template #selection="{ item }">
-                            {{ item.billing.rut }} | {{ item.name }}
-                        </template>
-
-                    </v-select>
-
-                    <v-select v-if="isTruck && !isOperator"
-                              v-model="formData.building"
-                              :items="buildings"
-                              label="Obra"
-                              item-text="building"
-                              item-value="building"
-                              :disabled="loading"
-                              :loading="$apollo.queries.buildings.loading"
-                              :rules="[ v => !!v || 'La obra es requerida' ]"
-                    />
-
-
                     <!--BOTH CASE-->
                     <v-select v-if="isTruck && isByBoth && !isOperator"
                               v-model="formData.workCondition"
@@ -122,12 +98,11 @@
 
                     <v-select v-if="isTruck && isByTravel && !isOperator"
                               v-model="formData.load"
-                              :items="loads"
+                              :items="formData.client.billing.loads"
                               label="Tipo de Carga"
                               item-text="type"
                               item-value="type"
                               :disabled="loading"
-                              :loading="$apollo.queries.loads.loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
@@ -153,12 +128,11 @@
 
                     <v-select v-if="isTruck && isByDay && !isOperator"
                               v-model="formData.load"
-                              :items="loads"
+                              :items="formData.client.billing.loads"
                               label="Tipo de Carga"
                               item-text="type"
                               item-value="type"
                               :disabled="loading"
-                              :loading="$apollo.queries.loads.loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
 
@@ -199,71 +173,18 @@ const defaultFormData = {
     startHourmeter : 0,
     endHourmeter   : 0,
     totalHours     : 0,
-    client         : null,
-    building       : null,
-    load           : null,
+    client         : {
+        biling: {
+            loads: [],
+        },
+    },
+
+    building : null,
+    load     : null,
 }
 
 export default {
     name: 'MfMachineryJobRegistryDialog',
-
-    apollo: {
-        clients: {
-            query: gql`query {
-                getAllClients {
-                    _id,
-                    name,
-                    billing {
-                        rut
-                    }
-                }
-            }`,
-            update: (data) => data.getAllClients,
-        },
-
-        buildings: {
-            query: gql`query getBuildingsByClientAndDate($client: String!, $date: String!, $equipment: String!) {
-                getBuildingsByClientAndDate(client: $client, date: $date, equipment: $equipment) {
-                    building,
-                }
-            }`,
-            update: (data) => data.getBuildingsByClientAndDate,
-            variables() {
-
-                return {
-                    client    : this.formData.client ? this.formData.client._id : null,
-                    date      : this.formData.date,
-                    equipment : this.formData.equipment ? this.formData.equipment._id : null,
-                }
-
-            },
-
-            fetchPolicy: 'network-only',
-        },
-
-        loads: {
-            query: gql`query getClient($client: String!) {
-                getClient(client: $client) {
-                    billing {
-                        loads {
-                            type,
-                        }
-                    }
-                }
-            }`,
-            update: (data) => data.getClient.billing.loads,
-            variables() {
-
-                return {
-                    client: this.formData.client ? this.formData.client._id : null,
-                }
-
-            },
-
-            fetchPolicy: 'network-only',
-        },
-
-    },
 
     props: {
         value: {
@@ -281,7 +202,9 @@ export default {
     data() {
 
         return {
-            formData: {},
+            formData: {
+                ...defaultFormData,
+            },
 
             loading         : false,
             switchSignature : this.data.signature ? true : false,
@@ -356,6 +279,8 @@ export default {
                 ...this.data,
             }
 
+            // eslint-disable-next-line no-console
+            console.log(this.formData)
 
         },
     },
@@ -391,8 +316,9 @@ export default {
                         ...this.formData,
                         client    : this.formData.client ? this.formData.client._id : null,
                         executor  : this.formData.executor ? this.formData.executor._id : null,
-                        equipment : this.formData.equipment ? this.formData.equipment._id : null,
+                        equipment : '',
                         signature : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
+                        operator  : '',
                     },
                 },
             } )
