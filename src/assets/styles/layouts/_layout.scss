@@ -8,4 +8,17 @@
   .v-application--wrap {
     min-height: 100%;
   }
+
+  .mf-page {
+    height: 100%;
+  }
+
+  .mf-global-snackbar {
+    z-index: 1000;
+
+    .v-snack__wrapper {
+        position: sticky;
+        top: 8px;
+    }
+  }
 }

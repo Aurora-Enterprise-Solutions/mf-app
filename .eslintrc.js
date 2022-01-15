@@ -135,11 +135,16 @@ module.exports = {
 
         // Vue
 
-        'vue/no-unused-components'   : 'off',
-        'vue/require-v-for-key'      : 'off',
-        'vue/valid-v-for'            : 'off',
-        'vue/require-prop-types'     : 'off',
-        'vue/script-setup-uses-vars' : 'off',
+        'vue/no-unused-components'       : 'off',
+        'vue/require-v-for-key'          : 'off',
+        'vue/valid-v-for'                : 'off',
+        'vue/require-prop-types'         : 'off',
+        'vue/script-setup-uses-vars'     : 'off',
+        'vue/multi-word-component-names' : 'off',
+
+        'vue/valid-v-slot': [ 'error', {
+            allowModifiers: true,
+        }],
 
         'vue/script-indent': [ 'error', 4, {
             baseIndent : 0,
@@ -162,6 +167,21 @@ module.exports = {
 
         'vue/no-use-v-if-with-v-for': [ 'error', {
             allowUsingIterationVar: true,
+        }],
+
+        'vue/max-attributes-per-line': [ 'error', {
+            singleline: {
+                max: 4,
+            },
+
+            multiline: {
+                max: 1,
+            },
+        }],
+
+        'vue/first-attribute-linebreak': [ 'error', {
+            singleline : 'beside',
+            multiline  : 'beside',
         }],
     },
 }

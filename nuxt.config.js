@@ -1,11 +1,11 @@
-import colors from 'vuetify/es5/util/colors'
+import es from 'vuetify/lib/locale/es'
 
 export default {
     // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
     ssr: false,
 
     server: {
-        port : 3000,
+        port : process.env.PORT || 3030,
         host : '0.0.0.0',
     },
 
@@ -32,6 +32,8 @@ export default {
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         '@/plugins/http-status',
+        '@/plugins/rut',
+        '@/plugins/alert',
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
@@ -52,6 +54,7 @@ export default {
         // https://go.nuxtjs.dev/pwa
         '@nuxtjs/pwa',
         '@nuxtjs/auth-next',
+        '@nuxtjs/apollo',
     ],
 
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -59,8 +62,25 @@ export default {
 
     // PWA module configuration: https://go.nuxtjs.dev/pwa
     pwa: {
+        icon: {
+            source   : '@/static/logo.png',
+            fileName : 'logo.png',
+        },
+
         manifest: {
-            lang: 'en',
+            name             : 'MF App',
+            short_name       : 'MF App',
+            lang             : 'es',
+            display          : 'standalone',
+            background_color : '#ECEFF1',
+        },
+
+        meta: {
+            name                : 'MF App',
+            theme_color         : '#003249',
+            background_color    : '#ECEFF1',
+            mobileAppIOS        : true,
+            appleStatusBarStyle : 'black',
         },
     },
 
@@ -74,6 +94,12 @@ export default {
                 },
             },
         },
+
+        lang: {
+            locales  : { es },
+            current  : 'es',
+            fallback : 'es',
+        },
     },
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -83,7 +109,7 @@ export default {
     srcDir: 'src/',
 
     router: {
-        middleware: 'auth',
+        middleware: [ 'auth', 'pages' ],
         extendRoutes(routes, resolve) {
 
             routes.push( {
@@ -100,8 +126,10 @@ export default {
             login    : '/login',
             logout   : '/login',
             callback : false,
-            home     : '/home',
+            home     : '/after-login',
         },
+
+        watchLoggedIn: true,
 
         strategies: {
             local: {
@@ -110,6 +138,7 @@ export default {
                     property : 'tokens.access.token',
                     required : true,
                     type     : 'Bearer',
+                    maxAge   : 31556952,
                 },
 
                 refreshToken: {
@@ -143,5 +172,14 @@ export default {
     },
 
     privateRuntimeConfig: {
+    },
+
+    apollo: {
+        clientConfigs: {
+            default: '~/apollo/config.js',
+        },
+
+        authenticationType : '',
+        tokenName          : 'auth._token.local',
     },
 }

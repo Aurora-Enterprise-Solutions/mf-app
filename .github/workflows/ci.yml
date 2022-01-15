@@ -1,13 +1,9 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - main
-      - master
   pull_request:
     branches:
-      - main
+      - testing
       - master
 
 jobs:
@@ -28,6 +24,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
+
+      - name: Setup yarn
+        run: npm install -g yarn
 
       - name: Get yarn cache directory path 🛠
         id: yarn-cache-dir-path
