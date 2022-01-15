@@ -70,4 +70,4 @@ jobs:
             NUXT_ENV_DIRECCION="${{ secrets.NUXT_ENV_DIRECCION }}";\
             NUXT_ENV_RUT="${{ secrets.NUXT_ENV_RUT }}";\
             NUXT_ENV_FONO="${{ secrets.NUXT_ENV_FONO }}";\
-            NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}"'
+            NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}"
