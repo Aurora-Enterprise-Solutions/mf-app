@@ -57,20 +57,19 @@ jobs:
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
 
       - name: Deploy to Cloud Run
-        uses: "google-github-actions/deploy-cloudrun@main"
-        with:
-          image: us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }}
-          service: ${{ secrets.SERVICE_NAME }}-${{ env.BRANCH_NAME }}
-          region: ${{ secrets.SERVICE_REGION }}
-          env_vars: |
-            NODE_ENV=${{ env.NODE_ENV }},
-            NUXT_ENV_API_HOST='${{ secrets.NUXT_ENV_API_HOST }}',
-            NUXT_ENV_API_HOST_WS='${{ secrets.NUXT_ENV_API_HOST_WS }}',
-            NUXT_ENV_OFFICE_EMAIL='${{ secrets.NUXT_ENV_OFFICE_EMAIL }}',
-            NUXT_ENV_LOGO_BASE64='${{ secrets.NUXT_ENV_LOGO_BASE64 }}',
-            NUXT_ENV_RAZON_SOCIAL='${{ secrets.NUXT_ENV_RAZON_SOCIAL }}',
-            NUXT_ENV_GIRO='${{ secrets.NUXT_ENV_GIRO }}',
-            NUXT_ENV_DIRECCION='${{ secrets.NUXT_ENV_DIRECCION }}',
-            NUXT_ENV_RUT='${{ secrets.NUXT_ENV_RUT }}',
-            NUXT_ENV_FONO='${{ secrets.NUXT_ENV_FONO }}',
-            NUXT_ENV_CONTACTO_EMAIL='${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}'
+        run: |-
+          gcloud run deploy ${{ secrets.SERVICE_NAME }}-${{ env.BRANCH_NAME }} \
+            --region ${{ secrets.SERVICE_REGION }} \
+            --image us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} \
+            --platform managed \
+            --set-env-vars '^;^NODE_ENV="${{ env.NODE_ENV }}";\
+            NUXT_ENV_API_HOST="${{ secrets.NUXT_ENV_API_HOST }}";\
+            NUXT_ENV_API_HOST_WS="${{ secrets.NUXT_ENV_API_HOST_WS }}";\
+            NUXT_ENV_OFFICE_EMAIL="${{ secrets.NUXT_ENV_OFFICE_EMAIL }}";\
+            NUXT_ENV_LOGO_BASE64="${{ secrets.NUXT_ENV_LOGO_BASE64 }}";\
+            NUXT_ENV_RAZON_SOCIAL="${{ secrets.NUXT_ENV_RAZON_SOCIAL }}";\
+            NUXT_ENV_GIRO="${{ secrets.NUXT_ENV_GIRO }}";\
+            NUXT_ENV_DIRECCION="${{ secrets.NUXT_ENV_DIRECCION }}";\
+            NUXT_ENV_RUT="${{ secrets.NUXT_ENV_RUT }}";\
+            NUXT_ENV_FONO="${{ secrets.NUXT_ENV_FONO }}";\
+            NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}"'
