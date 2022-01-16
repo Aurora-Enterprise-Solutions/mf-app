@@ -241,6 +241,11 @@ export default {
 
                     break
 
+                case GraphqlTypename.USER_ALREADY_EXISTS:
+                    this.$emit('save', Error.USER_ALREADY_EXISTS)
+
+                    break
+
                 case GraphqlTypename.IMMUTABLE_USER:
                     this.$emit('save', Error.IMMUTABLE_USER)
 
