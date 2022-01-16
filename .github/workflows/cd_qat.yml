@@ -25,7 +25,10 @@ jobs:
       # Build docker image
       - name: Build Docker Image
         run: |-
-          docker build -t us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} .
+          docker build \
+          -t us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} \
+          --build-arg NUXT_ENV_API_HOST="${{ secrets.NUXT_ENV_API_HOST }}" \
+          --build-arg NUXT_ENV_API_HOST_WS="${{ secrets.NUXT_ENV_API_HOST_WS }}" .
       # Configure docker to use the gcloud command-line tool as a credential helper
       - run: |
           gcloud auth configure-docker -q
@@ -60,8 +63,7 @@ jobs:
             --region ${{ secrets.SERVICE_REGION }} \
             --image us.gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} \
             --platform managed \
-            --set-env-vars '^;;^NODE_ENV=${{ env.NODE_ENV }};;
-            NUXT_ENV_API_HOST=${{ secrets.NUXT_ENV_API_HOST }};;
+            --set-env-vars '^;;^NUXT_ENV_API_HOST=${{ secrets.NUXT_ENV_API_HOST }};;
             NUXT_ENV_API_HOST_WS=${{ secrets.NUXT_ENV_API_HOST_WS }};;
             NUXT_ENV_OFFICE_EMAIL=${{ secrets.NUXT_ENV_OFFICE_EMAIL }};;
             NUXT_ENV_LOGO_BASE64=${{ secrets.NUXT_ENV_LOGO_BASE64 }};;
