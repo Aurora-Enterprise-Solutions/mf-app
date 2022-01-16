@@ -143,8 +143,13 @@ export default {
 
         async generateExcelFile(data) {
 
-            if (data.length === 0)
+            if (data.length === 0) {
+
                 this.$alert('No hay datos para generar el archivo', 'info')
+
+                return
+
+            }
 
             const workbook = newEmptyWorkbook()
             const worksheet = addWorksheet(workbook, 'Registro de Combustible')
