@@ -74,8 +74,13 @@ export default {
     methods: {
         submit() {
 
-            if (this.maintenances.length === 0)
+            if (this.maintenances.length === 0) {
+
                 this.$alert('No hay datos para generar el archivo', 'info')
+
+                return
+
+            }
 
             const workbook = newEmptyWorkbook()
 
@@ -101,8 +106,13 @@ export default {
 
             }, {} )
 
-            if (Object.keys(grouped).length === 0)
+            if (Object.keys(grouped).length === 0) {
+
                 this.$alert('No hay datos para generar el archivo', 'info')
+
+                return
+
+            }
 
 
             // 2: add data to excel
