@@ -233,6 +233,26 @@
                                         />
                                     </v-col>
 
+                                    <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'TRAVEL' || formData.machines[index].workCondition === 'BOTH')">
+                                        <v-text-field :value="formData.machines[index].amountPertravel"
+                                                      label="Monto por Viaje"
+                                                      type="number"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El monto es requerido' ]"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], amountPertravel: parseFloat($event)})"
+                                        />
+                                    </v-col>
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'DAY' || formData.machines[index].workCondition === 'BOTH')">
+                                        <v-text-field :value="formData.machines[index].amountPerDay"
+                                                      label="Monto por Jornada"
+                                                      type="number"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El monto es requerido' ]"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], amountPerDay: parseFloat($event)})"
+                                        />
+                                    </v-col>
+
                                     <v-col cols="auto">
                                         <v-btn icon
                                                color="error"
