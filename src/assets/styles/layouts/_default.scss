@@ -1,4 +1,11 @@
 .mf-layout-default {
+    .v-application--wrap {
+        & > .v-overlay,
+        & > .mf-component-navbar {
+            position: fixed !important;
+        }
+    }
+
     .v-main__wrap {
         display: flex;
         flex-direction: column;
