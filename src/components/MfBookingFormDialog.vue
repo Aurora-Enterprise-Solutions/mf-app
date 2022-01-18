@@ -234,12 +234,12 @@
                                     </v-col>
 
                                     <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'TRAVEL' || formData.machines[index].workCondition === 'BOTH')">
-                                        <v-text-field :value="formData.machines[index].amountPertravel"
+                                        <v-text-field :value="formData.machines[index].amountPerTravel"
                                                       label="Monto por Viaje"
                                                       type="number"
                                                       :disabled="loading"
                                                       :rules="[ v => !!v || 'El monto es requerido' ]"
-                                                      @input="$set(formData.machines, index, { ...formData.machines[index], amountPertravel: parseFloat($event)})"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], amountPerTravel: parseFloat($event)})"
                                         />
                                     </v-col>
 

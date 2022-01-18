@@ -34,6 +34,9 @@ import gql from 'graphql-tag'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
+import { generateDailyPayStatePdf } from './../static/utils/pdf'
+
+moment.locale('es')
 
 export default {
     data() {
@@ -69,55 +72,42 @@ export default {
                 this.$apollo.query( {
                     query: gql`query getDailyPayState($date: String!) {
                         getDailyPayState(date: $date) {
-                            intern {
-                                machinery {
-                                    equipment,
-                                    building,
-                                    operator,
-                                    address,
-                                    startHourmeter,
-                                    endHourmeter,
-                                    totalHours,
-                                    observations,
+                            client {
+                                name,
+                                billing {
+                                    rut
+                                }
+                            },
+                            building,
+                            equipment {
+                                __typename,
+                                ...on ExternalEquipment {
+                                    name,
                                 },
-
-                                trucks {
-                                    equipment,
-                                    operator,
-                                    volume,
-                                    building,
-                                    address,
-                                    load,
-                                    totalTravels,
-                                    workingDayType,
-                                    observations,
+                                ...on InternalEquipment {
+                                    _id,
+                                    code,
+                                    name,
+                                    patent,
                                 },
                             },
-
-                            extern {
-                                machinery {
-                                    equipment,
-                                    building,
-                                    operator,
-                                    address,
-                                    startHourmeter,
-                                    endHourmeter,
-                                    totalHours,
-                                    observations,
+                            operator {
+                                __typename,
+                                ...on ExternalOperator {
+                                    name,
                                 },
-
-                                trucks {
-                                    equipment,
-                                    operator,
-                                    volume,
-                                    building,
-                                    address,
-                                    load,
-                                    totalTravels,
-                                    workingDayType,
-                                    observations,
+                                ...on InternalOperator {
+                                    _id,
+                                    rut,
+                                    name,
                                 },
-                            }
+                            },
+                            amountPerUse,
+                            amounType,
+                            hours,
+                            minHours,
+                            toFacture,
+                            totalAmount,
                         }
                     }`,
 
@@ -127,9 +117,39 @@ export default {
 
                     fetchPolicy: 'network-only',
                 } )
-                    .then( ( { data: { getDailyResume } } ) => {
+                    .then( ( { data: { getDailyPayState } } ) => {
 
-                        this.generateExcelFile(getDailyResume)
+                        const numeral = require('numeral')
+                        require('numeral/locales/es')
+
+                        numeral.locale('es')
+
+                        let total = 0
+                        const parsedeData = getDailyPayState.map( (item) => {
+
+                            total += item.totalAmount
+
+                            return {
+                                client       : `${item.client.billing.rut} | ${item.client.name}`,
+                                building     : item.building,
+                                operator     : item.operator.__typename === 'ExternalOperator' ? item.operator.name : `${item.operator.rut} | ${item.operator.name}`,
+                                equipment    : item.equipment.__typename === 'ExternalEquipment' ? item.equipment.name : `${item.equipment.code} | ${item.equipment.name}(${item.equipment.patent})`,
+                                amountPerUse : numeral(item.amountPerUse).format('$0,0'),
+                                amounType    : item.amounType,
+                                hours        : item.hours,
+                                minHours     : item.minHours,
+                                toFacture    : item.toFacture,
+                                totalAmount  : numeral(item.totalAmount).format('$0,0'),
+                            }
+
+                        } )
+
+                        generateDailyPayStatePdf( {
+                            title : 'estado_pago_diario',
+                            data  : parsedeData,
+                            date  : moment(this.formData.date).format('dddd DD [de] MMMM [de] YYYY'),
+                            total : numeral(total).format('$0,0'),
+                        } )
                         this.loading = false
 
                     } )
