@@ -31,6 +31,10 @@
                     Cerrar Sesión
                 </v-btn>
             </div>
+
+            <div class="caption text-center">
+                ver.{{ version }}
+            </div>
         </template>
 
         <v-dialog v-model="logoutConfirmation" width="auto">
@@ -54,6 +58,8 @@
 </template>
 
 <script>
+import pkg from '@@/package.json'
+
 export default {
     name: 'MfNavbar',
 
@@ -67,6 +73,7 @@ export default {
     data() {
 
         return {
+            version            : pkg.version,
             selectedItem       : '',
             logoutConfirmation : false,
         }

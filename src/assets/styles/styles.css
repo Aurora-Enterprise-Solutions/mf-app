@@ -67,6 +67,9 @@ html body #__layout {
   height: 100%;
 }
 
+.mf-layout-default .v-application--wrap > .v-overlay, .mf-layout-default .v-application--wrap > .mf-component-navbar {
+  position: fixed !important;
+}
 .mf-layout-default .v-main__wrap {
   display: flex;
   flex-direction: column;

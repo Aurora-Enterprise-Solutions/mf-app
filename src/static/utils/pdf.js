@@ -20,60 +20,6 @@ export const mfStyles = {
         color,
     },
 
-    headerDate: {
-        fontSize   : 9,
-        bold       : true,
-        italics    : false,
-        alignment  : 'center',
-        lineHeight : 1,
-        color,
-    },
-
-    headerDateInfo: {
-        fontSize   : 9,
-        bold       : false,
-        italics    : false,
-        alignment  : 'center',
-        lineHeight : 1,
-        color,
-    },
-
-    headerFolio: {
-        fontSize   : 9,
-        bold       : true,
-        italics    : false,
-        alignment  : 'center',
-        lineHeight : 1.2,
-        color,
-    },
-
-    bodyTitle: {
-        fontSize   : 9,
-        bold       : false,
-        italics    : false,
-        alignment  : 'left',
-        lineHeight : 1.5,
-        color,
-    },
-
-    bodyTableHeader: {
-        fontSize   : 9,
-        bold       : true,
-        italics    : false,
-        alignment  : 'left',
-        lineHeight : 1.4,
-        color,
-    },
-
-    bodyTableData: {
-        fontSize   : 9,
-        bold       : false,
-        italics    : false,
-        alignment  : 'left',
-        lineHeight : 1.4,
-        color,
-    },
-
     headerObservationTable: {
         fontSize   : 9,
         bold       : true,
@@ -98,6 +44,33 @@ export const mfStyles = {
         italics    : false,
         alignment  : 'center',
         lineHeight : 1.3,
+        color,
+    },
+
+    tableHeader: {
+        fontSize   : 9,
+        bold       : true,
+        italics    : false,
+        alignment  : 'center',
+        lineHeight : 1,
+        color,
+    },
+
+    tableData: {
+        fontSize   : 9,
+        bold       : false,
+        italics    : false,
+        alignment  : 'center',
+        lineHeight : 1,
+        color,
+    },
+
+    bodyTitle: {
+        fontSize   : 9,
+        bold       : false,
+        italics    : false,
+        alignment  : 'left',
+        lineHeight : 1.5,
         color,
     },
 }
@@ -228,6 +201,38 @@ export const mfTableLayouts = {
 
         },
     },
+
+    mfFullBorderedLayout: {
+        hLineWidth(i, node) {
+
+            return 0.25
+
+        },
+
+        vLineWidth(i) {
+
+            return 0.25
+
+        },
+
+        hLineColor(i) {
+
+            return color
+
+        },
+
+        paddingLeft(i) {
+
+            return 4
+
+        },
+
+        paddingRight(i, node) {
+
+            return 4
+
+        },
+    },
 }
 
 export function generateMachineryJobRegistryPdf( { title, data } ) {
@@ -250,94 +255,49 @@ export function generateMachineryJobRegistryPdf( { title, data } ) {
             styles: {
                 ...mfStyles,
 
-                headerSubTitle: {
-                    fontSize  : 11,
-                    bold      : false,
-                    italics   : false,
-                    alignment : 'center',
+                headerDate: {
+                    fontSize   : 9,
+                    bold       : true,
+                    italics    : false,
+                    alignment  : 'center',
+                    lineHeight : 1,
+                    color,
                 },
 
-                headerDescription: {
-                    fontSize  : 8,
-                    bold      : false,
-                    italics   : false,
-                    alignment : 'justify',
-                    margin    : [ 0, 0, 0, 20 ],
+                headerDateInfo: {
+                    fontSize   : 9,
+                    bold       : false,
+                    italics    : false,
+                    alignment  : 'center',
+                    lineHeight : 1,
+                    color,
                 },
 
-                headerNumber: {
-                    fontSize  : 9,
-                    bold      : true,
-                    italics   : false,
-                    alignment : 'center',
+                headerFolio: {
+                    fontSize   : 9,
+                    bold       : true,
+                    italics    : false,
+                    alignment  : 'center',
+                    lineHeight : 1.2,
+                    color,
                 },
 
-                tableHeader: {
-                    fontSize  : 11,
-                    bold      : true,
-                    italics   : false,
-                    alignment : 'left',
+                bodyTableHeader: {
+                    fontSize   : 9,
+                    bold       : true,
+                    italics    : false,
+                    alignment  : 'left',
+                    lineHeight : 1.4,
+                    color,
                 },
 
-                tableValue: {
-                    fontSize  : 10,
-                    bold      : false,
-                    italics   : false,
-                    alignment : 'left',
-                },
-
-                notesTitle: {
-                    fontSize  : 11,
-                    bold      : true,
-                    italics   : false,
-                    alignment : 'left',
-                },
-
-                notesValue: {
-                    fontSize  : 10,
-                    bold      : false,
-                    italics   : false,
-                    alignment : 'left',
-                    margin    : [ 0, 0, 0, 20 ],
-                },
-
-                agent: {
-                    fontSize  : 10,
-                    bold      : false,
-                    italics   : false,
-                    alignment : 'center',
-                },
-
-                information: {
-                    fontSize  : 8,
-                    bold      : true,
-                    italics   : false,
-                    alignment : 'justify',
-                    margin    : [ 0, -10, 0, 5 ],
-                },
-
-                informationBaseline: {
-                    margin: [ 0, 0, 0, 20 ],
-                },
-
-                table: {
-                    margin: [ 0, 0, 0, 30 ],
-                },
-
-                center: {
-                    alignment: 'center',
-                },
-
-                justify: {
-                    alignment: 'justify',
-                },
-
-                right: {
-                    alignment: 'right',
-                },
-
-                bold: {
-                    bold: true,
+                bodyTableData: {
+                    fontSize   : 9,
+                    bold       : false,
+                    italics    : false,
+                    alignment  : 'left',
+                    lineHeight : 1.4,
+                    color,
                 },
             },
 
@@ -353,11 +313,7 @@ export function generateMachineryJobRegistryPdf( { title, data } ) {
 
 }
 
-function setMachineryJobRegistryPdfHeader(doc, data) {
-
-    const day = moment.utc(data.date).format('DD')
-    const month = moment.utc(data.date).format('MM')
-    const year = moment.utc(data.date).format('YYYY')
+function setCompanyHeader(doc) {
 
     doc.content.push( {
         columns: [
@@ -381,6 +337,16 @@ function setMachineryJobRegistryPdfHeader(doc, data) {
     } )
 
     doc.content.push( { text: '\n' } )
+
+}
+
+function setMachineryJobRegistryPdfHeader(doc, data) {
+
+    const day = moment.utc(data.date).format('DD')
+    const month = moment.utc(data.date).format('MM')
+    const year = moment.utc(data.date).format('YYYY')
+
+    setCompanyHeader(doc)
 
     doc.content.push( {
         columns: [
@@ -595,5 +561,132 @@ function setMachineryJobRegistryPdfBody(doc, data) {
             },
         ],
     } )
+
+}
+
+export function generateDailyPayStatePdf( { title, data, date, total } ) {
+
+    if (process.browser) {
+
+        const pdfMake = require('pdfmake/build/pdfmake.js')
+        const pdfFonts = require('pdfmake/build/vfs_fonts.js')
+        pdfMake.vfs = pdfFonts.pdfMake.vfs
+
+        pdfMake.tableLayouts = mfTableLayouts
+
+        const doc = {
+            info: {
+                title,
+            },
+
+            ...pageConfig,
+            pageMargins     : [ 30, 40, 30, 40 ],
+            pageOrientation : 'landscape',
+
+            styles: {
+                ...mfStyles,
+                sign: {
+                    fontSize   : 9,
+                    bold       : false,
+                    italics    : false,
+                    alignment  : 'center',
+                    lineHeight : 1,
+                    color,
+                },
+            },
+
+            content: [],
+        }
+
+
+        setCompanyHeader(doc)
+
+        doc.content.push( {
+            width : '*',
+            text  : [
+                { text: `Fecha: ${date}\n\n`, style: 'bodyTitle' },
+            ],
+        } )
+
+        const parsedeData = data.map( (item) => {
+
+            return [
+                { text: item.client, style: 'tableData' },
+                { text: item.building, style: 'tableData' },
+                { text: item.operator, style: 'tableData' },
+                { text: item.equipment, style: 'tableData' },
+                { text: item.amountPerUse, style: 'tableData' },
+                { text: item.amounType, style: 'tableData' },
+                { text: item.hours, style: 'tableData' },
+                { text: item.minHours, style: 'tableData' },
+                { text: item.toFacture, style: 'tableData' },
+                { text: item.totalAmount, style: 'tableData' },
+            ]
+
+        } )
+
+        doc.content.push( {
+            width  : '*',
+            layout : 'mfFullBorderedLayout',
+            table  : {
+                headerRows : 1,
+                widths     : [ 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                body: [
+                    [
+                        { text: 'Cliente', style: 'tableHeader' },
+                        { text: 'Obra', style: 'tableHeader' },
+                        { text: 'Operador', style: 'tableHeader' },
+                        { text: 'Equipo', style: 'tableHeader' },
+                        { text: 'Monto hr/viaje/jornada', style: 'tableHeader' },
+                        { text: 'Tipo de Cobro', style: 'tableHeader' },
+                        { text: 'Horómetro', style: 'tableHeader' },
+                        { text: 'Mínimas', style: 'tableHeader' },
+                        { text: 'A Facturar', style: 'tableHeader' },
+                        { text: 'Cobro', style: 'tableHeader' },
+                    ],
+                    ...parsedeData,
+                    [
+                        { text: 'Total diario', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
+                        { text: total, style: 'tableData' },
+                    ],
+                ],
+            },
+        } )
+
+        doc.content.push( { text: '\n\n' } )
+
+        doc.content.push( {
+            columns: [
+                {
+                    width : '*',
+                    text  : '',
+                },
+                {
+                    image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                    width : 125,
+                },
+                {
+                    width : '*',
+                    text  : '',
+                },
+            ],
+        } )
+
+        doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+        doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+        doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign' } )
+
+        pdfMake.createPdf(doc).open()
+
+    }
 
 }
