@@ -36,7 +36,10 @@ jobs:
           --build-arg NUXT_ENV_DIRECCION="${{ secrets.NUXT_ENV_DIRECCION }}" \
           --build-arg NUXT_ENV_RUT="${{ secrets.NUXT_ENV_RUT }}" \
           --build-arg NUXT_ENV_FONO="${{ secrets.NUXT_ENV_FONO }}" \
-          --build-arg NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}" .
+          --build-arg NUXT_ENV_CONTACTO_EMAIL="${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}" \
+          --build-arg NUXT_ENV_CEO_SIGNATURE="${{ secrets.NUXT_ENV_CEO_SIGNATURE }}" \
+          --build-arg NUXT_ENV_CEO_NAME="${{ secrets.NUXT_ENV_CEO_NAME }}" \
+          --build-arg NUXT_ENV_CEO_PROFESION="${{ secrets.NUXT_ENV_CEO_PROFESION }}" .
       # Configure docker to use the gcloud command-line tool as a credential helper
       - run: |
           gcloud auth configure-docker -q
@@ -80,4 +83,7 @@ jobs:
             NUXT_ENV_DIRECCION=${{ secrets.NUXT_ENV_DIRECCION }};;
             NUXT_ENV_RUT=${{ secrets.NUXT_ENV_RUT }};;
             NUXT_ENV_FONO=${{ secrets.NUXT_ENV_FONO }};;
-            NUXT_ENV_CONTACTO_EMAIL=${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}'
+            NUXT_ENV_CONTACTO_EMAIL=${{ secrets.NUXT_ENV_CONTACTO_EMAIL }}';;
+            NUXT_ENV_CEO_SIGNATURE=${{ secrets.NUXT_ENV_CEO_SIGNATURE }}';;
+            NUXT_ENV_CEO_NAME=${{ secrets.NUXT_ENV_CEO_NAME }}';;
+            NUXT_ENV_CEO_PROFESION=${{ secrets.NUXT_ENV_CEO_PROFESION }}'
