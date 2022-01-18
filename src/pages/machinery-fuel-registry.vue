@@ -45,6 +45,22 @@
                                   @input="formData.equipment = $event.toUpperCase()"
                     />
 
+                    <v-text-field v-if="formData.type === 'RECHARGE_OTHERS'"
+                                  :value="formData.operator"
+                                  label="Operador"
+                                  :disabled="loading"
+                                  class="mf-to-uppercase"
+                                  @input="formData.operator = $event.toUpperCase()"
+                    />
+
+                    <v-text-field v-if="formData.type === 'RECHARGE_OTHERS'"
+                                  :value="formData.hourmeter"
+                                  label="Horómetro / Odómetro"
+                                  type="number"
+                                  :disabled="loading"
+                                  @input="formData.hourmeter = parseFloat($event)"
+                    />
+
                     <v-select v-if="formData.type === 'RECHARGE'"
                               v-model="formData.equipment"
                               :items="equipments"
