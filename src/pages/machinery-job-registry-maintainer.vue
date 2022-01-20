@@ -125,15 +125,18 @@ export default {
                     folio,
                 }
             }`,
+
             update(data) {
 
                 if (this.isOperator)
-                    return data.getAllMachineryJobRegistry.filter( (item) => item.executor.role === this.$auth.user.role.name)
+                    return data.getAllMachineryJobRegistry.filter( (item) => item.executor.role === this.$auth.user.role._id)
                 else
                     return data.getAllMachineryJobRegistry
 
 
             },
+
+            fetchPolicy: 'network-only',
         },
     },
 

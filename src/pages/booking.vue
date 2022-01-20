@@ -324,6 +324,9 @@ export default {
                         email    : process.env.NUXT_ENV_OFFICE_EMAIL,
                     },
                 ],
+
+                startDate : moment().format('YYYY-MM-DD'),
+                endDate   : moment().format('YYYY-MM-DD'),
             }
             this.showForm = true
 
