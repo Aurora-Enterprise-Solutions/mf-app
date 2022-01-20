@@ -690,3 +690,798 @@ export function generateDailyPayStatePdf( { title, data, date, total } ) {
     }
 
 }
+
+export function generateGeneralPayStatePdf( { title, data, client } ) {
+
+    if (process.browser) {
+
+        const numeral = require('numeral')
+        require('numeral/locales/es')
+
+        numeral.locale('es')
+
+        const pdfMake = require('pdfmake/build/pdfmake.js')
+        const pdfFonts = require('pdfmake/build/vfs_fonts.js')
+        pdfMake.vfs = pdfFonts.pdfMake.vfs
+
+        pdfMake.tableLayouts = mfTableLayouts
+
+        const doc = {
+            info: {
+                title,
+            },
+
+            ...pageConfig,
+            pageMargins     : [ 30, 40, 30, 40 ],
+            pageOrientation : 'landscape',
+
+            styles: {
+                ...mfStyles,
+                sign: {
+                    fontSize   : 9,
+                    bold       : false,
+                    italics    : false,
+                    alignment  : 'center',
+                    lineHeight : 1,
+                    color,
+                },
+            },
+
+            content: [],
+        }
+
+        // INTERN OTHER
+        if (data.intern.OTHER.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'INTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n\n`, style: 'bodyTitle' },
+                ],
+            } )
+
+            const parsedData = data.intern.OTHER.map( (item) => {
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.hours, style: 'tableData' },
+                    { text: item.minHours, style: 'tableData' },
+                    { text: item.toFacture, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.totalAmount, style: 'tableData' },
+                ]
+
+            } )
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Horómetro', style: 'tableHeader' },
+                            { text: 'Mínimas', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                            { text: 'Tarifa (incluye petroleo)', style: 'tableHeader' },
+                            { text: 'Cobro', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.intern.totalOther, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.intern.totalOtherIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.intern.totalIvaIncludedOther, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign', pageBreak: 'after' } )
+
+        }
+
+        // INTERN TRUCK - DAY
+
+        if (data.intern.TRUCK.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'INTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n`, style: 'bodyTitle' },
+                    { text: 'Camión por Jornada\n\n', style: 'bodyTitle' },
+                ],
+            } )
+
+            let totalTruck = 0
+
+            const parsedData = data.intern.TRUCK.filter( (item) => item.workCondition === 'DAY').map( (item) => {
+
+                totalTruck += item.totalAmount
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.workingDayType, style: 'tableData' },
+                    { text: item.load, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.volume, style: 'tableData' },
+                    { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
+                ]
+
+            } )
+
+            const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+            const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+            totalTruck = numeral(totalTruck).format('$0,0')
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Tipo Jornada', style: 'tableHeader' },
+                            { text: 'Tipo Carga', style: 'tableHeader' },
+                            { text: 'Monto', style: 'tableHeader' },
+                            { text: 'Volumen', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruck, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruckIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalIvaIncludedTruck, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign', pageBreak: 'after' } )
+
+        }
+
+
+        // INTERN TRUCK - TRAVEL
+        if (data.intern.TRUCK.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'INTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n`, style: 'bodyTitle' },
+                    { text: 'Camión por Viaje\n\n', style: 'bodyTitle' },
+                ],
+            } )
+
+            let totalTruck = 0
+
+            const parsedData = data.intern.TRUCK.filter( (item) => item.workCondition === 'TRAVEL').map( (item) => {
+
+                totalTruck += item.totalAmount
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.totalTravels, style: 'tableData' },
+                    { text: item.load, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.volume, style: 'tableData' },
+                    { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
+                ]
+
+            } )
+
+            const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+            const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+            totalTruck = numeral(totalTruck).format('$0,0')
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Nro. Viajes', style: 'tableHeader' },
+                            { text: 'Tipo Carga', style: 'tableHeader' },
+                            { text: 'Monto', style: 'tableHeader' },
+                            { text: 'Volumen', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruck, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruckIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalIvaIncludedTruck, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign', pageBreak: 'after' } )
+
+        }
+
+
+        // EXTERN OTHER
+        if (data.extern.OTHER.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'EXTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n\n`, style: 'bodyTitle' },
+                ],
+            } )
+
+            const parsedData = data.extern.OTHER.map( (item) => {
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.hours, style: 'tableData' },
+                    { text: item.minHours, style: 'tableData' },
+                    { text: item.toFacture, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.totalAmount, style: 'tableData' },
+                ]
+
+            } )
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Horómetro', style: 'tableHeader' },
+                            { text: 'Mínimas', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                            { text: 'Tarifa (incluye petroleo)', style: 'tableHeader' },
+                            { text: 'Cobro', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.extern.totalOther, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.extern.totalOtherIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: data.extern.totalIvaIncludedOther, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign', pageBreak: 'after' } )
+
+        }
+
+
+        // EXTERN TRUCK - DAY
+        if (data.extern.TRUCK.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'EXTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n`, style: 'bodyTitle' },
+                    { text: 'Camión por Jornada\n\n', style: 'bodyTitle' },
+                ],
+            } )
+
+            let totalTruck = 0
+
+            const parsedData = data.extern.TRUCK.filter( (item) => item.workCondition === 'DAY').map( (item) => {
+
+                totalTruck += item.totalAmount
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.workingDayType, style: 'tableData' },
+                    { text: item.load, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.volume, style: 'tableData' },
+                    { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
+                ]
+
+            } )
+
+            const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+            const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+            totalTruck = numeral(totalTruck).format('$0,0')
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Tipo Jornada', style: 'tableHeader' },
+                            { text: 'Tipo Carga', style: 'tableHeader' },
+                            { text: 'Monto', style: 'tableHeader' },
+                            { text: 'Volumen', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruck, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruckIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalIvaIncludedTruck, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign', pageBreak: 'after' } )
+
+        }
+
+
+        // EXTERN TRUCK - TRAVEL
+        if (data.extern.TRUCK.length > 0) {
+
+            setCompanyHeader(doc)
+
+            doc.content.push( {
+                width : '*',
+                text  : [
+                    { text: 'EXTERNOS\n', style: 'bodyTitle' },
+                    { text: `Cliente: ${client}\n`, style: 'bodyTitle' },
+                    { text: 'Camión por Viaje\n\n', style: 'bodyTitle' },
+                ],
+            } )
+
+            let totalTruck = 0
+
+            const parsedData = data.extern.TRUCK.filter( (item) => item.workCondition === 'TRAVEL').map( (item) => {
+
+                totalTruck += item.totalAmount
+
+                return [
+                    { text: item.date, style: 'tableData' },
+                    { text: item.building, style: 'tableData' },
+                    { text: item.folio, style: 'tableData' },
+                    { text: item.equipment, style: 'tableData' },
+                    { text: item.operator, style: 'tableData' },
+                    { text: item.totalTravels, style: 'tableData' },
+                    { text: item.load, style: 'tableData' },
+                    { text: item.amountPerUse, style: 'tableData' },
+                    { text: item.volume, style: 'tableData' },
+                    { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
+                ]
+
+            } )
+
+            const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+            const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+            totalTruck = numeral(totalTruck).format('$0,0')
+
+            doc.content.push( {
+                width  : '*',
+                layout : 'mfFullBorderedLayout',
+                table  : {
+                    headerRows : 1,
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+
+                    body: [
+                        [
+                            { text: 'Fecha', style: 'tableHeader' },
+                            { text: 'Obra', style: 'tableHeader' },
+                            { text: 'Nro. Reporte', style: 'tableHeader' },
+                            { text: 'Equipo', style: 'tableHeader' },
+                            { text: 'Operador', style: 'tableHeader' },
+                            { text: 'Nro. Viajes', style: 'tableHeader' },
+                            { text: 'Tipo Carga', style: 'tableHeader' },
+                            { text: 'Monto', style: 'tableHeader' },
+                            { text: 'Volumen', style: 'tableHeader' },
+                            { text: 'A Facturar', style: 'tableHeader' },
+                        ],
+                        ...parsedData,
+                        [
+                            { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruck, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalTruckIva, style: 'tableData' },
+                        ],
+                        [
+                            { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: '' },
+                            { text: totalIvaIncludedTruck, style: 'tableData' },
+                        ],
+                    ],
+                },
+
+                alignment: 'center',
+            } )
+
+            doc.content.push( { text: '\n\n' } )
+
+            doc.content.push( {
+                columns: [
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                    {
+                        image : process.env.NUXT_ENV_CEO_SIGNATURE,
+                        width : 125,
+                    },
+                    {
+                        width : '*',
+                        text  : '',
+                    },
+                ],
+            } )
+
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_NAME, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_CEO_PROFESION, width: '*', style: 'sign' } )
+            doc.content.push( { text: process.env.NUXT_ENV_RAZON_SOCIAL, width: '*', style: 'sign' } )
+
+        }
+
+
+        pdfMake.createPdf(doc).open()
+
+    }
+
+}
