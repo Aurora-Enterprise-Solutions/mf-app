@@ -221,6 +221,16 @@
                                         />
                                     </v-col>
 
+                                    <v-col v-if="isExternal && formData.machines[index].machineryType === 'TRUCK'">
+                                        <v-text-field :value="formData.machines[index].volume"
+                                                      label="Volumen m3"
+                                                      type="number"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El volumen es requerido' ]"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], volume: parseFloat($event)})"
+                                        />
+                                    </v-col>
+
                                     <v-col v-if="formData.machines[index].machineryType === 'TRUCK'">
                                         <v-select :value="formData.machines[index].workCondition"
                                                   :items="workContidions"
