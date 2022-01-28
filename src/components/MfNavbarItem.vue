@@ -1,6 +1,6 @@
 <template>
     <div class="mf-component mf-component-navbar-item">
-        <template v-for="item in items">
+        <template v-for="item in _items">
             <v-list-item v-if="!item.children || item.children.length === 0" :key="item._id" :value="item.name" @click="link(item)">
                 <v-list-item-icon>
                     <v-icon v-text="item.icon" />
@@ -34,7 +34,16 @@ export default {
     props: {
         items: {
             type     : Array,
-            required : true,
+            required : false,
+            default  : () => [],
+        },
+    },
+
+    computed: {
+        _items() {
+
+            return this.items ? this.items : []
+
         },
     },
 

@@ -130,10 +130,10 @@ export default {
                             total += item.totalAmount
 
                             return {
-                                client       : `${item.client.billing.rut} | ${item.client.name}`,
+                                client       : item.client.name,
                                 building     : item.building,
-                                operator     : item.operator.__typename === 'ExternalOperator' ? item.operator.name : `${item.operator.rut} | ${item.operator.name}`,
-                                equipment    : item.equipment.__typename === 'ExternalEquipment' ? item.equipment.name : `${item.equipment.code} | ${item.equipment.name}(${item.equipment.patent})`,
+                                operator     : item.operator.name,
+                                equipment    : item.equipment.__typename === 'ExternalEquipment' ? item.equipment.name : item.equipment.code,
                                 amountPerUse : numeral(item.amountPerUse).format('$0,0'),
                                 amounType    : item.amounType,
                                 hours        : item.hours,

@@ -179,6 +179,22 @@ export function autoWidth(worksheet, minWidth = 10) {
 
         }
 
+        if (index === 1) {
+
+            let dataMax = 0
+            column.eachCell( { includeEmpty: true }, function(cell) {
+
+                const columnLength = cell.value ? cell.value.length : 0
+                if (columnLength > dataMax)
+                    dataMax = columnLength
+
+
+            } )
+
+            worksheet.getColumn(4).width = dataMax < minWidth ? minWidth : dataMax
+
+        }
+
     } )
 
 }

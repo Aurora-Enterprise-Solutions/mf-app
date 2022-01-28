@@ -121,6 +121,7 @@ export default {
                             fromClient,
                         },
                         ...on PayStateFilterExternalMachine {
+                            _id: name,
                             name,
                             fromBuilding,
                             fromClient,

@@ -395,8 +395,8 @@ function setMachineryJobRegistryPdfHeader(doc, data) {
 function setMachineryJobRegistryPdfBody(doc, data) {
 
     // data parser
-    const equipment = data.equipment.__typename === 'ExternalEquipment' ? data.equipment.name : `${data.equipment.code} | ${data.equipment.name}`
-    const operator = data.operator.__typename === 'ExternalOperator' ? data.operator.name : `${data.operator.rut} | ${data.operator.name}`
+    const equipment = data.equipment.__typename === 'ExternalEquipment' ? data.equipment.name : data.equipment.code
+    const operator = data.operator.name
 
     const headersByMachineryType = []
     const bodyByMachineryType = []
@@ -484,7 +484,7 @@ function setMachineryJobRegistryPdfBody(doc, data) {
                     widths     : [ '*' ],
 
                     body: [
-                        [{ text: `${data.client.billing.rut} | ${data.client.name}`, style: 'bodyTableData' }],
+                        [{ text: data.client.name, style: 'bodyTableData' }],
                         [{ text: equipment, style: 'bodyTableData' }],
                         [{ text: operator, style: 'bodyTableData' }],
                         [{ text: `${data.building}`, style: 'bodyTableData' }],
