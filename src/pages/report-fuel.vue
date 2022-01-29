@@ -281,7 +281,7 @@ export default {
                 const newRow = [
                     moment.utc(item.date).format('DD-MM-YYYY'),
                     type,
-                    item.equipment.__typename === 'InternalEquipment' ? `${item.equipment.code} | ${item.equipment.name}` : item.equipment.name,
+                    item.equipment.__typename === 'InternalEquipment' ? item.equipment.code : item.equipment.name,
                     item.count,
                     previous,
                     item.hourmeter,
@@ -289,7 +289,7 @@ export default {
                     item.hourmeter ? (item.count / item.hourmeter).toFixed(2) : '-',
                     item.time,
                     item.guia ? item.guia : '',
-                    item.operator.__typename === 'InternalOperator' ? `${item.operator.rut} | ${item.operator.name}` : item.operator.name,
+                    item.operator.name,
                 ]
 
                 const { row } = addExcelRow(workbook, worksheet, newRow)
@@ -387,8 +387,8 @@ export default {
 
                             return [
                                 `${moment(data.startDate).format('DD-MM-YYYY')} al ${moment(data.endDate).format('DD-MM-YYYY')}`,
-                                item[0].equipment.__typename === 'InternalEquipment' ? `${item[0].equipment.code} | ${item[0].equipment.name} (${item[0].equipment.patent})` : item[0].equipment.name,
-                                item[0].operator.__typename === 'InternalOperator' ? `${item[0].operator.rut} | ${item[0].operator.name}` : item[0].operator.name,
+                                item[0].equipment.__typename === 'InternalEquipment' ? item[0].equipment.code : item[0].equipment.name,
+                                item[0].operator.name,
                                 item[0].hourmeter,
                                 item[item.length - 1].hourmeter,
                                 fuelConsumed,

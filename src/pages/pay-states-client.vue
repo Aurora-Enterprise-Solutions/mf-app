@@ -92,6 +92,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { generateGeneralPayStatePdf } from './../static/utils/pdf'
+import { newWorkbook, addWorksheet, setExcelHeader, addExcelRow, saveExcelFile, autoWidth } from './../static/utils/excel'
 
 moment.locale('es')
 
@@ -121,6 +122,7 @@ export default {
                             fromClient,
                         },
                         ...on PayStateFilterExternalMachine {
+                            _id: name,
                             name,
                             fromBuilding,
                             fromClient,
@@ -464,6 +466,12 @@ export default {
 
                         if (parsedeData.intern.OTHER.length > 0 || parsedeData.intern.TRUCK.length > 0 || parsedeData.extern.OTHER.length > 0 || parsedeData.extern.TRUCK.length > 0) {
 
+                            this.exportExcelFile( {
+                                title  : 'estado_pago',
+                                data   : parsedeData,
+                                client : this.payStatesFilters.clients.find( (c) => c._id === this.formData.client).name || '',
+                            } )
+
                             generateGeneralPayStatePdf( {
                                 title  : 'estado_pago',
                                 data   : parsedeData,
@@ -509,6 +517,489 @@ export default {
                 return isFilteredByBuilding && isFilteredByClient
 
             } )
+
+        },
+
+        exportExcelFile( { title, data, client } ) {
+
+            const numeral = require('numeral')
+            require('numeral/locales/es')
+
+            numeral.locale('es')
+
+            function setTotalStyles(row) {
+
+                row.eachCell( (cell, colNumber) => {
+
+                    if (colNumber === 13) {cell.alignment = { horizontal: 'center' }}
+                    else {
+
+                        cell.alignment = { horizontal: 'right' }
+                        cell.font = {
+                            bold: true,
+                        }
+
+                    }
+
+                } )
+
+            }
+
+            function addSignature(workbook, worksheet, lastRow) {
+
+                let privateLastRow = lastRow
+                // worksheet.addImage(seoSign, `G${privateLastRow + 4}:H${privateLastRow + 8}`)
+
+                privateLastRow += 7
+                let record = addExcelRow(workbook, worksheet, [ process.env.NUXT_ENV_CEO_NAME ], {
+                    isHeader        : true,
+                    bordered        : false,
+                    withPreviousRow : false,
+                    lastRowAdded    : privateLastRow,
+                    mergeCells      : false,
+                } )
+                privateLastRow = record.lastRowNumber
+                worksheet.mergeCells(privateLastRow, 2, privateLastRow, headers.length + 3)
+                record.row.eachCell( (cell, colNumber) => {
+
+                    cell.alignment = { horizontal: 'center' }
+
+                } )
+
+                record = addExcelRow(workbook, worksheet, [ process.env.NUXT_ENV_CEO_PROFESION ], {
+                    isHeader        : true,
+                    withPreviousRow : false,
+                    bordered        : false,
+                    mergeCells      : false,
+                    lastRowAdded    : privateLastRow - 1,
+                } )
+                privateLastRow = record.lastRowNumber
+                worksheet.mergeCells(privateLastRow, 2, privateLastRow, headers.length + 3)
+                record.row.eachCell( (cell, colNumber) => {
+
+                    cell.alignment = { horizontal: 'center' }
+
+                } )
+
+                record = addExcelRow(workbook, worksheet, [ process.env.NUXT_ENV_RAZON_SOCIAL ], {
+                    isHeader        : true,
+                    withPreviousRow : false,
+                    bordered        : false,
+                    mergeCells      : false,
+                    lastRowAdded    : privateLastRow - 1,
+                } )
+                privateLastRow = record.lastRowNumber
+                worksheet.mergeCells(privateLastRow, 2, privateLastRow, headers.length + 3)
+                record.row.eachCell( (cell, colNumber) => {
+
+                    cell.alignment = { horizontal: 'center' }
+
+                } )
+
+            }
+
+            const { workbook, worksheet: otherInternWorksheet } = newWorkbook( { name: 'Maquinaria Internos' } )
+            setExcelHeader(workbook, otherInternWorksheet)
+
+            // const seoSign = workbook.addImage( {
+            //     base64    : process.env.NUXT_ENV_CEO_SIGNATURE,
+            //     extension : 'png',
+            // } )
+
+
+            // INTERN OTHER
+
+            addExcelRow(workbook, otherInternWorksheet, [ 'INTERNOS' ], { isHeader: true, bordered: false } )
+            addExcelRow(workbook, otherInternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+
+            let headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Horómetro', 'Mínimas', 'A Facturar', 'Tarifa (incluye petroleo)', 'Cobro' ]
+            addExcelRow(workbook, otherInternWorksheet, headers, { isHeader: true } )
+
+            data.intern.OTHER.forEach( (item) => {
+
+                const { row } = addExcelRow(workbook, otherInternWorksheet, [
+                    item.date,
+                    item.building,
+                    item.folio,
+                    item.equipment,
+                    item.operator,
+                    item.hours,
+                    item.minHours,
+                    item.toFacture,
+                    item.amountPerUse,
+                    item.totalAmount,
+                ] )
+
+                row.eachCell( (cell, colNumber) => {
+
+                    cell.alignment = { horizontal: 'center' }
+
+                } )
+
+            } )
+
+            const { row: netoRow } = addExcelRow(workbook, otherInternWorksheet, [
+                '', '', '', '', '', '', '', '', 'Neto', data.intern.totalOther,
+            ] )
+            setTotalStyles(netoRow)
+
+            const { row: ivaRow } = addExcelRow(workbook, otherInternWorksheet, [
+                '', '', '', '', '', '', '', '', 'IVA', data.intern.totalOtherIva,
+            ] )
+            setTotalStyles(ivaRow)
+
+            const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, otherInternWorksheet, [
+                '', '', '', '', '', '', '', '', 'Total', data.intern.totalIvaIncludedOther,
+            ] )
+            setTotalStyles(totalRow)
+
+            autoWidth(otherInternWorksheet)
+            addSignature(workbook, otherInternWorksheet, totalLastRowNumber)
+
+
+            // INTERN TRUCK - DAY
+
+            if (data) {
+
+                const truckInternWorksheet = addWorksheet(workbook, 'Camiones Internos por Jornada')
+                setExcelHeader(workbook, truckInternWorksheet)
+
+                addExcelRow(workbook, truckInternWorksheet, [ 'INTERNOS' ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckInternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckInternWorksheet, [ 'Camión por Jornada' ], { isHeader: true, bordered: false } )
+
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Tipo Jornada', 'Monto', 'Volumen', 'A Facturar' ]
+                addExcelRow(workbook, truckInternWorksheet, headers, { isHeader: true } )
+
+                let totalTruck = 0
+
+                const parsedData = data.intern.TRUCK.filter( (item) => item.workCondition === 'DAY').map( (item) => {
+
+                    totalTruck += item.totalAmount
+
+                    return [
+                        item.date,
+                        item.building,
+                        item.folio,
+                        item.equipment,
+                        item.operator,
+                        item.workingDayType,
+                        item.amountPerUse,
+                        item.volume,
+                        numeral(item.totalAmount).format('$0,0'),
+                    ]
+
+                } )
+
+                const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+                const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+                totalTruck = numeral(totalTruck).format('$0,0')
+
+                parsedData.forEach( (item) => {
+
+                    const { row } = addExcelRow(workbook, truckInternWorksheet, item)
+
+                    row.eachCell( (cell, colNumber) => {
+
+                        cell.alignment = { horizontal: 'center' }
+
+                    } )
+
+                } )
+
+                const { row: netoRow } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', 'Neto', totalTruck,
+                ] )
+                setTotalStyles(netoRow)
+
+                const { row: ivaRow } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                ] )
+                setTotalStyles(ivaRow)
+
+                const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                ] )
+                setTotalStyles(totalRow)
+
+                autoWidth(truckInternWorksheet)
+                addSignature(workbook, truckInternWorksheet, totalLastRowNumber)
+
+            }
+
+
+            // INTERN TRUCK - TRAVEL
+
+            if (data) {
+
+                const truckInternWorksheet = addWorksheet(workbook, 'Camiones Internos por Viaje')
+                setExcelHeader(workbook, truckInternWorksheet)
+
+                addExcelRow(workbook, truckInternWorksheet, [ 'INTERNOS' ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckInternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckInternWorksheet, [ 'Camión por Viaje' ], { isHeader: true, bordered: false } )
+
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Monto', 'Volumen', 'A Facturar' ]
+                addExcelRow(workbook, truckInternWorksheet, headers, { isHeader: true } )
+
+                let totalTruck = 0
+
+                const parsedData = data.intern.TRUCK.filter( (item) => item.workCondition === 'TRAVEL').map( (item) => {
+
+                    totalTruck += item.totalAmount
+
+                    return [
+                        item.date,
+                        item.building,
+                        item.folio,
+                        item.equipment,
+                        item.operator,
+                        item.totalTravels,
+                        item.load,
+                        item.amountPerUse,
+                        item.volume,
+                        numeral(item.totalAmount).format('$0,0'),
+                    ]
+
+                } )
+
+                const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+                const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+                totalTruck = numeral(totalTruck).format('$0,0')
+
+                parsedData.forEach( (item) => {
+
+                    const { row } = addExcelRow(workbook, truckInternWorksheet, item)
+
+                    row.eachCell( (cell, colNumber) => {
+
+                        cell.alignment = { horizontal: 'center' }
+
+                    } )
+
+                } )
+
+                const { row: netoRow } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Neto', totalTruck,
+                ] )
+                setTotalStyles(netoRow)
+
+                const { row: ivaRow } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                ] )
+                setTotalStyles(ivaRow)
+
+                const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckInternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                ] )
+                setTotalStyles(totalRow)
+
+                autoWidth(truckInternWorksheet)
+                addSignature(workbook, truckInternWorksheet, totalLastRowNumber)
+
+            }
+
+
+            // EXTERN OTHER
+            if (data) {
+
+                const otherExternWorksheet = addWorksheet(workbook, 'Maquinaria Externos')
+                setExcelHeader(workbook, otherExternWorksheet)
+
+                addExcelRow(workbook, otherExternWorksheet, [ 'EXTERNOS' ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, otherExternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Horómetro', 'Mínimas', 'A Facturar', 'Tarifa (incluye petroleo)', 'Cobro' ]
+                addExcelRow(workbook, otherExternWorksheet, headers, { isHeader: true } )
+
+                data.extern.OTHER.forEach( (item) => {
+
+                    const { row } = addExcelRow(workbook, otherExternWorksheet, [
+                        item.date,
+                        item.building,
+                        item.folio,
+                        item.equipment,
+                        item.operator,
+                        item.hours,
+                        item.minHours,
+                        item.toFacture,
+                        item.amountPerUse,
+                        item.totalAmount,
+                    ] )
+
+                    row.eachCell( (cell, colNumber) => {
+
+                        cell.alignment = { horizontal: 'center' }
+
+                    } )
+
+                } )
+
+                const { row: netoRow } = addExcelRow(workbook, otherExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Neto', data.extern.totalOther,
+                ] )
+                setTotalStyles(netoRow)
+
+                const { row: ivaRow } = addExcelRow(workbook, otherExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'IVA', data.extern.totalOtherIva,
+                ] )
+                setTotalStyles(ivaRow)
+
+                const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, otherExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Total', data.extern.totalIvaIncludedOther,
+                ] )
+                setTotalStyles(totalRow)
+
+                autoWidth(otherExternWorksheet)
+                addSignature(workbook, otherExternWorksheet, totalLastRowNumber)
+
+            }
+
+            // EXTERN TRUCK - DAY
+
+            if (data) {
+
+                const truckExternWorksheet = addWorksheet(workbook, 'Camiones Externos por Jornada')
+                setExcelHeader(workbook, truckExternWorksheet)
+
+                addExcelRow(workbook, truckExternWorksheet, [ 'EXTERNOS' ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckExternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckExternWorksheet, [ 'Camión por Jornada' ], { isHeader: true, bordered: false } )
+
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Tipo Jornada', 'Monto', 'Volumen', 'A Facturar' ]
+                addExcelRow(workbook, truckExternWorksheet, headers, { isHeader: true } )
+
+                let totalTruck = 0
+
+                const parsedData = data.extern.TRUCK.filter( (item) => item.workCondition === 'DAY').map( (item) => {
+
+                    totalTruck += item.totalAmount
+
+                    return [
+                        item.date,
+                        item.building,
+                        item.folio,
+                        item.equipment,
+                        item.operator,
+                        item.workingDayType,
+                        item.amountPerUse,
+                        item.volume,
+                        numeral(item.totalAmount).format('$0,0'),
+                    ]
+
+                } )
+
+                const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+                const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+                totalTruck = numeral(totalTruck).format('$0,0')
+
+                parsedData.forEach( (item) => {
+
+                    const { row } = addExcelRow(workbook, truckExternWorksheet, item)
+
+                    row.eachCell( (cell, colNumber) => {
+
+                        cell.alignment = { horizontal: 'center' }
+
+                    } )
+
+                } )
+
+                const { row: netoRow } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', 'Neto', totalTruck,
+                ] )
+                setTotalStyles(netoRow)
+
+                const { row: ivaRow } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                ] )
+                setTotalStyles(ivaRow)
+
+                const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                ] )
+                setTotalStyles(totalRow)
+
+                autoWidth(truckExternWorksheet)
+                addSignature(workbook, truckExternWorksheet, totalLastRowNumber)
+
+            }
+
+
+            // EXTERN TRUCK - TRAVEL
+
+            if (data) {
+
+                const truckExternWorksheet = addWorksheet(workbook, 'Camiones Externos por Viaje')
+                setExcelHeader(workbook, truckExternWorksheet)
+
+                addExcelRow(workbook, truckExternWorksheet, [ 'EXTERNOS' ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckExternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, truckExternWorksheet, [ 'Camión por Viaje' ], { isHeader: true, bordered: false } )
+
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Monto', 'Volumen', 'A Facturar' ]
+                addExcelRow(workbook, truckExternWorksheet, headers, { isHeader: true } )
+
+                let totalTruck = 0
+
+                const parsedData = data.extern.TRUCK.filter( (item) => item.workCondition === 'TRAVEL').map( (item) => {
+
+                    totalTruck += item.totalAmount
+
+                    return [
+                        item.date,
+                        item.building,
+                        item.folio,
+                        item.equipment,
+                        item.operator,
+                        item.totalTravels,
+                        item.load,
+                        item.amountPerUse,
+                        item.volume,
+                        numeral(item.totalAmount).format('$0,0'),
+                    ]
+
+                } )
+
+                const totalIvaIncludedTruck = numeral(totalTruck * 1.19).format('$0,0')
+                const totalTruckIva = numeral(totalTruck * 0.19).format('$0,0')
+                totalTruck = numeral(totalTruck).format('$0,0')
+
+                parsedData.forEach( (item) => {
+
+                    const { row } = addExcelRow(workbook, truckExternWorksheet, item)
+
+                    row.eachCell( (cell, colNumber) => {
+
+                        cell.alignment = { horizontal: 'center' }
+
+                    } )
+
+                } )
+
+                const { row: netoRow } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Neto', totalTruck,
+                ] )
+                setTotalStyles(netoRow)
+
+                const { row: ivaRow } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                ] )
+                setTotalStyles(ivaRow)
+
+                const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckExternWorksheet, [
+                    '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                ] )
+                setTotalStyles(totalRow)
+
+                autoWidth(truckExternWorksheet)
+                addSignature(workbook, truckExternWorksheet, totalLastRowNumber)
+
+            }
+
+            saveExcelFile(workbook, title)
+
+            this.downloading = false
 
         },
     },

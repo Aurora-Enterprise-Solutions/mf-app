@@ -196,7 +196,7 @@ export default {
         },
 
         bookings: {
-            query: gql`query getAllEquipments($date: String!) {
+            query: gql`query getBookingsByDate($date: String!) {
                 getBookingsByDate (date: $date) {
                     __typename,
                     machines {

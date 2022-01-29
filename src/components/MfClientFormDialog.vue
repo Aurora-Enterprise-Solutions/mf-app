@@ -137,64 +137,6 @@
                                   :disabled="loading"
                                   :rules="[ v => !!v || 'La teléfono es requerido' ]"
                     />
-
-                    <v-expansion-panels :disabled="loading">
-                        <v-expansion-panel>
-                            <v-expansion-panel-header>
-                                <v-row align="center">
-                                    <v-col cols="auto">
-                                        Cargas
-                                    </v-col>
-
-                                    <v-spacer />
-
-                                    <v-col cols="auto">
-                                        <v-btn color="primary" small :disabled="loading" @click.stop="onAddLoad">
-                                            Agregar
-                                        </v-btn>
-                                    </v-col>
-                                </v-row>
-                            </v-expansion-panel-header>
-
-                            <v-expansion-panel-content>
-
-                                <v-row v-for="(load, index) of formData.billing.loads" :key="index" class="load-row">
-                                    <v-col>
-                                        <v-text-field :value="formData.billing.loads[index].type"
-                                                      label="Tipo de Carga"
-                                                      :disabled="loading"
-                                                      :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
-                                                      class="mf-to-uppercase"
-                                                      @input="$set(formData.billing.loads, index, {
-                                                          type: $event,
-                                                          amount: formData.billing.loads[index].amount,
-                                                      })"
-                                        />
-                                    </v-col>
-
-                                    <v-col>
-                                        <v-text-field :value="formData.billing.loads[index].amount"
-                                                      type="number"
-                                                      label="Monto por m³"
-                                                      :disabled="loading"
-                                                      :rules="[ v => !!v || 'El monto es requerido' ]"
-                                                      @input="$set(formData.billing.loads, index, {
-                                                          type: formData.billing.loads[index].type,
-                                                          amount: parseFloat($event),
-                                                      })"
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="auto">
-                                        <v-btn icon color="error" :disabled="loading" @click="onDeleteLoad(index)">
-                                            <v-icon>mdi-delete</v-icon>
-                                        </v-btn>
-                                    </v-col>
-                                </v-row>
-
-                            </v-expansion-panel-content>
-                        </v-expansion-panel>
-                    </v-expansion-panels>
                 </v-form>
 
             </v-card-text>
@@ -334,24 +276,9 @@ export default {
 
         },
 
-        onAddLoad() {
-
-            this.formData.billing.loads.push( {
-                type   : '',
-                amount : 0,
-            } )
-
-        },
-
         onDeleteReceiver(index) {
 
             this.formData.receivers.splice(index, 1)
-
-        },
-
-        onDeleteLoad(index) {
-
-            this.formData.billing.loads.splice(index, 1)
 
         },
 

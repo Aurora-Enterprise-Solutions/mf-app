@@ -395,8 +395,8 @@ function setMachineryJobRegistryPdfHeader(doc, data) {
 function setMachineryJobRegistryPdfBody(doc, data) {
 
     // data parser
-    const equipment = data.equipment.__typename === 'ExternalEquipment' ? data.equipment.name : `${data.equipment.code} | ${data.equipment.name}`
-    const operator = data.operator.__typename === 'ExternalOperator' ? data.operator.name : `${data.operator.rut} | ${data.operator.name}`
+    const equipment = data.equipment.__typename === 'ExternalEquipment' ? data.equipment.name : data.equipment.code
+    const operator = data.operator.name
 
     const headersByMachineryType = []
     const bodyByMachineryType = []
@@ -484,7 +484,7 @@ function setMachineryJobRegistryPdfBody(doc, data) {
                     widths     : [ '*' ],
 
                     body: [
-                        [{ text: `${data.client.billing.rut} | ${data.client.name}`, style: 'bodyTableData' }],
+                        [{ text: data.client.name, style: 'bodyTableData' }],
                         [{ text: equipment, style: 'bodyTableData' }],
                         [{ text: operator, style: 'bodyTableData' }],
                         [{ text: `${data.building}`, style: 'bodyTableData' }],
@@ -876,7 +876,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                     { text: item.equipment, style: 'tableData' },
                     { text: item.operator, style: 'tableData' },
                     { text: item.workingDayType, style: 'tableData' },
-                    { text: item.load, style: 'tableData' },
                     { text: item.amountPerUse, style: 'tableData' },
                     { text: item.volume, style: 'tableData' },
                     { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
@@ -893,7 +892,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                 layout : 'mfFullBorderedLayout',
                 table  : {
                     headerRows : 1,
-                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
 
                     body: [
                         [
@@ -903,7 +902,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                             { text: 'Equipo', style: 'tableHeader' },
                             { text: 'Operador', style: 'tableHeader' },
                             { text: 'Tipo Jornada', style: 'tableHeader' },
-                            { text: 'Tipo Carga', style: 'tableHeader' },
                             { text: 'Monto', style: 'tableHeader' },
                             { text: 'Volumen', style: 'tableHeader' },
                             { text: 'A Facturar', style: 'tableHeader' },
@@ -911,7 +909,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                         ...parsedData,
                         [
                             { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
-                            { text: '' },
                             { text: '' },
                             { text: '' },
                             { text: '' },
@@ -930,12 +927,10 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                             { text: '' },
                             { text: '' },
                             { text: '' },
-                            { text: '' },
                             { text: totalTruckIva, style: 'tableData' },
                         ],
                         [
                             { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
-                            { text: '' },
                             { text: '' },
                             { text: '' },
                             { text: '' },
@@ -1251,7 +1246,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                     { text: item.equipment, style: 'tableData' },
                     { text: item.operator, style: 'tableData' },
                     { text: item.workingDayType, style: 'tableData' },
-                    { text: item.load, style: 'tableData' },
                     { text: item.amountPerUse, style: 'tableData' },
                     { text: item.volume, style: 'tableData' },
                     { text: numeral(item.totalAmount).format('$0,0'), style: 'tableData' },
@@ -1268,7 +1262,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                 layout : 'mfFullBorderedLayout',
                 table  : {
                     headerRows : 1,
-                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+                    widths     : [ 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
 
                     body: [
                         [
@@ -1278,7 +1272,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                             { text: 'Equipo', style: 'tableHeader' },
                             { text: 'Operador', style: 'tableHeader' },
                             { text: 'Tipo Jornada', style: 'tableHeader' },
-                            { text: 'Tipo Carga', style: 'tableHeader' },
                             { text: 'Monto', style: 'tableHeader' },
                             { text: 'Volumen', style: 'tableHeader' },
                             { text: 'A Facturar', style: 'tableHeader' },
@@ -1286,7 +1279,6 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                         ...parsedData,
                         [
                             { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
-                            { text: '' },
                             { text: '' },
                             { text: '' },
                             { text: '' },
@@ -1305,12 +1297,10 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                             { text: '' },
                             { text: '' },
                             { text: '' },
-                            { text: '' },
                             { text: totalTruckIva, style: 'tableData' },
                         ],
                         [
                             { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
-                            { text: '' },
                             { text: '' },
                             { text: '' },
                             { text: '' },

@@ -80,7 +80,7 @@ import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 import { MaintenanceClasses, MachineryTypes } from './../components/MfEquipmentFormDialog'
-import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile, autoWidth } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -327,6 +327,7 @@ export default {
             addExcelRow(workbook, worksheet, headers, { isHeader: true } )
             source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
 
+            autoWidth(worksheet)
             saveExcelFile(workbook, 'equipos')
 
             this.downloading = false

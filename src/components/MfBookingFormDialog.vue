@@ -244,6 +244,26 @@
                                     </v-col>
 
                                     <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'TRAVEL' || formData.machines[index].workCondition === 'BOTH')">
+                                        <v-text-field :value="formData.machines[index].load"
+                                                      label="Carga"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'La carga es requerida' ]"
+                                                      class="mf-to-uppercase"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], load: $event})"
+                                        />
+                                    </v-col>
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'TRAVEL' || formData.machines[index].workCondition === 'BOTH')">
+                                        <v-text-field :value="formData.machines[index].origin"
+                                                      label="Origen Carga"
+                                                      :disabled="loading"
+                                                      :rules="[ v => !!v || 'El origen es requerido' ]"
+                                                      class="mf-to-uppercase"
+                                                      @input="$set(formData.machines, index, { ...formData.machines[index], origin: $event})"
+                                        />
+                                    </v-col>
+
+                                    <v-col v-if="formData.machines[index].machineryType === 'TRUCK' && (formData.machines[index].workCondition === 'TRAVEL' || formData.machines[index].workCondition === 'BOTH')">
                                         <v-text-field :value="formData.machines[index].amountPerTravel"
                                                       label="Monto por Viaje"
                                                       type="number"
@@ -396,7 +416,6 @@ export const TruckWorkConditionsTypes = {
 export const TruckWorkConditions = [
     { label: 'POR VIAJE', value: 'TRAVEL' },
     { label: 'POR JORNADA', value: 'DAY' },
-    { label: 'AMBOS', value: 'BOTH' },
 ]
 
 export default {

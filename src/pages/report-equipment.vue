@@ -36,7 +36,7 @@
             </template>
 
             <template #[`item.operator`]="{ item }">
-                {{ item.executor.rut }} | {{ item.executor.name }}
+                {{ item.executor.name }}
             </template>
 
             <template #[`item.actions`]="{ item }">

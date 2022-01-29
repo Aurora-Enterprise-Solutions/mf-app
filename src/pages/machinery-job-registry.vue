@@ -29,7 +29,7 @@
                               item-value="_id"
                               :disabled="loading"
                               :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                              @change="setMachineryType"
+                              @change="onEquipmentChange"
                     >
 
                         <template #item="{ item }">
@@ -50,7 +50,7 @@
                               item-text="_id"
                               :disabled="loading"
                               :rules="[ v => !!v || 'La maquinaria es requerida' ]"
-                              @change="setMachineryType"
+                              @change="onEquipmentChange"
                     />
 
                     <v-btn color="primary" @click="step++">
@@ -73,6 +73,7 @@
                                   label="Horómetro Inicial"
                                   type="number"
                                   :disabled="loading"
+                                  :loading="$apollo.queries.previousJobRegistry.loading"
                                   :rules="[ v => !!v || 'El horómetro inicial es requerido' ]"
                                   @input="formData.startHourmeter = parseFloat($event)"
                                   @change="calculateTotalHours"
@@ -132,6 +133,7 @@
                               :disabled="loading"
                               :loading="$apollo.queries.buildings.loading"
                               :rules="[ v => !!v || 'La obra es requerida' ]"
+                              @change="onBuildingChange"
                     />
 
 
@@ -179,7 +181,7 @@
                               :rules="[ v => !!v || 'El tipo de jornada es requerido' ]"
                     />
 
-                    <v-select v-if="isTruck && isByDay"
+                    <!-- <v-select v-if="isTruck && isByDay"
                               v-model="formData.load"
                               :items="loads"
                               label="Tipo de Carga"
@@ -187,7 +189,7 @@
                               item-value="type"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
-                    />
+                    /> -->
 
 
                     <v-btn color="primary" @click="step++">
@@ -264,20 +266,18 @@ const defaultFormData = {
     client         : null,
     building       : null,
     load           : null,
+    equipment      : null,
 }
 
 export default {
     apollo: {
-        clients: {
+        allClients: {
             query: gql`query {
                 getAllClients {
                     _id,
                     name,
                     billing {
                         rut,
-                        loads {
-                            type,
-                        }
                     }
                 }
             }`,
@@ -321,9 +321,6 @@ export default {
                                 name,
                                 billing {
                                     rut,
-                                    loads {
-                                        type,
-                                    }
                                 }
                             },
                             building,
@@ -333,6 +330,8 @@ export default {
                                 name,
                             },
                             address,
+                            load,
+                            origin,
                         }
                     }
                     ...on ExternalEquipmentsByBooking {
@@ -346,14 +345,13 @@ export default {
                                 name,
                                 billing {
                                     rut,
-                                    loads {
-                                        type,
-                                    }
                                 }
                             },
                             building,
                             operator,
                             address,
+                            load,
+                            origin,
                         }
                     }
                 }
@@ -379,9 +377,18 @@ export default {
                     ? (isOperator ? equipments[0].operator._id : equipments[0].operator)
                     : null
 
+                const machineriesByEquipment = equipments.filter( (equipment) => equipment._id === this.formData.equipment)
+
                 this.loads = equipments.length > 0
-                    ? equipments[0].client.billing.loads
+                    ? machineriesByEquipment.map( (machine) => machine.load)
                     : []
+
+                const allClientsWhereEquipmentExists = Array.from(new Set(
+                    equipments.filter( (equipment) => equipment._id === this.formData.equipment)
+                        .map( (equipment) => equipment.client._id),
+                ) )
+
+                this.clients = this.allClients.filter( (client) => allClientsWhereEquipmentExists.includes(client._id) )
 
                 return equipments
 
@@ -392,6 +399,35 @@ export default {
                 return {
                     user : this.$auth.user._id,
                     date : this.formData.date,
+                }
+
+            },
+
+            fetchPolicy: 'network-only',
+        },
+
+        previousJobRegistry: {
+            query: gql`query getPreviousMachineryJobRegistry($user: String!, $date: String!, $equipment: String!) {
+                getPreviousMachineryJobRegistry(user: $user, date: $date, equipment: $equipment) {
+                    endHourmeter,
+                }
+            }`,
+
+            update( { getPreviousMachineryJobRegistry } ) {
+
+                if (getPreviousMachineryJobRegistry.length > 0)
+                    this.formData.startHourmeter = getPreviousMachineryJobRegistry[0].endHourmeter
+                else
+                    this.formData.startHourmeter = 0
+
+            },
+
+            variables() {
+
+                return {
+                    user      : this.$auth.user._id,
+                    date      : this.formData.date,
+                    equipment : this.formData.equipment,
                 }
 
             },
@@ -411,11 +447,12 @@ export default {
                 ...defaultFormData,
             },
 
-            clients : [],
-            loads   : [],
+            clients    : [],
+            loads      : [],
+            allClients : [],
 
             MachineryTypes       : MachineryTypes.filter( (type) => type.value !== 'PICKUP'),
-            TruckWorkConditions  : TruckWorkConditions.filter( (condition) => condition.value !== TruckWorkConditionsTypes.BOTH),
+            TruckWorkConditions,
             workingDayTypes      : WorkingDayTypes,
             currentWorkCondition : null,
         }
@@ -479,12 +516,6 @@ export default {
     },
 
     methods: {
-        onClientChange(id) {
-
-            const client = this.clients.find( (client) => client._id === id)
-            this.loads = client.billing.loads
-
-        },
 
         calculateTotalHours() {
 
@@ -492,20 +523,63 @@ export default {
 
         },
 
-        setMachineryType(equipmentId) {
+        onClientChange(clientId) {
 
-            const equipment = this.equipments.find( (equipment) => equipment._id === equipmentId)
+            const equipmentFilter = this.equipments.filter( (equipment) => equipment._id === this.formData.equipment && equipment.client._id === clientId)
+            this.formData.building = equipmentFilter.length > 0 ? equipmentFilter[0].building : null
+            this.onJobConditionsChange()
 
-            this.formData.machineryType = equipment.type
-            this.currentWorkCondition = equipment.workCondition
+        },
 
-            this.formData.client = equipment.client._id
-            this.formData.building = equipment.building
-            this.formData.address = equipment.address
-            this.formData.operator = typeof equipment.operator === 'string' ? equipment.operator : equipment.operator._id
+        onBuildingChange(building) {
 
-            this.onClientChange(equipment.client._id)
+            this.onJobConditionsChange()
+
+        },
+
+        onEquipmentChange(equipmentId) {
+
+            const equipmentFilter = this.equipments.filter( (equipment) => equipment._id === equipmentId)
+
+            this.formData.client = equipmentFilter[0].client._id
+            this.formData.building = equipmentFilter[0].building
+            this.formData.address = equipmentFilter[0].address
+            this.formData.operator = typeof equipmentFilter[0].operator === 'string' ? equipmentFilter[0].operator : equipmentFilter[0].operator._id
+
+            this.onJobConditionsChange()
+
+            const allClientsWhereEquipmentExists = Array.from(new Set(
+                this.equipments.filter( (equipment) => equipment._id === equipmentId)
+                    .map( (equipment) => equipment.client._id),
+            ) )
+
+            this.clients = this.allClients.filter( (client) => allClientsWhereEquipmentExists.includes(client._id) )
+
             this.$apollo.queries.buildings.refetch()
+
+        },
+
+        onJobConditionsChange() {
+
+            const equipmentId = this.formData.equipment
+            const clientId = this.formData.client
+            const buildingId = this.formData.building
+
+            const equipmentFilter = this.equipments.filter( (equipment) => equipment._id === equipmentId && equipment.client._id === clientId && equipment.building === buildingId)
+            const hasByTravel = equipmentFilter.some( (equipment) => equipment.workCondition === TruckWorkConditionsTypes.TRAVEL)
+            const hasByDay = equipmentFilter.some( (equipment) => equipment.workCondition === TruckWorkConditionsTypes.DAY)
+            const hasBoth = hasByTravel && hasByDay
+
+            this.currentWorkCondition = hasBoth ? TruckWorkConditionsTypes.BOTH : equipmentFilter.length > 0 ? equipmentFilter[0].workCondition : null
+
+            const equipmentsByTravel = equipmentFilter.filter( (equipment) => equipment.workCondition === TruckWorkConditionsTypes.TRAVEL)
+
+            this.loads = equipmentFilter.length > 0
+                ? equipmentsByTravel.map( (machine) => machine.load)
+                : []
+
+            this.formData.address = equipmentFilter.length > 0 ? equipmentFilter[0].address : ''
+            this.formData.machineryType = equipmentFilter.length > 0 ? equipmentFilter[0].type : ''
 
         },
 

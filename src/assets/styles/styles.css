@@ -144,6 +144,21 @@ html body #__layout {
   display: none;
 }
 
+.mf-page-report-daily .v-text-field__details {
+  display: none;
+}
+.mf-page-report-daily .info-row {
+  margin-top: 16px;
+}
+.mf-page-report-daily .info-card {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.mf-page-report-daily .info-card .v-card__text {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .mf-component-logo .row > div:first-child {
   padding: 0;
 }

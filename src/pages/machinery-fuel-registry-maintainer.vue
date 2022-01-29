@@ -1,10 +1,10 @@
 <template>
-    <v-container class="mf-page mf-page-machinery-job-regristry-maintainer">
+    <v-container class="mf-page mf-page-fuel-maintainer">
 
         <v-data-table :headers="headers"
-                      :loading="$apollo.queries.jobRegistries.loading || deleteLoading"
+                      :loading="$apollo.queries.fuelRegistries.loading || deleteLoading"
                       :search="search"
-                      :items="jobRegistries"
+                      :items="fuelRegistries"
                       item-key="_id"
         >
 
@@ -23,24 +23,24 @@
                 </v-toolbar>
             </template>
 
-            <template #[`item.date`]="{ item }">
-                {{ getParsedDate(item.date) }}
-            </template>
-
             <template #[`item.equipment`]="{ item }">
-                {{ item.equipment._id ? `${item.equipment.code} | ${item.equipment.name}` : item.equipment.name }}
+                {{ item.equipment._id ? item.equipment.code : item.equipment.name }}
             </template>
 
-            <template #[`item.signature`]="{ item }">
-                {{ item.signature ? 'Si' : 'No' }}
+            <template #[`item.operator`]="{ item }">
+                {{ item.operator.name }}
+            </template>
+
+            <template #[`item.date`]="{ item }">
+                {{ perseDate(item.date) }}
+            </template>
+
+            <template #[`item.type`]="{ item }">
+                {{ getFuelTypeLabel(item.type) }}
             </template>
 
             <template #[`item.actions`]="{ item }">
-                <v-btn v-if="!item.signature" icon color="primary" @click="onEdit(item)">
-                    <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-
-                <v-btn v-if="!isOperator" icon color="error" @click="onDelete(item)">
+                <v-btn icon color="error" @click="onDelete(item)">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
             </template>
@@ -49,11 +49,6 @@
 
 
         <!--DIALOGS-->
-        <mf-machinery-job-registry-dialog v-model="showForm"
-                                          :data="formData"
-                                          @save="onSave"
-        />
-
         <mf-delete-dialog ref="deleteDialog" @confirm="onDeleteConfirm" />
 
     </v-container>
@@ -63,44 +58,22 @@
 import gql from 'graphql-tag'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import { Error } from './../static/errors'
-import { Message } from './../static/messages'
-import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { Error } from '../static/errors'
+import { Message } from '../static/messages'
+import { GraphqlTypename } from '../static/errors/graphql_typename'
 import { MaintenanceClasses, MachineryTypes } from './../components/MfEquipmentFormDialog'
+import { FuelTypes } from './machinery-fuel-registry'
 
 export default {
     apollo: {
-        jobRegistries: {
-            query: gql`query getAllMachineryJobRegistryByUser($user: String){
-                getAllMachineryJobRegistryByUser(user: $user) {
+        fuelRegistries: {
+            query: gql`query getAllMachineryFuelRegistryByUser($user: String){
+                getAllMachineryFuelRegistryByUser(user: $user) {
                     _id,
                     date,
-                    startHourmeter,
-                    endHourmeter,
-                    totalHours,
-                    signature,
-                    totalTravels,
-                    machineryType,
-                    workCondition,
-                    load,
-                    machineryType,
-                    client {
-                        _id,
-                        name,
-                        billing {
-                            rut,
-                        }
-                    },
-                    executor {
-                        _id,
-                        rut,
-                        name,
-                        role,
-                    },
-                    building,
-                    bookingWorkCondition,
-                    workingDayType,
-                    observations,
+                    time,
+                    count,
+                    hourmeter,
                     equipment {
                         __typename,
                         ...on ExternalEquipment {
@@ -123,12 +96,11 @@ export default {
                             name,
                         },
                     },
-                    address,
-                    folio,
+                    type,
                 }
             }`,
 
-            update: (data) => data.getAllMachineryJobRegistryByUser,
+            update: (data) => data.getAllMachineryFuelRegistryByUser,
 
             variables() {
 
@@ -150,9 +122,18 @@ export default {
 
             deleteLoading: false,
 
+            FuelTypes,
+
             formData: {},
 
             headers: [
+                {
+                    text       : 'Tipo',
+                    value      : 'type',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
                 {
                     text       : 'Fecha',
                     value      : 'date',
@@ -161,36 +142,36 @@ export default {
                     groupable  : false,
                 },
                 {
-                    text       : 'Maquinaria',
+                    text       : 'Hora',
+                    value      : 'time',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Equipo',
                     value      : 'equipment',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
                 },
                 {
-                    text       : 'Hor. Inicial',
-                    value      : 'startHourmeter',
+                    text       : 'Operador',
+                    value      : 'operator',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
                 },
                 {
-                    text       : 'Hor. Final',
-                    value      : 'endHourmeter',
+                    text       : 'Litros',
+                    value      : 'count',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
                 },
                 {
-                    text       : 'Total Horas',
-                    value      : 'totalHours',
-                    sortable   : true,
-                    filterable : true,
-                    groupable  : false,
-                },
-                {
-                    text       : 'Firmado?',
-                    value      : 'signature',
+                    text       : 'Horómetro',
+                    value      : 'hourmeter',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
@@ -212,26 +193,21 @@ export default {
         ...mapGetters( {
             title: 'navbar/getTitle',
         } ),
-
-        isOperator() {
-
-            return this.$auth.user.role.name === 'operator' || this.$auth.user.role.name === 'construction_manager'
-
-        },
     },
 
     methods: {
 
-        getParsedDate(date) {
+        getFuelTypeLabel(type) {
 
-            return moment.utc(date).format('DD-MM-YYYY')
+            const fuelType = this.FuelTypes.find( (fuelType) => fuelType.value === type)
+
+            return fuelType ? fuelType.text : ''
 
         },
 
-        onEdit(item) {
+        perseDate(date) {
 
-            this.formData = JSON.parse(JSON.stringify(item) )
-            this.showForm = true
+            return moment.utc(date).format('DD-MM-YYYY')
 
         },
 
@@ -246,8 +222,8 @@ export default {
             this.deleteLoading = true
 
             this.$apollo.mutate( {
-                mutation: gql`mutation deleteMachineryJobRegistry($form: DeleteMachineryJobRegistryInput!) {
-                    deleteMachineryJobRegistry(form: $form) {
+                mutation: gql`mutation deleteMachineryFuelRegistry($form: DeleteMachineryJobRegistryInput!) {
+                    deleteMachineryFuelRegistry(form: $form) {
                         __typename
                     }
                 }`,
@@ -258,17 +234,17 @@ export default {
                     },
                 },
             } )
-                .then( ( { data: { deleteMachineryJobRegistry } } ) => {
+                .then( ( { data: { deleteMachineryFuelRegistry } } ) => {
 
-                    if (deleteMachineryJobRegistry.__typename === GraphqlTypename.OK) {
+                    if (deleteMachineryFuelRegistry.__typename === GraphqlTypename.OK) {
 
                         this.$alert(Message.MACHINERY_JOB_REGISTRY_DELETED)
-                        this.$apollo.queries.jobRegistries.refetch()
+                        this.$apollo.queries.fuelRegistries.refetch()
 
                     }
 
-                    if (deleteMachineryJobRegistry.__typename === GraphqlTypename.MACHINERY_JOB_REGISTRY_NOT_FOUND)
-                        this.$alert(Error.UNKNOWN_MACHINERY_JOB_REGISTRY, 'error')
+                    if (deleteMachineryFuelRegistry.__typename === GraphqlTypename.MACHINERY_FUEL_REGISTRY_NOT_FOUND)
+                        this.$alert(Error.UNKNOWN_MACHINERY_FUEL_REGISTRY, 'error')
 
 
                     this.deleteLoading = false
@@ -280,23 +256,6 @@ export default {
                     this.deleteLoading = false
 
                 } )
-
-        },
-
-        onSave(error) {
-
-            if (error) {
-
-                this.$alert(error, 'error')
-
-            }
-            else {
-
-                this.$alert(Message.EQUIPMENT_UPDATED)
-
-                this.$apollo.queries.jobRegistries.refetch()
-
-            }
 
         },
     },
