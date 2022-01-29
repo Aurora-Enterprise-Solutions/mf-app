@@ -15,4 +15,5 @@ export const Error = {
     UNKNOWN_BOOKING                 : 'Arriendo desconocido',
     UNKNOWN_MACHINERY_JOB_REGISTRY  : 'Registro de uso desconocido',
     UNKNOWN_MACHINERY_FUEL_REGISTRY : 'Registro de combustible desconocido',
+    WRONG_CURRENT_PASSWORD          : 'Contraseña actual incorrecta',
 }
