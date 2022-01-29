@@ -23,6 +23,10 @@
                 </v-toolbar>
             </template>
 
+            <template #[`item.date`]="{ item }">
+                {{ getParsedDate(item.date) }}
+            </template>
+
             <template #[`item.equipment`]="{ item }">
                 {{ item.equipment._id ? `${item.equipment.code} | ${item.equipment.name}` : item.equipment.name }}
             </template>
@@ -57,6 +61,7 @@
 
 <script>
 import gql from 'graphql-tag'
+import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
@@ -216,6 +221,12 @@ export default {
     },
 
     methods: {
+
+        getParsedDate(date) {
+
+            return moment.utc(date).format('DD-MM-YYYY')
+
+        },
 
         onEdit(item) {
 

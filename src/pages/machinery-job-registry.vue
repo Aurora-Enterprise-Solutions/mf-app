@@ -544,7 +544,7 @@ export default {
             this.formData.client = equipmentFilter[0].client._id
             this.formData.building = equipmentFilter[0].building
             this.formData.address = equipmentFilter[0].address
-            this.formData.operator = typeof equipmentFilter[0].operator === 'string' ? equipmentFilter[0].operator : equipment.equipmentFilter[0]._id
+            this.formData.operator = typeof equipmentFilter[0].operator === 'string' ? equipmentFilter[0].operator : equipmentFilter[0].operator._id
 
             this.onJobConditionsChange()
 
