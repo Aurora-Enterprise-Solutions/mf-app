@@ -38,13 +38,13 @@
         <v-row class="info-row">
             <v-col v-for="(equipment, index) of equipments"
                    :key="index"
-                   cols="12"
+                   cols="6"
                    class="info-card"
             >
                 <v-card>
                     <v-card-text>
                         <v-row align="center">
-                            <v-col style="padding: 0 10px;" cols="3">
+                            <v-col style="padding: 0 10px;" cols="1">
                                 <div class="overline">
                                     {{ equipment.__typename === 'InternalMachine' ? equipment.code : equipment.externalEquipment }}
                                 </div>
@@ -592,7 +592,7 @@ export default {
         tags(equipment) {
 
             const whenHasBooking = equipment.booking ? [
-                { text: equipment.__typename === 'InternalMachine' ? `Operador: ${equipment.booking.operator.name}` : `Operador: ${equipment.externalOperator}`, color: 'indigo lighten-4' },
+                { text: equipment.__typename === 'InternalMachine' ? `Op.: ${equipment.booking.operator.name}` : `Op.: ${equipment.externalOperator}`, color: 'indigo lighten-4' },
                 ...this.getMachineryDetails(equipment),
                 ...this.getTruckDetails(equipment),
             ] : [
@@ -600,7 +600,7 @@ export default {
             ]
 
             return [
-                { text: equipment.__typename === 'InternalMachine' ? 'Tipo: Interno' : 'Tipo: Externo', color: 'blue lighten-4' },
+                { text: equipment.__typename === 'InternalMachine' ? 'Interno' : 'Externo', color: 'blue lighten-4' },
                 ...whenHasBooking,
             ]
 
@@ -634,12 +634,12 @@ export default {
 
             return jobs && jobs.length > 0 ? [
                 { text: `Obra: ${jobs[0].building || ''}`, color: 'indigo lighten-4' },
-                { text: `Horómetro: ${maxHourmeter}`, color: 'yellow lighten-1' },
-                { text: 'Estado: Completado', color: 'success' },
+                { text: `Horómetro: ${maxHourmeter}`, color: 'teal lighten-3' },
+                { text: 'Completado', color: 'success' },
             ] : [
                 { text: 'Obra:', color: 'indigo lighten-4' },
-                { text: 'Horómetro:', color: 'yellow lighten-1' },
-                { text: 'Estado: Incompleto', color: 'error' },
+                { text: 'Horómetro:', color: 'teal lighten-3' },
+                { text: 'Incompleto', color: 'error' },
             ]
 
         },
@@ -672,12 +672,12 @@ export default {
 
             return jobs && jobs.length > 0 ? [
                 { text: `Obra: ${jobs[0].building || ''}`, color: 'indigo lighten-4' },
-                { text: `Total Viajes: ${totalTravels}`, color: 'yellow lighten-1' },
-                { text: 'Estado: Completado', color: 'success' },
+                { text: `Total Viajes: ${totalTravels}`, color: 'teal lighten-3' },
+                { text: 'Completado', color: 'success' },
             ] : [
                 { text: 'Obra:', color: 'indigo lighten-4' },
-                { text: 'Total Viajes:', color: 'yellow lighten-1' },
-                { text: 'Estado: Incompleto', color: 'error' },
+                { text: 'Total Viajes:', color: 'teal lighten-3' },
+                { text: 'Incompleto', color: 'error' },
             ]
 
         },
