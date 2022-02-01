@@ -155,8 +155,8 @@
                               v-model="formData.load"
                               :items="loads"
                               label="Tipo de Carga"
-                              item-text="type"
-                              item-value="type"
+                              item-text="load"
+                              item-value="load"
                               :disabled="loading"
                               :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
                     />
@@ -166,6 +166,7 @@
                                   label="Total de Viajes"
                                   type="number"
                                   :disabled="loading"
+                                  :rules="[ v => !!v || 'El total de viajes es requerido' ]"
                                   @input="formData.totalTravels = Math.ceil(parseFloat($event))"
                     />
 
@@ -180,16 +181,6 @@
                               :disabled="loading"
                               :rules="[ v => !!v || 'El tipo de jornada es requerido' ]"
                     />
-
-                    <!-- <v-select v-if="isTruck && isByDay"
-                              v-model="formData.load"
-                              :items="loads"
-                              label="Tipo de Carga"
-                              item-text="type"
-                              item-value="type"
-                              :disabled="loading"
-                              :rules="[ v => !!v || 'El tipo de carga es requerido' ]"
-                    /> -->
 
 
                     <v-btn color="primary" @click="step++">
@@ -378,9 +369,13 @@ export default {
                     : null
 
                 const machineriesByEquipment = equipments.filter( (equipment) => equipment._id === this.formData.equipment)
+                const equipmentsByTravel = machineriesByEquipment.filter( (equipment) => equipment.workCondition === TruckWorkConditionsTypes.TRAVEL)
 
                 this.loads = equipments.length > 0
-                    ? machineriesByEquipment.map( (machine) => machine.load)
+                    ? equipmentsByTravel.map( (machine) => ( {
+                        load   : machine.load,
+                        origin : machine.origin,
+                    } ) )
                     : []
 
                 const allClientsWhereEquipmentExists = Array.from(new Set(
@@ -450,6 +445,8 @@ export default {
             clients    : [],
             loads      : [],
             allClients : [],
+            buildings  : [],
+            equipments : [],
 
             MachineryTypes       : MachineryTypes.filter( (type) => type.value !== 'PICKUP'),
             TruckWorkConditions,
@@ -575,7 +572,10 @@ export default {
             const equipmentsByTravel = equipmentFilter.filter( (equipment) => equipment.workCondition === TruckWorkConditionsTypes.TRAVEL)
 
             this.loads = equipmentFilter.length > 0
-                ? equipmentsByTravel.map( (machine) => machine.load)
+                ? equipmentsByTravel.map( (machine) => ( {
+                    load   : machine.load,
+                    origin : machine.origin,
+                } ) )
                 : []
 
             this.formData.address = equipmentFilter.length > 0 ? equipmentFilter[0].address : ''
@@ -601,6 +601,7 @@ export default {
                             ...this.formData,
                             signature            : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
                             bookingWorkCondition : this.currentWorkCondition,
+                            origin               : this.loads.find( (load) => load.load === this.formData.load).origin,
                         },
                     },
                 } )
@@ -613,6 +614,7 @@ export default {
                         }
                         this.currentWorkCondition = null
                         this.$refs.signaturePad.reset()
+                        this.switchSignature = false
                         this.step = 1
 
                         this.loading = false
