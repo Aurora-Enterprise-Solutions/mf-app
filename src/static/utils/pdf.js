@@ -418,13 +418,15 @@ function setMachineryJobRegistryPdfBody(doc, data) {
 
             if (workCondition === TruckWorkConditionsTypes.TRAVEL) {
 
-                const volume = data.equipment.__typename === 'ExternalEquipment' ? 0 : data.equipment.volume
+                const volume = data.equipment.volume || 0
 
                 headersByMachineryType.push( [{ text: 'Nro. de Viajes:', style: 'bodyTableHeader' }] )
                 headersByMachineryType.push( [{ text: 'Volumen:', style: 'bodyTableHeader' }] )
+                headersByMachineryType.push( [{ text: 'Carga:', style: 'bodyTableHeader' }] )
 
                 bodyByMachineryType.push( [{ text: data.totalTravels, style: 'bodyTableData' }] )
                 bodyByMachineryType.push( [{ text: volume, style: 'bodyTableData' }] )
+                bodyByMachineryType.push( [{ text: data.load, style: 'bodyTableData' }] )
 
             }
 

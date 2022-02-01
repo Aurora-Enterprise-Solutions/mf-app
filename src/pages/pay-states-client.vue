@@ -260,6 +260,7 @@ export default {
                                     amountPerUse,
                                     workCondition,
                                     folio,
+                                    origin,
                                 }
                             },
                             extern {
@@ -331,6 +332,7 @@ export default {
                                     amountPerUse,
                                     workCondition,
                                     folio,
+                                    origin,
                                 }
                             }
                         }
@@ -437,6 +439,7 @@ export default {
                                 workingDayType : item.workingDayType,
                                 workCondition  : item.workCondition,
                                 load           : item.load,
+                                origin         : item.origin,
                                 volume         : item.volume,
                                 totalAmount    : item.totalAmount,
                             }
@@ -458,6 +461,7 @@ export default {
                                 workingDayType : item.workingDayType,
                                 workCondition  : item.workCondition,
                                 load           : item.load,
+                                origin         : item.origin,
                                 volume         : item.volume,
                                 totalAmount    : item.totalAmount,
                             }
@@ -739,7 +743,7 @@ export default {
                 addExcelRow(workbook, truckInternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
                 addExcelRow(workbook, truckInternWorksheet, [ 'Camión por Viaje' ], { isHeader: true, bordered: false } )
 
-                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Monto', 'Volumen', 'A Facturar' ]
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Origen Carga', 'Monto', 'Volumen', 'A Facturar' ]
                 addExcelRow(workbook, truckInternWorksheet, headers, { isHeader: true } )
 
                 let totalTruck = 0
@@ -756,6 +760,7 @@ export default {
                         item.operator,
                         item.totalTravels,
                         item.load,
+                        item.origin || '',
                         item.amountPerUse,
                         item.volume,
                         numeral(item.totalAmount).format('$0,0'),
@@ -780,17 +785,17 @@ export default {
                 } )
 
                 const { row: netoRow } = addExcelRow(workbook, truckInternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'Neto', totalTruck,
+                    '', '', '', '', '', '', '', '', '', 'Neto', totalTruck,
                 ] )
                 setTotalStyles(netoRow)
 
                 const { row: ivaRow } = addExcelRow(workbook, truckInternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                    '', '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
                 ] )
                 setTotalStyles(ivaRow)
 
                 const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckInternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                    '', '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
                 ] )
                 setTotalStyles(totalRow)
 
@@ -937,7 +942,7 @@ export default {
                 addExcelRow(workbook, truckExternWorksheet, [ `Cliente: ${client}` ], { isHeader: true, bordered: false } )
                 addExcelRow(workbook, truckExternWorksheet, [ 'Camión por Viaje' ], { isHeader: true, bordered: false } )
 
-                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Monto', 'Volumen', 'A Facturar' ]
+                headers = [ 'Fecha', 'Obra', 'Nro. Reporte', 'Equipo', 'Operador', 'Nro. Viajes', 'Tipo Carga', 'Origen Carga', 'Monto', 'Volumen', 'A Facturar' ]
                 addExcelRow(workbook, truckExternWorksheet, headers, { isHeader: true } )
 
                 let totalTruck = 0
@@ -954,6 +959,7 @@ export default {
                         item.operator,
                         item.totalTravels,
                         item.load,
+                        item.origin || '',
                         item.amountPerUse,
                         item.volume,
                         numeral(item.totalAmount).format('$0,0'),
@@ -978,17 +984,17 @@ export default {
                 } )
 
                 const { row: netoRow } = addExcelRow(workbook, truckExternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'Neto', totalTruck,
+                    '', '', '', '', '', '', '', '', '', 'Neto', totalTruck,
                 ] )
                 setTotalStyles(netoRow)
 
                 const { row: ivaRow } = addExcelRow(workbook, truckExternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
+                    '', '', '', '', '', '', '', '', '', 'IVA', totalTruckIva,
                 ] )
                 setTotalStyles(ivaRow)
 
                 const { row: totalRow, lastRowNumber: totalLastRowNumber } = addExcelRow(workbook, truckExternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
+                    '', '', '', '', '', '', '', '', '', 'Total', totalIvaIncludedTruck,
                 ] )
                 setTotalStyles(totalRow)
 

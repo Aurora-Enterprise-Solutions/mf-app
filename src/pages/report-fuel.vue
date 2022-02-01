@@ -286,7 +286,7 @@ export default {
                     previous,
                     item.hourmeter,
                     item.hourmeter - previous,
-                    item.hourmeter ? (item.count / item.hourmeter).toFixed(2) : '-',
+                    item.hourmeter ? (item.count / (item.hourmeter - previous) ).toFixed(2) : '-',
                     item.time,
                     item.guia ? item.guia : '',
                     item.operator.name,
@@ -302,6 +302,7 @@ export default {
 
             } )
 
+            autoWidth(worksheet)
             saveExcelFile(workbook, 'combustible')
 
         },

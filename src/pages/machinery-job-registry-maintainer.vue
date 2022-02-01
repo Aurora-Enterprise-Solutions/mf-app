@@ -215,7 +215,7 @@ export default {
 
         isOperator() {
 
-            return this.$auth.user.role.name === 'operator' || this.$auth.user.role.name === 'construction_manager'
+            return this.$auth.user.role.name === 'operator'
 
         },
     },

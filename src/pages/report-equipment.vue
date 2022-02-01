@@ -71,9 +71,11 @@ export default {
                             _id,
                             code,
                             name,
+                            volume,
                         },
                         ...on ExternalEquipment {
                             name,
+                            volume,
                         }
                     },
                     date,
