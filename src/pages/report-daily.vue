@@ -38,7 +38,7 @@
         <v-row class="info-row">
             <v-col v-for="(equipment, index) of equipments"
                    :key="index"
-                   cols="12"
+                   cols="6"
                    class="info-card"
             >
                 <v-card>
