@@ -38,13 +38,13 @@
         <v-row class="info-row">
             <v-col v-for="(equipment, index) of equipments"
                    :key="index"
-                   cols="6"
+                   cols="12"
                    class="info-card"
             >
                 <v-card>
                     <v-card-text>
                         <v-row align="center">
-                            <v-col style="padding: 0 10px;" cols="1">
+                            <v-col style="padding: 0 10px;" cols="auto">
                                 <div class="overline">
                                     {{ equipment.__typename === 'InternalMachine' ? equipment.code : equipment.externalEquipment }}
                                 </div>
