@@ -242,6 +242,7 @@ import { Message } from './../static/messages'
 import { MachineryTypes } from './../components/MfEquipmentFormDialog'
 import { TruckWorkConditions, TruckWorkConditionsTypes } from './../components/MfBookingFormDialog'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
+import { getMachineryJobPdfInBase64 } from './../static/utils/pdf'
 
 export const WorkingDayTypes = [
     { label: 'COMPLETA', value: 'FULL' },
@@ -288,6 +289,30 @@ export default {
                     client    : this.formData.client,
                     date      : this.formData.date,
                     equipment : this.formData.equipment,
+                }
+
+            },
+
+            fetchPolicy: 'network-only',
+        },
+
+        currentBooking: {
+            query: gql`query getBookingByClientDateEquipmentBuilding($client: String!, $date: String!, $equipment: String!, $building: String!) {
+                getBookingByClientDateEquipmentBuilding(client: $client, date: $date, equipment: $equipment, building: $building) {
+                    _id,
+                    receivers {
+                        email
+                    },
+                }
+            }`,
+            update: (data) => data.getBookingByClientDateEquipmentBuilding,
+            variables() {
+
+                return {
+                    client    : this.formData.client,
+                    date      : this.formData.date,
+                    equipment : this.formData.equipment,
+                    building  : this.formData.building,
                 }
 
             },
@@ -384,6 +409,9 @@ export default {
                 ) )
 
                 this.clients = this.allClients.filter( (client) => allClientsWhereEquipmentExists.includes(client._id) )
+
+                this.equipments = equipments
+                this.onJobConditionsChange()
 
                 return equipments
 
@@ -589,10 +617,15 @@ export default {
 
                 this.loading = true
 
+                const load = this.loads.find( (load) => load.load === this.formData.load)
+
                 this.$apollo.mutate( {
                     mutation: gql`mutation ($form: MachineryJobRegistryInput!) {
                         createMachineryJobRegistry(form: $form) {
                             __typename
+                            ...on Ok {
+                                message
+                            }
                         }
                     }`,
 
@@ -601,13 +634,13 @@ export default {
                             ...this.formData,
                             signature            : this.switchSignature ? this.$refs.signaturePad.getValue() : null,
                             bookingWorkCondition : this.currentWorkCondition,
-                            origin               : this.loads.find( (load) => load.load === this.formData.load).origin,
+                            origin               : load ? load.origin : null,
                         },
                     },
                 } )
                     .then( ( { data: { createMachineryJobRegistry } } ) => {
 
-                        this.responseParser(createMachineryJobRegistry.__typename)
+                        this.responseParser(createMachineryJobRegistry.__typename, createMachineryJobRegistry.message)
 
                         this.formData = {
                             ...defaultFormData,
@@ -636,14 +669,112 @@ export default {
 
         },
 
-        responseParser(typename) {
+        async responseParser(typename, id) {
 
             switch (typename) {
 
-                case GraphqlTypename.OK:
+                case GraphqlTypename.OK: {
+
                     this.$alert(Message.MACHINERY_JOB_REGISTRY_CREATED)
 
+                    if (this.switchSignature) {
+
+                        let { data } = await this.$apollo.query( {
+                            query: gql`query ($id: String!) {
+                            getJobRegistryById(id: $id) {
+                                _id,
+                                equipment {
+                                    __typename,
+                                    ...on InternalEquipment {
+                                        _id,
+                                        code,
+                                        name,
+                                        volume,
+                                    },
+                                    ...on ExternalEquipment {
+                                        name,
+                                        volume,
+                                    }
+                                },
+                                date,
+                                startHourmeter,
+                                endHourmeter,
+                                totalHours,
+                                signature,
+                                totalTravels,
+                                machineryType,
+                                workCondition,
+                                load,
+                                machineryType,
+                                client {
+                                    _id,
+                                    name,
+                                    billing {
+                                        rut,
+                                    }
+                                },
+                                executor {
+                                    _id,
+                                    rut,
+                                    name,
+                                    role,
+                                    signature,
+                                },
+                                building,
+                                bookingWorkCondition,
+                                workingDayType,
+                                observations,
+                                folio,
+                                operator {
+                                    __typename,
+                                    ...on InternalOperator {
+                                        _id,
+                                        rut,
+                                        name,
+                                    },
+                                    ...on ExternalOperator {
+                                        name,
+                                    }
+                                },
+                                address,
+                            }
+                        }`,
+
+                            variables: {
+                                id,
+                            },
+                        } )
+
+                        data = data && data.getJobRegistryById && data.getJobRegistryById.length > 0 ? data.getJobRegistryById[0] : {}
+
+                        const receivers = this.currentBooking && this.currentBooking.length > 0 ? this.currentBooking[0].receivers.map( (r) => r.email) : null
+
+                        const file = await getMachineryJobPdfInBase64( {
+                            title    : `reporte_equipo_folio_${data.folio}`,
+                            data,
+                            download : false,
+                            get64    : true,
+                        } )
+
+                        this.$apollo.query( {
+                            query: gql`query sendJobRegistryByEmail($file: String!, $folio: String!, $receivers: [String!]!) {
+                            sendJobRegistryByEmail(file: $file, folio: $folio, receivers: $receivers) {
+                                __typename,
+                            }
+                        }`,
+
+                            variables: {
+                                file,
+                                receivers,
+                                folio: data.folio.toString(),
+                            },
+                        } )
+
+                    }
+
                     break
+
+                }
 
                 default:
                     this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
