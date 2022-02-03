@@ -168,6 +168,13 @@ export default {
                     groupable  : false,
                 },
                 {
+                    text       : 'Obra',
+                    value      : 'building',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
                     text       : 'Hor. Inicial',
                     value      : 'startHourmeter',
                     sortable   : true,
@@ -184,6 +191,13 @@ export default {
                 {
                     text       : 'Total Horas',
                     value      : 'totalHours',
+                    sortable   : true,
+                    filterable : true,
+                    groupable  : false,
+                },
+                {
+                    text       : 'Carga',
+                    value      : 'load',
                     sortable   : true,
                     filterable : true,
                     groupable  : false,
