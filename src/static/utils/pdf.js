@@ -639,8 +639,11 @@ export function generateDailyPayStatePdf( { title, data, date, total } ) {
                 { text: item.equipment, style: 'tableData' },
                 { text: item.amountPerUse, style: 'tableData' },
                 { text: item.amounType, style: 'tableData' },
+                { text: item.load, style: 'tableData' },
+                { text: item.volume, style: 'tableData' },
                 { text: item.hours, style: 'tableData' },
                 { text: item.minHours, style: 'tableData' },
+                { text: item.totalTravels, style: 'tableData' },
                 { text: item.toFacture, style: 'tableData' },
                 { text: item.totalAmount, style: 'tableData' },
             ]
@@ -652,7 +655,7 @@ export function generateDailyPayStatePdf( { title, data, date, total } ) {
             layout : 'mfFullBorderedLayout',
             table  : {
                 headerRows : 1,
-                widths     : [ 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
+                widths     : [ '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto' ],
 
                 body: [
                     [
@@ -662,14 +665,20 @@ export function generateDailyPayStatePdf( { title, data, date, total } ) {
                         { text: 'Equipo', style: 'tableHeader' },
                         { text: 'Monto hr/viaje/jornada', style: 'tableHeader' },
                         { text: 'Tipo de Cobro', style: 'tableHeader' },
+                        { text: 'Carga', style: 'tableHeader' },
+                        { text: 'Volumen', style: 'tableHeader' },
                         { text: 'Horómetro', style: 'tableHeader' },
                         { text: 'Mínimas', style: 'tableHeader' },
+                        { text: 'N° Viajes', style: 'tableHeader' },
                         { text: 'A Facturar', style: 'tableHeader' },
                         { text: 'Cobro', style: 'tableHeader' },
                     ],
                     ...parsedeData,
                     [
-                        { text: 'Total diario', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                        { text: 'Total diario', style: 'tableHeader', alignment: 'right', colSpan: 12 },
+                        { text: '' },
+                        { text: '' },
+                        { text: '' },
                         { text: '' },
                         { text: '' },
                         { text: '' },
@@ -901,7 +910,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
 
                 let totalTruck = 0
 
-                const parsedData = trucksByDay.map( (item) => {
+                const parsedData = internTrucksByDay.map( (item) => {
 
                     totalTruck += item.totalAmount
 
@@ -944,7 +953,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                             ],
                             ...parsedData,
                             [
-                                { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                                { text: 'Neto', style: 'tableHeader', alignment: 'right', colSpan: 8 },
                                 { text: '' },
                                 { text: '' },
                                 { text: '' },
@@ -955,7 +964,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                                 { text: totalTruck, style: 'tableData' },
                             ],
                             [
-                                { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                                { text: 'IVA', style: 'tableHeader', alignment: 'right', colSpan: 8 },
                                 { text: '' },
                                 { text: '' },
                                 { text: '' },
@@ -966,7 +975,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
                                 { text: totalTruckIva, style: 'tableData' },
                             ],
                             [
-                                { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 9 },
+                                { text: 'Total', style: 'tableHeader', alignment: 'right', colSpan: 8 },
                                 { text: '' },
                                 { text: '' },
                                 { text: '' },
@@ -1033,7 +1042,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
 
                 let totalTruck = 0
 
-                const parsedData = trucksByTravel.map( (item) => {
+                const parsedData = internTrucksByTravel.map( (item) => {
 
                     totalTruck += item.totalAmount
 
@@ -1421,7 +1430,7 @@ export function generateGeneralPayStatePdf( { title, data, client } ) {
 
                 let totalTruck = 0
 
-                const parsedData = data.extern.TRUCK.filter( (item) => item.workCondition === 'TRAVEL').map( (item) => {
+                const parsedData = externTrucksByTravel.map( (item) => {
 
                     totalTruck += item.totalAmount
 

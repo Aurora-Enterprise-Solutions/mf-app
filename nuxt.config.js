@@ -181,5 +181,11 @@ export default {
 
         authenticationType : '',
         tokenName          : 'auth._token.local',
+
+        defaultOptions: {
+            $query: {
+                fetchPolicy: 'network-only',
+            },
+        },
     },
 }

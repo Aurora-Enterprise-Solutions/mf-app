@@ -24,7 +24,7 @@
 import gql from 'graphql-tag'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import { newEmptyWorkbook, addWorksheet, setExcelHeader, addExcelRow, saveExcelFile, mainColor } from './../static/utils/excel'
+import { newEmptyWorkbook, addWorksheet, setExcelHeader, addExcelRow, saveExcelFile, mainColor, autoWidth } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -134,6 +134,7 @@ export default {
 
             } )
 
+            autoWidth(worksheet)
             saveExcelFile(workbook, 'reporte_mantenciones')
 
         },
