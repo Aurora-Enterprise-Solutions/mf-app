@@ -15,4 +15,5 @@ export const Message = {
     MACHINERY_FUEL_REGISTRY_CREATED : 'Registro de combustible creado',
     MACHINERY_JOB_REGISTRY_DELETED  : 'Registro de uso eliminado',
     PASSWORD_CHANGED                : 'Contraseña actualizada',
+    MACHINERY_FUEL_REGISTRY_DELETED : 'Registro de combustible eliminado',
 }

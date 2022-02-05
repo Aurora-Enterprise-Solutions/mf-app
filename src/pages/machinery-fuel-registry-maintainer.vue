@@ -238,7 +238,7 @@ export default {
 
                     if (deleteMachineryFuelRegistry.__typename === GraphqlTypename.OK) {
 
-                        this.$alert(Message.MACHINERY_JOB_REGISTRY_DELETED)
+                        this.$alert(Message.MACHINERY_FUEL_REGISTRY_DELETED)
                         this.$apollo.queries.fuelRegistries.refetch()
 
                     }
