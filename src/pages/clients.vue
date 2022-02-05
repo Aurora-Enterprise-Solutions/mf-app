@@ -216,7 +216,6 @@ export default {
             this.formData = {
                 receivers : [],
                 billing   : {
-                    loads: [],
                 },
             }
             this.showClientForm = true

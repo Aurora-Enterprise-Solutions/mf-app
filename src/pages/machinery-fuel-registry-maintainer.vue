@@ -222,7 +222,7 @@ export default {
             this.deleteLoading = true
 
             this.$apollo.mutate( {
-                mutation: gql`mutation deleteMachineryFuelRegistry($form: DeleteMachineryJobRegistryInput!) {
+                mutation: gql`mutation deleteMachineryFuelRegistry($form: DeleteMachineryFuelRegistryInput!) {
                     deleteMachineryFuelRegistry(form: $form) {
                         __typename
                     }
