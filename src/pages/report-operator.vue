@@ -193,7 +193,9 @@ export default {
                     totalDays += isSaturday ? 0 : 1
                     sumHours += isSaturday ? 0 : item.totalHours
                     totalHours += isSaturday ? item.totalHours * 2 : item.totalHours
-                    totalHoursForAverage += isSaturday ? 0 : item.totalHours
+
+                    const week = sumDays > 0 && isLastDayOfWeek || index === (machineryData.length - 1) ? (Math.round( (sumHours / sumDays) * 10) / 10) : 0
+                    totalHoursForAverage += week
 
                     const newRow = [
                         moment.utc(item.date).format('dddd DD [de] MMMM [de] YYYY'),
@@ -201,7 +203,7 @@ export default {
                         item.endHourmeter,
                         item.totalHours,
                         isSaturday ? item.totalHours * 2 : item.totalHours,
-                        isLastDayOfWeek || index === (machineryData.length - 1) ? (Math.round( (sumHours / sumDays) * 10) / 10) : 0,
+                        week,
                     ]
 
                     const { row } = addExcelRow(workbook, worksheet, newRow)
@@ -219,7 +221,7 @@ export default {
 
                 // add total
                 let firstCol = 0
-                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, (Math.round( (totalHoursForAverage / totalDays) * 10) / 10) ], { bordered: false } )
+                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, totalHoursForAverage ], { bordered: false } )
                 row.eachCell( (cell, colNumber) => {
 
                     if (firstCol === 0 && cell.value)

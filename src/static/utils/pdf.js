@@ -544,10 +544,10 @@ function setMachineryJobRegistryPdfBody(doc, data) {
     const blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
     const firstSignature = data.executor.signature
-    const firstSignatureLabel = data.operator.__typename === 'ExternalExecutor' ? 'FIRMA JEFE DE OBRA' : 'FIRMA OPERADOR'
+    const firstSignatureLabel = data.operator.__typename === 'ExternalOperator' ? 'FIRMA JEFE DE OBRA' : 'FIRMA OPERADOR'
 
     const secondSignature = data.signature ? data.signature : blankImage
-    const secondSignatureLabel = data.operator.__typename === 'ExternalExecutor' ? 'FIRMA OPERADOR' : 'FIRMA JEFE DE OBRA'
+    const secondSignatureLabel = data.operator.__typename === 'ExternalOperator' ? 'FIRMA OPERADOR' : 'FIRMA JEFE DE OBRA'
 
     doc.content.push( {
         columns: [
