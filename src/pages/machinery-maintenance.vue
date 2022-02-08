@@ -78,6 +78,10 @@
                                                     <v-btn text color="primary" small @click="changeStatus(item._id, event._id)">
                                                         {{ event.status === 'DONE' ? 'Pendiente' : 'Completar' }}
                                                     </v-btn>
+
+                                                    <v-btn text color="error" small @click="deleteMaintenance(item._id, event._id)">
+                                                        Eliminar
+                                                    </v-btn>
                                                 </v-col>
                                             </v-row>
                                         </v-timeline-item>
@@ -102,6 +106,8 @@
                 </v-row>
             </template>
         </v-data-iterator>
+
+        <mf-delete-dialog ref="deleteDialog" @confirm="onDeleteConfirm" />
     </v-container>
 </template>
 
@@ -176,6 +182,23 @@ export default {
 
                         const maintenance = this.maintenances.find( (maintenance) => maintenance._id === maintenanceStatusUpdated._id)
                         maintenance.status = maintenanceStatusUpdated.status
+
+                        return { getAllLastMaintenance: this.maintenances }
+
+                    },
+                },
+
+                {
+                    document: gql`subscription {
+                        maintenanceDeleted {
+                            _id,
+                        }
+                    }`,
+
+                    updateQuery( { getAllLastMaintenance }, { subscriptionData: { data: { maintenanceDeleted } } } ) {
+
+                        const maintenanceIndex = this.maintenances.findIndex( (maintenance) => maintenance._id === maintenanceDeleted._id)
+                        this.maintenances.splice(maintenanceIndex, 1)
 
                         return { getAllLastMaintenance: this.maintenances }
 
@@ -310,6 +333,43 @@ export default {
             } )
 
             return Object.values(groupedMaintenancesByEquipment)
+
+        },
+
+        deleteMaintenance(equipmentId, id) {
+
+            this.$refs.deleteDialog.validate( {
+                equipmentId,
+                id,
+            } )
+
+        },
+
+        onDeleteConfirm( { equipmentId, id } ) {
+
+            this.$set(this.loading, equipmentId, true)
+
+            this.$apollo.mutate( {
+                mutation: gql`mutation deleteMaintenance($id: String!) {
+                    deleteMaintenance(id: $id) {
+                        _id,
+                    }
+                }`,
+
+                variables: {
+                    id,
+                },
+            } )
+                .then( ( { data: { deleteMaintenance } } ) => {
+
+                    this.$set(this.loading, equipmentId, false)
+
+                } )
+                .catch( () => {
+
+                    this.$set(this.loading, equipmentId, false)
+
+                } )
 
         },
     },

@@ -41,6 +41,12 @@ export function setExcelHeader(workbook, worksheet) {
 
     worksheet.addImage(logo, 'B2:C6')
 
+    // addExcelRow(workbook, worksheet, [ '', process.env.NUXT_ENV_RAZON_SOCIAL ], { lastRowAdded: 0, isHeader: true, withPreviousRow: false, bordered: false, mergeCells: false } )
+    // addExcelRow(workbook, worksheet, [ '', process.env.NUXT_ENV_GIRO ], { lastRowAdded: 1, isHeader: true, withPreviousRow: false, bordered: false, mergeCells: false } )
+    // addExcelRow(workbook, worksheet, [ '', process.env.NUXT_ENV_DIRECCION ], { lastRowAdded: 2, isHeader: true, withPreviousRow: false, bordered: false, mergeCells: false } )
+    // addExcelRow(workbook, worksheet, [ '', `RUT: ${process.env.NUXT_ENV_RUT}` ], { lastRowAdded: 3, isHeader: true, withPreviousRow: false, bordered: false, mergeCells: false } )
+    // addExcelRow(workbook, worksheet, [ '', `Fono: ${process.env.NUXT_ENV_FONO} - E-mail: ${process.env.NUXT_ENV_CONTACTO_EMAIL}` ], { lastRowAdded: 4, isHeader: true, withPreviousRow: false, bordered: false, mergeCells: false } )
+
     worksheet.addTable( {
         name      : 'Header',
         ref       : 'D2',
@@ -76,10 +82,10 @@ export function setExcelHeader(workbook, worksheet) {
 
 }
 
-export function addExcelRow(workbook, worksheet, rowData, { isHeader = false, bordered = true } = {} ) {
+export function addExcelRow(workbook, worksheet, rowData, { isHeader = false, withPreviousRow = true, bordered = true, lastRowAdded, mergeCells = true } = {} ) {
 
     const lastRow = worksheet.lastRow
-    let lastRowNumber = lastRow.number > firstRow ? lastRow.number : firstRow
+    let lastRowNumber = lastRowAdded != null ? lastRowAdded : lastRow && lastRow.number > firstRow ? lastRow.number : firstRow
 
     let row
 
@@ -118,9 +124,10 @@ export function addExcelRow(workbook, worksheet, rowData, { isHeader = false, bo
 
     } )
 
-    worksheet.mergeCells(lastRowNumber, 2, lastRowNumber, 4)
+    if (mergeCells)
+        worksheet.mergeCells(lastRowNumber, 2, lastRowNumber, 4)
 
-    if (isHeader)
+    if (isHeader && withPreviousRow)
         worksheet.getRow(lastRowNumber - 1).height = 6
 
     return {
@@ -176,6 +183,22 @@ export function autoWidth(worksheet, minWidth = 10) {
 
             } )
             column.width = dataMax < minWidth ? minWidth : dataMax
+
+        }
+
+        if (index === 1) {
+
+            let dataMax = 0
+            column.eachCell( { includeEmpty: true }, function(cell) {
+
+                const columnLength = cell.value ? cell.value.length : 0
+                if (columnLength > dataMax)
+                    dataMax = columnLength
+
+
+            } )
+
+            worksheet.getColumn(4).width = dataMax < minWidth ? minWidth : dataMax
 
         }
 

@@ -67,6 +67,9 @@ html body #__layout {
   height: 100%;
 }
 
+.mf-layout-default .v-application--wrap > .v-overlay, .mf-layout-default .v-application--wrap > .mf-component-navbar {
+  position: fixed !important;
+}
 .mf-layout-default .v-main__wrap {
   display: flex;
   flex-direction: column;
@@ -139,6 +142,21 @@ html body #__layout {
 
 .mf-page-report-equipment .mf-component-date-picker .v-text-field__details {
   display: none;
+}
+
+.mf-page-report-daily .v-text-field__details {
+  display: none;
+}
+.mf-page-report-daily .info-row {
+  margin-top: 16px;
+}
+.mf-page-report-daily .info-card {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.mf-page-report-daily .info-card .v-card__text {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .mf-component-logo .row > div:first-child {

@@ -27,11 +27,62 @@
 
         <template #append>
             <div class="pa-2">
+                <v-btn block color="primary" text @click="changePasswordConfirmation = true">
+                    Cambiar Contraseña
+                </v-btn>
+            </div>
+
+            <div class="pa-2">
                 <v-btn block color="primary" @click="logout">
                     Cerrar Sesión
                 </v-btn>
             </div>
+
+            <div class="caption text-center">
+                ver.{{ version }}
+            </div>
         </template>
+
+        <v-dialog v-model="changePasswordConfirmation" persistent width="auto">
+            <v-card elevation="4" :loading="loading">
+                <v-card-title>Cambiar Contraseña</v-card-title>
+
+                <v-card-text>
+                    <v-form ref="form">
+
+                        <v-text-field v-model="currentPassword"
+                                      label="Contraseña Actual"
+                                      type="password"
+                                      :disabled="loading"
+                                      :rules="[v => !!v || 'Contraseña Actual es requerida']"
+                        />
+
+                        <v-text-field v-model="newPassword"
+                                      label="Nueva Contraseña"
+                                      type="password"
+                                      :disabled="loading"
+                                      :rules="[v => !!v || 'Nueva Contraseña es requerida']"
+                        />
+
+                        <v-text-field v-model="confirmPassword"
+                                      label="Confirmar Contraseña"
+                                      type="password"
+                                      :disabled="loading"
+                                      :rules="[v => !!v || 'Confirmar Contraseña es requerida',
+                                               v => v === newPassword || 'Las contraseñas no coinciden']"
+                        />
+
+                        <v-btn color="primary" outlined :disabled="loading" @click="changePasswordConfirmation = false">
+                            Cancelar
+                        </v-btn>
+
+                        <v-btn color="primary" :disabled="loading" @click="confirmChangePassword">
+                            Confirmar
+                        </v-btn>
+                    </v-form>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
 
         <v-dialog v-model="logoutConfirmation" width="auto">
             <v-card elevation="4">
@@ -54,6 +105,11 @@
 </template>
 
 <script>
+import gql from 'graphql-tag'
+import pkg from '@@/package.json'
+import { Error } from './../static/errors'
+import { Message } from './../static/messages'
+
 export default {
     name: 'MfNavbar',
 
@@ -67,8 +123,14 @@ export default {
     data() {
 
         return {
-            selectedItem       : '',
-            logoutConfirmation : false,
+            loading                    : false,
+            version                    : pkg.version,
+            selectedItem               : '',
+            logoutConfirmation         : false,
+            changePasswordConfirmation : false,
+            currentPassword            : '',
+            newPassword                : '',
+            confirmPassword            : '',
         }
 
     },
@@ -105,6 +167,55 @@ export default {
             this.logoutConfirmation = false
             await this.$auth.logout()
             this.$router.push('/login')
+
+        },
+
+        async confirmChangePassword() {
+
+            if (this.$refs.form.validate() ) {
+
+                this.loading = true
+
+                this.$apollo.mutate( {
+                    mutation: gql`mutation ($form: ChangePasswordInput!) {
+                    changePassword(form: $form) {
+                        __typename
+                    }
+                }`,
+
+                    variables: {
+                        form: {
+                            currentPassword : this.currentPassword,
+                            newPassword     : this.newPassword,
+                        },
+                    },
+                } )
+                    .then( ( { data: { changePassword } } ) => {
+
+                        if (changePassword.__typename === 'Ok') {
+
+                            this.$alert(Message.PASSWORD_CHANGED)
+                            this.currentPassword = ''
+                            this.newPassword = ''
+                            this.confirmPassword = ''
+                            this.changePasswordConfirmation = false
+
+                        }
+
+                        if (changePassword.__typename === 'WrongCurrentPassword')
+                            this.$alert(Error.WRONG_CURRENT_PASSWORD, 'error')
+
+                        this.loading = false
+
+                    } )
+                    .catch( () => {
+
+                        this.$alert(Error.DEFAULT_ERROR_MESSAGE, 'error')
+                        this.loading = false
+
+                    } )
+
+            }
 
         },
     },

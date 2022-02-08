@@ -61,7 +61,7 @@ import gql from 'graphql-tag'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
-import { newEmptyWorkbook, addWorksheet, setExcelHeader, addExcelRow, saveExcelFile, mainColor } from './../static/utils/excel'
+import { newEmptyWorkbook, addWorksheet, setExcelHeader, addExcelRow, saveExcelFile, mainColor, autoWidth } from './../static/utils/excel'
 
 moment.locale('es')
 
@@ -169,7 +169,7 @@ export default {
                 const worksheet = addWorksheet(workbook, 'Operador')
                 setExcelHeader(workbook, worksheet)
 
-                addExcelRow(workbook, worksheet, [ `Operador: ${machineryData[0].executor.rut} | ${machineryData[0].executor.name}` ], { isHeader: true, bordered: false } )
+                addExcelRow(workbook, worksheet, [ `Operador: ${machineryData[0].executor.name}` ], { isHeader: true, bordered: false } )
 
                 const headers = [ 'Fecha', 'Horómetro Inicial', 'Horómetro Final', 'Horas Máquina', 'Total Horas', 'Semanas Corridas' ]
                 addExcelRow(workbook, worksheet, headers, { isHeader: true } )
@@ -180,6 +180,7 @@ export default {
 
                 let totalHours = 0
                 let totalDays = 0
+                let totalHoursForAverage = 0
 
                 for (const [ index, item ] of machineryData.entries() ) {
 
@@ -188,10 +189,13 @@ export default {
                     const isSaturday = moment.utc(item.date).day() === 6
                     const isLastDayOfWeek = machineryData[index + 1] && moment.utc(machineryData[index + 1].date).week() !== currentWeek ? true : false
 
-                    sumDays++
-                    totalDays++
-                    sumHours += isSaturday ? item.totalHours * 2 : item.totalHours
+                    sumDays += isSaturday ? 0 : 1
+                    totalDays += isSaturday ? 0 : 1
+                    sumHours += isSaturday ? 0 : item.totalHours
                     totalHours += isSaturday ? item.totalHours * 2 : item.totalHours
+
+                    const week = sumDays > 0 && isLastDayOfWeek || index === (machineryData.length - 1) ? (Math.round( (sumHours / sumDays) * 10) / 10) : 0
+                    totalHoursForAverage += week
 
                     const newRow = [
                         moment.utc(item.date).format('dddd DD [de] MMMM [de] YYYY'),
@@ -199,7 +203,7 @@ export default {
                         item.endHourmeter,
                         item.totalHours,
                         isSaturday ? item.totalHours * 2 : item.totalHours,
-                        isLastDayOfWeek || index === (machineryData.length - 1) ? (Math.round( (sumHours / sumDays) * 10) / 10) : 0,
+                        week,
                     ]
 
                     const { row } = addExcelRow(workbook, worksheet, newRow)
@@ -217,7 +221,7 @@ export default {
 
                 // add total
                 let firstCol = 0
-                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, (Math.round( (totalHours / totalDays) * 10) / 10) ], { bordered: false } )
+                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, totalHoursForAverage ], { bordered: false } )
                 row.eachCell( (cell, colNumber) => {
 
                     if (firstCol === 0 && cell.value)
@@ -239,6 +243,7 @@ export default {
 
                 } )
 
+                autoWidth(worksheet)
                 saveExcelFile(workbook, 'horas_trabajadas')
 
             }

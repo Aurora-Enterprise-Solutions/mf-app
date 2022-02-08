@@ -125,9 +125,9 @@ import { mapGetters } from 'vuex'
 import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
-import { BookingTypes, BookingTypesAndLabels } from './../components/MfBookingFormDialog'
+import { BookingTypes, BookingTypesAndLabels, TruckWorkConditionsTypes } from './../components/MfBookingFormDialog'
 import { MachineryTypes } from './../components/MfEquipmentFormDialog'
-import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile } from './../static/utils/excel'
+import { newWorkbook, setExcelHeader, addExcelRow, saveExcelFile, autoWidth } from './../static/utils/excel'
 
 export default {
     apollo: {
@@ -150,6 +150,11 @@ export default {
                         minHours,
                         amountPerHour,
                         workCondition,
+                        volume,
+                        amountPerTravel,
+                        amountPerDay,
+                        load,
+                        origin,
                     },
                     receivers {
                         editable,
@@ -324,6 +329,9 @@ export default {
                         email    : process.env.NUXT_ENV_OFFICE_EMAIL,
                     },
                 ],
+
+                startDate : moment().format('YYYY-MM-DD'),
+                endDate   : moment().format('YYYY-MM-DD'),
             }
             this.showForm = true
 
@@ -442,10 +450,9 @@ export default {
         getEquipmentLabel(equipment) {
 
             const code = this.getLabelOfItemById(this.equipments, equipment, 'code')
-            const name = this.getLabelOfItemById(this.equipments, equipment, 'name')
 
-            if (code && name)
-                return `${code} | ${name}`
+            if (code)
+                return code
             else
                 return equipment
 
@@ -453,11 +460,10 @@ export default {
 
         getOperatorLabel(operator) {
 
-            const rut = this.getLabelOfItemById(this.operators, operator, 'rut')
             const name = this.getLabelOfItemById(this.operators, operator, 'name')
 
-            if (rut && name)
-                return `${rut} | ${name}`
+            if (name)
+                return name
             else
                 return operator
 
@@ -478,7 +484,11 @@ export default {
                 'Equipo',
                 'Operador',
                 'Hrs mínimas',
-                '$ por hora',
+                'Carga',
+                'Origen Carga',
+                'Valor Hora',
+                'Valor Viaje',
+                'Valor Jornada',
             ]
 
             let maxReceiversCount = 0
@@ -498,7 +508,11 @@ export default {
                         this.getEquipmentLabel(machine.equipment),
                         this.getOperatorLabel(machine.operator),
                         machine.minHours ? machine.minHours : '',
+                        machine.load ? machine.load : '',
+                        machine.origin ? machine.origin : '',
                         machine.amountPerHour ? machine.amountPerHour : '',
+                        machine.amountPerTravel && machine.workCondition === TruckWorkConditionsTypes.TRAVEL ? machine.amountPerTravel : '',
+                        machine.amountPerDay && machine.workCondition === TruckWorkConditionsTypes.DAY ? machine.amountPerDay : '',
                     ]
 
                     acc.push( [
@@ -531,6 +545,7 @@ export default {
             addExcelRow(workbook, worksheet, headers, { isHeader: true } )
             source.forEach( (data) => {addExcelRow(workbook, worksheet, data)} )
 
+            autoWidth(worksheet)
             saveExcelFile(workbook, 'arriendos')
 
             this.downloading = false
