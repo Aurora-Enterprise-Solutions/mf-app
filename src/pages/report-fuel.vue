@@ -386,8 +386,11 @@ export default {
 
                             }, 0)
 
+                            const type = FuelTypes.find( (type) => type.value === item[0].type).text
+
                             return [
                                 `${moment(data.startDate).format('DD-MM-YYYY')} al ${moment(data.endDate).format('DD-MM-YYYY')}`,
+                                type,
                                 item[0].equipment.__typename === 'InternalEquipment' ? item[0].equipment.code : item[0].equipment.name,
                                 item[0].operator.name,
                                 item[0].hourmeter,
@@ -428,7 +431,7 @@ export default {
             const worksheet = addWorksheet(workbook, 'Registro de Combustible Mensual')
             setExcelHeader(workbook, worksheet)
 
-            const headers = [ 'Fecha', 'Equipo', 'Operador', 'Horómetro Inicial', 'Horómetro Final', 'Consumo (L)' ]
+            const headers = [ 'Fecha', 'Operación', 'Equipo', 'Operador', 'Horómetro Inicial', 'Horómetro Final', 'Consumo (L)' ]
             const { row } = addExcelRow(workbook, worksheet, headers, { isHeader: true } )
 
             row.eachCell( (cell, colNumber) => {
