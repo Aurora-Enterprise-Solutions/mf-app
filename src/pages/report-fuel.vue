@@ -274,7 +274,8 @@ export default {
 
             data.forEach( (item) => {
 
-                const previous = item.previousRegistry ? getAllPreviousFuelRegistries.find( (previous) => previous._id === item.previousRegistry).hourmeter : 0
+                const previous = item.previousRegistry ? getAllPreviousFuelRegistries.find( (previous) => previous._id === item.previousRegistry) : null
+                const previousHourmeter = previous ? previous.hourmeter : 0
                 const type = FuelTypes.find( (type) => type.value === item.type).text
 
 
@@ -283,10 +284,10 @@ export default {
                     type,
                     item.equipment.__typename === 'InternalEquipment' ? item.equipment.code : item.equipment.name,
                     item.count,
-                    previous,
+                    previousHourmeter,
                     item.hourmeter,
-                    item.hourmeter - previous,
-                    item.hourmeter ? (item.count / (item.hourmeter - previous) ).toFixed(2) : '-',
+                    item.hourmeter - previousHourmeter,
+                    item.hourmeter ? (item.count / (item.hourmeter - previousHourmeter) ).toFixed(2) : '-',
                     item.time,
                     item.guia ? item.guia : '',
                     item.operator.name,
