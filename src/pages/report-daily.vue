@@ -554,7 +554,7 @@ export default {
                 }
 
             } )
-            const internalMachines = this.allInternEquipments ? this.allInternEquipments.map( (equipment) => ( {
+            const internalMachines = this.allInternEquipments ? this.allInternEquipments.filter( (e) => e.type !== 'PICKUP').map( (equipment) => ( {
                 __typename : 'InternalMachine',
                 booking    : groupedMachines.find( (machine) => machine.__typename === 'InternalMachine' && machine.equipment._id === equipment._id),
                 ...equipment,
