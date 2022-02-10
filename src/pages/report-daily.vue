@@ -80,6 +80,7 @@ export default {
         bookings: {
             query: gql`query getBookingsByDate($date: String!) {
                 getBookingsByDate(date: $date) {
+                    building,
                     machines {
                         __typename,
                         ...on InternalMachine {
@@ -542,7 +543,16 @@ export default {
 
             const groupedMachines = this.bookings ? this.bookings.reduce( (acc, cur) => {
 
-                return acc.concat(cur.machines)
+                const machines = cur.machines.map( (item) => {
+
+                    return {
+                        ...item,
+                        building: cur.building,
+                    }
+
+                } )
+
+                return acc.concat(machines)
 
             }, [] ) : []
 
@@ -633,11 +643,11 @@ export default {
             }, 0)
 
             return jobs && jobs.length > 0 ? [
-                { text: `Obra: ${jobs[0].building || ''}`, color: 'indigo lighten-4' },
+                { text: `Obra: ${equipment.booking.building || ''}`, color: 'indigo lighten-4' },
                 { text: `Horómetro: ${maxHourmeter}`, color: 'teal lighten-3' },
                 { text: 'Completado', color: 'success' },
             ] : [
-                { text: 'Obra:', color: 'indigo lighten-4' },
+                { text: `Obra: ${equipment.booking.building || ''}`, color: 'indigo lighten-4' },
                 { text: 'Horómetro:', color: 'teal lighten-3' },
                 { text: 'Incompleto', color: 'error' },
             ]
@@ -671,11 +681,11 @@ export default {
             }, 0)
 
             return jobs && jobs.length > 0 ? [
-                { text: `Obra: ${jobs[0].building || ''}`, color: 'indigo lighten-4' },
+                { text: `Obra: ${equipment.booking.building || ''}`, color: 'indigo lighten-4' },
                 { text: `Total Viajes: ${totalTravels}`, color: 'teal lighten-3' },
                 { text: 'Completado', color: 'success' },
             ] : [
-                { text: 'Obra:', color: 'indigo lighten-4' },
+                { text: `Obra: ${equipment.booking.building || ''}`, color: 'indigo lighten-4' },
                 { text: 'Total Viajes:', color: 'teal lighten-3' },
                 { text: 'Incompleto', color: 'error' },
             ]
