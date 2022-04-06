@@ -320,9 +320,9 @@ export default {
                     },
                 },
             } )
-                .then( ( { data: { updateMachineryJobRegistry } } ) => {
+                .then(async( { data: { updateMachineryJobRegistry } } ) => {
 
-                    this.responseParser(updateMachineryJobRegistry.__typename, this.formData._id)
+                    await this.responseParser(updateMachineryJobRegistry.__typename, this.formData._id)
                     this.loading = false
 
                 } )
