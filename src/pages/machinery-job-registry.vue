@@ -638,9 +638,9 @@ export default {
                         },
                     },
                 } )
-                    .then( ( { data: { createMachineryJobRegistry } } ) => {
+                    .then(async( { data: { createMachineryJobRegistry } } ) => {
 
-                        this.responseParser(createMachineryJobRegistry.__typename, createMachineryJobRegistry.message)
+                        await this.responseParser(createMachineryJobRegistry.__typename, createMachineryJobRegistry.message)
 
                         this.formData = {
                             ...defaultFormData,
