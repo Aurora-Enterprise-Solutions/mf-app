@@ -366,7 +366,7 @@ export default {
 
                         const groupedFuelRegistries = getAllFuelRegistries.reduce( (acc, item) => {
 
-                            const key = item.equipment.__typename === 'InternalEquipment' ? item.equipment._id : item.equipment.name
+                            const key = item.equipment.__typename === 'InternalEquipment' ? item.equipment._id : `${item.equipment.name.trim()}|${item.operator.name.trim()}`
 
                             if (!acc[key] )
                                 acc[key] = []
@@ -379,13 +379,13 @@ export default {
 
                         const groupData = Object.values(groupedFuelRegistries).map( (item) => {
 
-                            const fuelConsumed = item.reduce( (acc, item) => {
+                            let fuelConsumed = 0
 
-                                acc += item.count
+                            item.forEach( (i) => {
 
-                                return acc
+                                fuelConsumed += i.count
 
-                            }, 0)
+                            } )
 
                             const type = FuelTypes.find( (type) => type.value === item[0].type).text
 
