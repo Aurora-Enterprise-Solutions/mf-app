@@ -675,8 +675,6 @@ export default {
 
                 case GraphqlTypename.OK: {
 
-                    this.$alert(Message.MACHINERY_JOB_REGISTRY_CREATED)
-
                     if (this.switchSignature) {
 
                         let { data } = await this.$apollo.query( {
@@ -771,6 +769,8 @@ export default {
                         } )
 
                     }
+
+                    this.$alert(Message.MACHINERY_JOB_REGISTRY_CREATED)
 
                     break
 

@@ -341,9 +341,6 @@ export default {
 
                 case GraphqlTypename.OK: {
 
-                    this.$emit('save')
-                    this.$emit('input', false)
-
                     if (this.switchSignature) {
 
                         let { data } = await this.$apollo.query( {
@@ -460,6 +457,9 @@ export default {
                         } )
 
                     }
+
+                    this.$emit('save')
+                    this.$emit('input', false)
 
                     break
 
