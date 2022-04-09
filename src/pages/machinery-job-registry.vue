@@ -209,6 +209,8 @@
 
                     <v-switch v-model="switchSignature"
                               label="Desea firmar ahora?"
+                              style="margin-left: 10px"
+                              :disabled="loading"
                     />
 
                     <mf-signature-pad ref="signaturePad"
@@ -226,6 +228,12 @@
                     </v-btn>
 
                 </v-stepper-content>
+
+                <v-progress-linear v-if="loading"
+                                   indeterminate
+                                   height="6"
+                                   style="transform: translateY(36px);"
+                />
 
             </v-stepper>
 
@@ -754,19 +762,30 @@ export default {
                             get64    : true,
                         } )
 
-                        await this.$apollo.query( {
-                            query: gql`query sendJobRegistryByEmail($file: String!, $folio: String!, $receivers: [String!]!) {
-                            sendJobRegistryByEmail(file: $file, folio: $folio, receivers: $receivers) {
-                                __typename,
-                            }
-                        }`,
+                        try {
 
-                            variables: {
-                                file,
-                                receivers,
-                                folio: data.folio.toString(),
-                            },
-                        } )
+                            await this.$apollo.query( {
+                                query: gql`query sendJobRegistryByEmail($file: String!, $folio: String!, $receivers: [String!]!) {
+                                    sendJobRegistryByEmail(file: $file, folio: $folio, receivers: $receivers) {
+                                        __typename,
+                                    }
+                                }`,
+
+                                variables: {
+                                    file,
+                                    receivers,
+                                    folio: data.folio.toString(),
+                                },
+                            } )
+
+                        }
+                        catch (err) {
+
+                            // eslint-disable-next-line no-console
+                            console.error(err)
+
+                        }
+
 
                     }
 

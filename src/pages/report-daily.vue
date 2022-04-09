@@ -324,6 +324,8 @@ export default {
                                     endHourmeter,
                                     totalHours,
                                     observations,
+                                    client,
+                                    folio,
                                 },
 
                                 trucks {
@@ -336,6 +338,8 @@ export default {
                                     totalTravels,
                                     workingDayType,
                                     observations,
+                                    client,
+                                    folio,
                                 },
                             },
 
@@ -349,6 +353,8 @@ export default {
                                     endHourmeter,
                                     totalHours,
                                     observations,
+                                    client,
+                                    folio,
                                 },
 
                                 trucks {
@@ -361,6 +367,8 @@ export default {
                                     totalTravels,
                                     workingDayType,
                                     observations,
+                                    client,
+                                    folio,
                                 },
                             }
                         }
@@ -400,7 +408,7 @@ export default {
             addExcelRow(workbook, worksheet, [ 'EQUIPOS INTERNOS' ], { isHeader: true, bordered: false } )
 
 
-            const machineryHeaders = [ 'Equipo', 'Obra', 'Operador', 'Ubicación', '', 'Horómetro Inicial', 'Horómetro Final', 'Total Horas', 'Observaciones' ]
+            const machineryHeaders = [ 'Equipo', 'Obra', 'Operador', 'Ubicación', '', 'Cliente', 'Nro Folio', 'Horómetro Inicial', 'Horómetro Final', 'Total Horas', 'Observaciones' ]
             let addedRow = addExcelRow(workbook, worksheet, machineryHeaders, { isHeader: true } )
 
             addedRow.row.eachCell( (cell, colNumber) => {
@@ -418,6 +426,8 @@ export default {
                     item.operator,
                     item.address,
                     '',
+                    item.client,
+                    item.folio,
                     item.startHourmeter,
                     item.endHourmeter,
                     item.totalHours,
@@ -434,7 +444,7 @@ export default {
             } )
 
 
-            const truckHeaders = [ 'Camión', 'Operador', 'Volumen m3', 'Obra', 'Ubicación', 'Tipo de Carga', 'Nro. Viajes', 'Jornada', 'Observaciones' ]
+            const truckHeaders = [ 'Camión', 'Operador', 'Volumen m3', 'Obra', 'Ubicación', 'Cliente', 'Nro Folio', 'Tipo de Carga', 'Nro. Viajes', 'Jornada', 'Observaciones' ]
             addedRow = addExcelRow(workbook, worksheet, truckHeaders, { isHeader: true } )
 
             addedRow.row.eachCell( (cell, colNumber) => {
@@ -451,6 +461,8 @@ export default {
                     item.volume,
                     item.building,
                     item.address,
+                    item.client,
+                    item.folio,
                     item.load,
                     item.totalTravels,
                     item.workingDayType,
@@ -486,6 +498,8 @@ export default {
                     item.operator,
                     item.address,
                     '',
+                    item.client,
+                    item.folio,
                     item.startHourmeter,
                     item.endHourmeter,
                     item.totalHours,
@@ -518,6 +532,8 @@ export default {
                     item.volume,
                     item.building,
                     item.address,
+                    item.client,
+                    item.folio,
                     item.load,
                     item.totalTravels,
                     item.workingDayType,
