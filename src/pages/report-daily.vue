@@ -151,32 +151,34 @@ export default {
         jobRegistries: {
             query: gql`query getAllMachineryJobRegistryByDate($date: String!) {
                 getAllMachineryJobRegistryByDate(date: $date) {
-                    _id,
-                    machineryType,
-                    workingDayType,
-                    totalTravels,
-                    load,
-                    workCondition,
-                    building,
-                    endHourmeter,
-                    equipment {
-                        __typename,
-                        ...on InternalEquipment {
-                            _id,
-                            code,
+                    results {
+                        _id,
+                        machineryType,
+                        workingDayType,
+                        totalTravels,
+                        load,
+                        workCondition,
+                        building,
+                        endHourmeter,
+                        equipment {
+                            __typename,
+                            ...on InternalEquipment {
+                                _id,
+                                code,
+                            },
+                            ...on ExternalEquipment {
+                                name,
+                            }
                         },
-                        ...on ExternalEquipment {
-                            name,
-                        }
-                    },
+                    }
                 }
             }`,
             update(data) {
 
-                this.jobRegistries = data.getAllMachineryJobRegistryByDate
+                this.jobRegistries = data.getAllMachineryJobRegistryByDate.results
                 this.setEquipments()
 
-                return data.getAllMachineryJobRegistryByDate
+                return data.getAllMachineryJobRegistryByDate.results
 
             },
 
@@ -212,14 +214,16 @@ export default {
                                     name,
                                 }
                             },
+                            date,
                         }
                     }`,
 
                     updateQuery( { getAllMachineryJobRegistryByDate }, { subscriptionData: { data: { jobRegistryAdded } } } ) {
 
-                        this.jobRegistries.push(jobRegistryAdded)
+                        if (jobRegistryAdded.date.substring(0, 10) === new Date().toLocaleString('sv', { timeZone: 'America/Santiago' } ).substring(0, 10) )
+                            this.jobRegistries.push(jobRegistryAdded)
 
-                        return { getAllMachineryJobRegistryByDate: this.jobRegistries }
+                        return { getAllMachineryJobRegistryByDate: { results: this.jobRegistries } }
 
                     },
                 },
@@ -234,7 +238,7 @@ export default {
                         const registryIndex = this.jobRegistries.findIndex( (job) => job._id === jobRegistryDeleted)
                         this.jobRegistries.splice(registryIndex, 1)
 
-                        return { getAllMachineryJobRegistryByDate: this.jobRegistries }
+                        return { getAllMachineryJobRegistryByDate: { results: this.jobRegistries } }
 
                     },
                 },
@@ -268,7 +272,7 @@ export default {
                         const registryIndex = this.jobRegistries.findIndex( (job) => job._id === jobRegistryUpdated._id)
                         this.jobRegistries.splice(registryIndex, 1, jobRegistryUpdated)
 
-                        return { getAllMachineryJobRegistryByDate: this.jobRegistries }
+                        return { getAllMachineryJobRegistryByDate: { results: this.jobRegistries } }
 
                     },
                 },
