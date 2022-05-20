@@ -35,6 +35,10 @@
                 {{ item.signature ? 'Si' : 'No' }}
             </template>
 
+            <template #[`item.totalHours`]="{ item }">
+                {{ item.totalHours ? numeral(item.totalHours).format('0[.]0') : '' }}
+            </template>
+
             <template #[`item.actions`]="{ item }">
                 <v-btn v-if="!item.signature" icon color="primary" @click="onEdit(item)">
                     <v-icon>mdi-pencil</v-icon>
@@ -74,6 +78,10 @@ import { Error } from './../static/errors'
 import { Message } from './../static/messages'
 import { GraphqlTypename } from './../static/errors/graphql_typename'
 import { MaintenanceClasses, MachineryTypes } from './../components/MfEquipmentFormDialog'
+import numeral from 'numeral'
+import 'numeral/locales/en-au'
+
+numeral.locale('en-au')
 
 export default {
     apollo: {
@@ -325,6 +333,7 @@ export default {
             next     : null,
             hasNext  : false,
             nextPage : null,
+            numeral,
 
             deleteLoading: false,
 
