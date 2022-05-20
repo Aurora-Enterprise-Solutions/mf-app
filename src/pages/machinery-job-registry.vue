@@ -688,61 +688,63 @@ export default {
                         let { data } = await this.$apollo.query( {
                             query: gql`query ($id: String!) {
                             getJobRegistryById(id: $id) {
-                                _id,
-                                equipment {
-                                    __typename,
-                                    ...on InternalEquipment {
-                                        _id,
-                                        code,
-                                        name,
-                                        volume,
+                                results {
+                                    _id,
+                                    equipment {
+                                        __typename,
+                                        ...on InternalEquipment {
+                                            _id,
+                                            code,
+                                            name,
+                                            volume,
+                                        },
+                                        ...on ExternalEquipment {
+                                            name,
+                                            volume,
+                                        }
                                     },
-                                    ...on ExternalEquipment {
-                                        name,
-                                        volume,
-                                    }
-                                },
-                                date,
-                                startHourmeter,
-                                endHourmeter,
-                                totalHours,
-                                signature,
-                                totalTravels,
-                                machineryType,
-                                workCondition,
-                                load,
-                                machineryType,
-                                client {
-                                    _id,
-                                    name,
-                                    billing {
-                                        rut,
-                                    }
-                                },
-                                executor {
-                                    _id,
-                                    rut,
-                                    name,
-                                    role,
+                                    date,
+                                    startHourmeter,
+                                    endHourmeter,
+                                    totalHours,
                                     signature,
-                                },
-                                building,
-                                bookingWorkCondition,
-                                workingDayType,
-                                observations,
-                                folio,
-                                operator {
-                                    __typename,
-                                    ...on InternalOperator {
+                                    totalTravels,
+                                    machineryType,
+                                    workCondition,
+                                    load,
+                                    machineryType,
+                                    client {
+                                        _id,
+                                        name,
+                                        billing {
+                                            rut,
+                                        }
+                                    },
+                                    executor {
                                         _id,
                                         rut,
                                         name,
+                                        role,
+                                        signature,
                                     },
-                                    ...on ExternalOperator {
-                                        name,
-                                    }
-                                },
-                                address,
+                                    building,
+                                    bookingWorkCondition,
+                                    workingDayType,
+                                    observations,
+                                    folio,
+                                    operator {
+                                        __typename,
+                                        ...on InternalOperator {
+                                            _id,
+                                            rut,
+                                            name,
+                                        },
+                                        ...on ExternalOperator {
+                                            name,
+                                        }
+                                    },
+                                    address,
+                                }
                             }
                         }`,
 
@@ -751,7 +753,7 @@ export default {
                             },
                         } )
 
-                        data = data && data.getJobRegistryById && data.getJobRegistryById.length > 0 ? data.getJobRegistryById[0] : {}
+                        data = data && data.getJobRegistryById && data.getJobRegistryById.results && data.getJobRegistryById.results.length > 0 ? data.getJobRegistryById.results[0] : {}
 
                         const receivers = this.currentBooking && this.currentBooking.length > 0 ? this.currentBooking[0].receivers.map( (r) => r.email) : null
 
