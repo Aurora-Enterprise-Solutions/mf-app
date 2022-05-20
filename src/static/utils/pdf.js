@@ -414,6 +414,11 @@ function setMachineryJobRegistryPdfHeader(doc, data) {
 
 function setMachineryJobRegistryPdfBody(doc, data) {
 
+    const numeral = require('numeral')
+    require('numeral/locales/en-au')
+
+    numeral.locale('en-au')
+
     // data parser
     const equipment = data.equipment.__typename === 'ExternalEquipment' ? data.equipment.name : data.equipment.code
     const operator = data.operator.name
@@ -462,7 +467,7 @@ function setMachineryJobRegistryPdfBody(doc, data) {
 
             bodyByMachineryType.push( [{ text: data.startHourmeter, style: 'bodyTableData' }] )
             bodyByMachineryType.push( [{ text: data.endHourmeter, style: 'bodyTableData' }] )
-            bodyByMachineryType.push( [{ text: data.totalHours, style: 'bodyTableData' }] )
+            bodyByMachineryType.push( [{ text: numeral(data.totalHours).format('0[.]0'), style: 'bodyTableData' }] )
 
             break
 
