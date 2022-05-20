@@ -631,9 +631,9 @@ export default {
                     item.folio,
                     item.equipment,
                     item.operator,
-                    item.hours,
+                    numeral(item.hours).format('0[.]0'),
                     item.minHours,
-                    item.toFacture,
+                    numeral(item.toFacture).format('0[.]0'),
                     item.amountPerUse,
                     item.totalAmount,
                 ] )
@@ -647,7 +647,7 @@ export default {
             } )
 
             const { row: totalFactureRow } = addExcelRow(workbook, otherInternWorksheet, [
-                '', '', '', '', '', '', '', '', 'Total Horas', totalFacture,
+                '', '', '', '', '', '', '', '', 'Total Horas', numeral(totalFacture).format('0[.]0'),
             ] )
             setTotalStyles(totalFactureRow)
 
@@ -838,9 +838,9 @@ export default {
                         item.folio,
                         item.equipment,
                         item.operator,
-                        item.hours,
+                        numeral(item.hours).format('0[.]0'),
                         item.minHours,
-                        item.toFacture,
+                        numeral(item.toFacture).format('0[.]0'),
                         item.amountPerUse,
                         item.totalAmount,
                     ] )
@@ -854,7 +854,7 @@ export default {
                 } )
 
                 const { row: totalFactureRow } = addExcelRow(workbook, otherExternWorksheet, [
-                    '', '', '', '', '', '', '', '', 'Total Horas', totalFacture,
+                    '', '', '', '', '', '', '', '', 'Total Horas', numeral(totalFacture).format('0[.]0'),
                 ] )
                 setTotalStyles(totalFactureRow)
 

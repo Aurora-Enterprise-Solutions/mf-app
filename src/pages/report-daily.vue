@@ -404,6 +404,11 @@ export default {
 
         generateExcelFile(data) {
 
+            const numeral = require('numeral')
+            require('numeral/locales/es')
+
+            numeral.locale('es')
+
             const workbook = newEmptyWorkbook()
             const worksheet = addWorksheet(workbook, 'Reporte Diario')
             setExcelHeader(workbook, worksheet)
@@ -434,7 +439,7 @@ export default {
                     item.folio,
                     item.startHourmeter,
                     item.endHourmeter,
-                    item.totalHours,
+                    numeral(item.totalHours).format('0[.]0'),
                     item.observations,
                 ] )
 

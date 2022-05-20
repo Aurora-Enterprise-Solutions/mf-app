@@ -156,6 +156,11 @@ export default {
 
         generateExcelFile(data) {
 
+            const numeral = require('numeral')
+            require('numeral/locales/es')
+
+            numeral.locale('es')
+
             const workbook = newEmptyWorkbook()
 
             // 1: sort by date
@@ -223,7 +228,7 @@ export default {
 
                 // add total
                 let firstCol = 0
-                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', totalHours, totalHoursForAverage ], { bordered: false } )
+                const { row } = addExcelRow(workbook, worksheet, [ '', '', '', 'Total horas: ', numeral(totalHours).format('0[.]0'), totalHoursForAverage ], { bordered: false } )
                 row.eachCell( (cell, colNumber) => {
 
                     if (firstCol === 0 && cell.value)
